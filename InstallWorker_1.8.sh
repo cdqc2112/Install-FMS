@@ -2,7 +2,6 @@
 # InstallWorker - 1.8
 
 clear
-
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
 

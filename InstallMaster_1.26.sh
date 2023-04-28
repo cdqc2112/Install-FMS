@@ -292,6 +292,9 @@ else
             touch $WORKINGDIR/.certs
         else
             read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
+            echo
+            echo "rootCA.crt will be created in /opt/fms/solution/cer that will need to be installed in browser"
+            echo "or imported into Trusted Root Certification Authorities"
     
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
                 read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
@@ -384,6 +387,8 @@ else
 fi
 echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
+echo
+echo "Add required GIS addon to /opt/fms/solution/deployment/"
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
 cat > /opt/fms/solution/config/topology_ui/global.json <<EOF

@@ -1,0 +1,64 @@
+{{ $serv_id := "optical-processing" }}
+{{ $serv_uidgid := .Values.env.OPTICAL_PROCESSING_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-optical-processing") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: PROXY_DNS
+            value: "{{.Values.env.TOPOLOGY_UI_DNS}}"
+          - name: LOG_LEVEL
+            value: "Information"
+          resources:
+            limits:
+              memory: "1024M"
+            requests:
+              memory: "102.4M"
+          startupProbe:
+            httpGet:
+              path: /healthcheck
+              port: 5000
+            initialDelaySeconds: 5
+            timeoutSeconds: 8
+            periodSeconds: 10
+            failureThreshold: 18     
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 5000
+            timeoutSeconds: 8
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3

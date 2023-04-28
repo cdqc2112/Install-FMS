@@ -1,0 +1,113 @@
+{{ $serv_id := "alarming" }}
+{{ $serv_uidgid := .Values.env.ALARMING_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge ( dict "image_id"  "fms-alarming" ) $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: "MONGO_HOST"
+            value: "alarming-db"
+          - name: "MONGO_INITDB_ROOT_USERNAME"
+            value: "{{ .Values.env.MONGO_USERNAME_ALARMING }}"
+          - name: "MONGO_INITDB_ROOT_PASSWORD_FILE"
+            value: "/run/secrets/alarming_db_pwd"
+          - name: "PULL_INTERVAL"
+            value: "0.5"
+          - name: "GROUP_KEYS"
+            value: "{{.Values.env.GROUP_KEYS}}"
+          - name: "USE_KEYCLOAK"
+            value: "false"
+          - name: "NODE_OPTIONS"
+            value: "--max_old_space_size=2048"
+          - name: "TOPOLOGY_API_DNS"
+            value: "topology"
+          - name: "TOPOLOGY_API_PORT"
+            value: "9090"
+          - name: "SNMP_IMPLEMENTATION_VERSION"
+            value: "{{ .Values.env.SNMP_IMPLEMENTATION_VERSION }}"
+          - name: "TOPOLOGY_UI_DNS"
+            value: "{{ .Values.env.TOPOLOGY_UI_DNS }}"
+          - name: "IS_CLEAR_SEVERITY_USED"
+            value: "{{ .Values.env.IS_CLEAR_SEVERITY_USED}}"
+          volumeMounts:
+          - name: logs
+            mountPath: /var/www/logs
+          - name: config
+          # TODO how to make this read only
+            mountPath: /etc/tracking/customConfig
+          - name: alarming-db-pwd
+            mountPath: /run/secrets/alarming_db_pwd
+            subPath: secret
+            readOnly: true
+          resources:
+            limits:
+              memory: "4096M"
+            requests:
+              memory: "409.6M"
+          startupProbe:
+            httpGet:
+              path: /v1/healthcheck
+              port: 7070
+              httpHeaders:
+              - name: x-Token-Username
+                value: alarmingUser
+              - name: x-Token-Roles
+                value: '["fg-alarm-master","fg-alarm-read"]'
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 18
+          livenessProbe:
+            httpGet:
+              path: /v1/healthcheck
+              port: 7070
+              httpHeaders:
+              - name: x-Token-Username
+                value: alarmingUser
+              - name: x-Token-Roles
+                value: '["fg-alarm-master","fg-alarm-read"]'
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+      - name: logs
+        {{- include "fms.pod-volume.log" (merge (dict "id" $serv_id "path" .Values.env.ALARM_LOG) $) | nindent 8 }}
+      - name: config
+        {{- include "fms.pod-volume.config" (merge (dict "id" $serv_id .Values.env.ALARM_DATA) $) | nindent 8 }}
+      - name: alarming-db-pwd
+        secret:
+          secretName: {{.Values.env.MONGO_PASSWORD_ALARMING_SECRET}}
+          defaultMode: 0440

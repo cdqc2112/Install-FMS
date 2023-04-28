@@ -1,0 +1,12 @@
+{
+	"SMTP_HOST" : "smtp.gmail.com",
+	"SMTP_PORT" : "465",
+	"SMTP_SECURE" : "true",
+	"SMTP_USER" : "user@exfo.com",
+	"SMTP_PASSWORD" : "password",
+	"SMTP_HELO" : "",
+	"MAIL_FROM" : "user@exfo.com",
+	"MAIL_TO" : "user@exfo.com",
+	"IS_NOTIFY" : "true",
+	"IS_SOR_ATTACH": "true"
+}

@@ -1,0 +1,25 @@
+<style>
+    .misusing {
+    max-width: 500px;
+    background: white;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    margin-top: 20px;
+    }
+
+    .misusingTitle {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: rgb(255, 101, 101);
+    margin: 8px 0;
+    }
+</style>
+<div class="misusing">
+    <h5 id="misusingTitle" class="misusingTitle">
+       [MISUSE WARNING TITLE]
+    </h5>
+    <div id="misusingText">
+[Put here your text to warn user against misuse consequences]
+    </div>
+</div>

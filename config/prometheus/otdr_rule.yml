@@ -1,0 +1,237 @@
+groups:  
+- name: otdr_metrics_rules
+  rules:      
+  - alert: otdr_break_major_alert
+    expr: max(otdr_fault_loss_delta) by(asset_id) >= 3 and max(otdr_fault_presence) by(asset_id) == 1 and max(otdr_link_length) by(asset_id) > 50 and (max(otdr_fault_threshold_name) by(asset_id) == 1 or max(otdr_fault_threshold_name) by(asset_id) == 3)
+    labels:
+      severity: major
+      state: new
+      probableCause: Communication subsystem failure
+      asset_identity: '{{$labels.asset_id}}'
+      asset_type: otdr
+      triggeredThreshold : Event loss deviation
+      thresholdLevelUnit : dB
+      thresholdLevel : 3
+      alarmType: Fiber Break
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      faultPosition: >
+         {{ with printf "otdr_fault_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      minFaultPosition: >
+         {{ with printf "otdr_fault_position_min{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      maxFaultPosition: >
+         {{ with printf "otdr_fault_position_max{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      
+      observedThreshold: >
+         {{ with printf "otdr_fault_loss_delta{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      faultThreshold: >
+         {{ with printf "otdr_fault_threshold_name{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+  - alert: otdr_degradation_minor_alert
+    expr: max(otdr_fault_loss_delta) by(asset_id) < 3 and max(otdr_event_loss_delta) by(asset_id) < 3 and max(otdr_fault_presence) by(asset_id) == 1 and max(otdr_link_length) by(asset_id) > 50 and max(otdr_link_loss_delta) by(asset_id) < 4 and (max(otdr_fault_threshold_name) by(asset_id) == 1 or max(otdr_fault_threshold_name) by(asset_id) == 3 or max(otdr_fault_threshold_name) by(asset_id) == 5)
+    labels:
+      severity: minor
+      state: new
+      probableCause: Degraded signal
+      asset_identity: '{{$labels.asset_id}}'
+      triggeredThreshold : Event loss deviation
+      thresholdLevelUnit : dB
+      thresholdLevel : < 3
+      alarmType: Fiber Degradation
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      faultPosition: >
+         {{ with printf "otdr_fault_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      minFaultPosition: >
+         {{ with printf "otdr_fault_position_min{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      maxFaultPosition: >
+         {{ with printf "otdr_fault_position_max{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      observedThreshold: >
+         {{ with printf "otdr_fault_loss_delta{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      faultThreshold: >
+         {{ with printf "otdr_fault_threshold_name{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+           
+  - alert: otdr_excessive_loss_minor_alert
+    expr: max(otdr_link_loss_delta) by(asset_id) >= 4 and max(otdr_fault_presence) by(asset_id) == 1 and max(otdr_link_length) by(asset_id) > 50 and max(otdr_fault_threshold_name) by(asset_id) == 5
+    labels:
+      severity: minor      
+      state: new
+      probableCause: Degraded signal
+      asset_identity: '{{$labels.asset_id}}'
+      triggeredThreshold : Link loss deviation
+      thresholdLevelUnit : dB
+      thresholdLevel : 4
+      alarmType: Fiber excessive loss
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      faultPosition: >
+         {{ with printf "otdr_fault_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      minFaultPosition: >
+         {{ with printf "otdr_fault_position_min{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      maxFaultPosition: >
+         {{ with printf "otdr_fault_position_max{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      observedThreshold: '{{$value}}'
+  
+  - alert: otdr_injection_level
+    expr: max(otdr_fault_threshold_name) by(asset_id) == 4 and max(otdr_fault_presence) by(asset_id) == 1 and (max(otdr_measurement_code) by(asset_id) != 6008 and max(otdr_measurement_code) by(asset_id) != 6012 and max(otdr_measurement_code) by(asset_id) != 6014 and max(otdr_measurement_code) by(asset_id) != 6015)
+    labels:
+      severity: indeterminate
+      state: suppressed
+      asset_identity: '{{$labels.asset_id}}_Injection_Level'
+      alarmType: Injection level
+      triggeredThreshold : Injection Level
+      probableCause: Threshold crossed
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      faultPosition: >
+         {{ with printf "otdr_fault_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      minFaultPosition: >
+         {{ with printf "otdr_fault_position_min{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      maxFaultPosition: >
+         {{ with printf "otdr_fault_position_max{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      observedThreshold: >
+         {{ with printf "otdr_fault_loss_delta{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      thresholdLevel: >
+         {{ with printf "otdr_fault_threshold{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+  - alert: otdr_measurement_error
+    expr: ((max(otdr_measurement_code) by(asset_id) == 6008 or max(otdr_measurement_code) by(asset_id) == 6014 or max(otdr_measurement_code) by(asset_id) == 6015) and max(otdr_fault_threshold_name) by(asset_id) != 3)
+    labels:
+      severity: warning
+      state: new
+      probableCause: Configuration or customization error
+      asset_identity: '{{$labels.asset_id}}'
+      alarmType: Measurement Error
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      code: '{{$value}}'
+
+  - alert: otdr_high_reflectance
+    expr: max(otdr_fault_threshold_name) by(asset_id) == 2 and max(otdr_fault_presence) by(asset_id) == 1 and (max(otdr_measurement_code) by(asset_id) != 6008 and max(otdr_measurement_code) by(asset_id) != 6012 and max(otdr_measurement_code) by(asset_id) != 6014 and max(otdr_measurement_code) by(asset_id) != 6015)
+    labels:
+      severity: indeterminate
+      state: suppressed
+      asset_identity: '{{$labels.asset_id}}_High_Reflectance'
+      alarmType: High reflectance
+      triggeredThreshold : Reflectance
+      probableCause: Threshold crossed
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      faultPosition: >
+         {{ with printf "otdr_fault_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      minFaultPosition: >
+         {{ with printf "otdr_fault_position_min{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      maxFaultPosition: >
+         {{ with printf "otdr_fault_position_max{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      observedThreshold: >
+         {{ with printf "otdr_fault_loss_delta{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      thresholdLevel: >
+         {{ with printf "otdr_fault_threshold{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }} 
+      
+  - alert: absenceofmeasurement_warning_alert
+    expr: max by (asset_id,rtu_id) (rate(otdr_result_time[6h]) == 0 ) 
+         and 
+         (max by(asset_id,rtu_id) (max_over_time(otdr_measurement_code[6h])) != 6008 and max by(asset_id,rtu_id) (max_over_time(otdr_measurement_code[6h])) != 6014)
+    for: 18h
+    labels:
+      severity: warning
+      triggeredThreshold: Absence of Measurement
+      thresholdLevel : 24h
+      observedThreshold : "> 24h"
+      probableCause: Configuration or customization error
+      asset_id: '{{$labels.asset_id}}_AbsenceOfMeasurement'
+      or_id : '{{$labels.asset_id}}'
+      rtu_id : '{{$labels.rtu_id}}'
+    annotations:
+      sourceResultTime: >
+         {{ with printf "otdr_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }} 

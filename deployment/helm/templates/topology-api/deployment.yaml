@@ -1,0 +1,151 @@
+{{ $serv_id := "topology-api" }}
+{{ $serv_uidgid := .Values.env.TOPOLOGY_API_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  progressDeadlineSeconds: 900
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          # FIXME: gives correct env
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-topology") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: "KEYCLOAK_DNS"
+            value: "{{.Values.env.KEYCLOAK_DNS}}"
+          - name: "TOPOLOGY_API_DNS"
+            value: "{{.Values.env.TOPOLOGY_API_DNS}}"
+          - name: "MESSAGE_DNS"
+            value: "{{.Values.env.MESSAGE_DNS}}"
+          - name: "KEYCLOAK_USER"
+            value: "{{.Values.env.KEYCLOAK_MASTER_ADMIN_USER_INIT}}"
+          - name: "KEYCLOAK_PASSWORD_FILE"
+            value: "/run/secrets/keycloak_master_pwd"
+          - name: "NTP_SERVER"
+            value: "{{.Values.env.RTU_NTP_SERVER}}"
+          - name: "UMASK"
+            value: "0022"
+          - name: "VALIDATION_SERVICE_URI"
+            value: "http://rtu-configuration-validator:8080/v1/test"
+          - name: "VALIDATION_SERVICE_ENABLED"
+            value: "{{.Values.env.RTU_CONFIGURATION_VALIDATOR_SERVICE_ENABLED}}"
+          - name: "CATALINA_OPTS"
+            # FIXME: remove this ugly hack db.url
+            value: "-XshowSettings:vm -Ddb.url=jdbc:postgresql://topology-postgresql:5432/topology"
+          - name: "KEYCLOAK_SECRET_FILE"
+            value: "/run/secrets/iam_client_secret"
+          - name: "POSTGRES_HOST"
+            value: topology-postgresql
+          - name: "POSTGRES_PASSWORD_FILE"
+            value: "/run/secrets/topology_db_password"
+          - name: "POSTGRES_ROOT_PASSWORD_FILE"
+            value: "/run/secrets/topology_db_password"
+          - name: "FGMS_TRUSTSTORE_PATH"
+            value: "/opt/fgms/cer/fgmstruststore.jks"
+          - name: "FGMS_TRUSTSTORE_PASSWD_FILE"
+            value: "/opt/fgms/cer/fgms_truststore_passwd"
+          - name: "RTU_BROKER_ADMIN_PASSWORD_FILE"
+            value: "/run/secrets/rtu_broker_admin_password"
+          - name: "RTU_VERSION_CONTROLLER_SERVICE_URI"
+            value: "http://rtu-version-controller:8085/fms-rtu-version-controller"
+          - name: IAM_PROXY
+            value: "http://keycloak-proxy:10000"
+          - name: "JAVA_OPTS"
+            value: "-Xms1024m -Xmx{{.Values.env.MEMORY_LIMIT_TOPOLOGYAPI_MO_JAVA}}m"
+          volumeMounts:
+          - name: config
+            mountPath: /opt/fgms/topology/customConfig
+            readOnly: true
+          - name: logs
+            mountPath: /usr/local/tomcat/logs
+          - mountPath: /run/secrets/topology_db_password
+            name: topology-db-password
+            subPath: secret
+            readOnly: true
+          - mountPath: /run/secrets/rtu_broker_admin_password
+            name: rtu-broker-admin-password
+            subPath: secret
+            readOnly: true
+          - mountPath: /run/secrets/iam_client_secret
+            name: iam-client-secret
+            subPath: secret
+            readOnly: true
+          resources:
+            limits:
+              memory: "{{.Values.env.MEMORY_LIMIT_TOPOLOGYAPI_MO}}M"
+            requests:
+              memory: "242M"
+          startupProbe:
+            httpGet:
+              path: /api/topology/healthcheck
+              port: 9090
+              httpHeaders:
+              - name: x-Token-Username
+                value: swarm
+              - name: x-Token-Roles
+                value: '["fg-topology-read"]'
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 68
+          livenessProbe:
+            httpGet:
+              path: /api/topology/healthcheck
+              port: 9090
+              httpHeaders:
+              - name: x-Token-Username
+                value: swarm
+              - name: x-Token-Roles
+                value: '["fg-topology-read"]'
+            timeoutSeconds: 30
+            periodSeconds: 30
+            failureThreshold: 4
+      volumes:
+      - name: config
+        {{- include "fms.pod-volume.config" (merge (dict "id" "TOPOLOGY_DATA") $) | nindent 8 }}
+      - name: logs
+        {{- include "fms.pod-volume.log" (merge (dict "id" $serv_id "path" .Values.env.TOPOLOGY_LOG) $) | nindent 8 }}
+      - name: topology-db-password
+        secret:
+          secretName: {{.Values.env.TOPOLOGY_DB_PASSWORD_SECRET}}
+          defaultMode: 0440
+      - name: rtu-broker-admin-password
+        secret:
+          secretName: {{.Values.env.RTU_BROKER_ADMIN_PASSWORD_SECRET}}
+          defaultMode: 0440
+      - name: iam-client-secret
+        secret:
+          secretName: {{.Values.env.IAM_CLIENT_SECRET}}
+          defaultMode: 0440

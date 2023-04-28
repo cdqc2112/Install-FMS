@@ -1,0 +1,34 @@
+[
+    {
+        "name": "Breaks only",
+        "faultSectionLoss": 4,
+        "faultEventReflectanceDegradation": 4,
+        "faultEventLoss": 4,
+        "faultInjectionLevel": 4,
+        "faultLinkTotalLoss": 4
+    },
+    {
+        "name": "Coarse",
+        "faultSectionLoss": 0.5,
+        "faultEventReflectanceDegradation": 30,
+        "faultEventLoss": 0.5,
+        "faultInjectionLevel": 3,
+        "faultLinkTotalLoss": 2
+    },
+    {
+        "name": "Normal",
+        "faultSectionLoss": 0.100000001490116,
+        "faultEventReflectanceDegradation": 3,
+        "faultEventLoss": 0.100000001490116,
+        "faultInjectionLevel": 2,
+        "faultLinkTotalLoss": 1
+    },
+    {
+        "name": "Sensitive",
+        "faultSectionLoss": 0.0500000007450581,
+        "faultEventReflectanceDegradation": 1,
+        "faultEventLoss": 0.0199999995529652,
+        "faultInjectionLevel": 1,
+        "faultLinkTotalLoss": 0.5
+    }
+]

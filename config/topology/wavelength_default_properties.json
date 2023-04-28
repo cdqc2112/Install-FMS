@@ -1,0 +1,128 @@
+[
+    {
+        "wavelength": 0.000000850,
+        "fiberCode": "C",
+        "ior": 1.49,
+        "rbs": -66.3
+    },
+    {
+        "wavelength": 0.000000850,
+        "fiberCode": "D",
+        "ior": 1.49,
+        "rbs": -63.1
+    },
+    {
+        "wavelength": 0.000001270,
+        "fiberCode": "B",
+        "ior": 1.4677,
+        "rbs": -79.02
+    },
+    {
+        "wavelength": 0.000001290,
+        "fiberCode": "B",
+        "ior": 1.4677,
+        "rbs": -79.23
+    },
+    {
+        "wavelength": 0.000001300,
+        "fiberCode": "C",
+        "ior": 1.486,
+        "rbs": -73.7
+    },
+    {
+        "wavelength": 0.000001300,
+        "fiberCode": "D",
+        "ior": 1.487,
+        "rbs": -73.3
+    },
+    {
+        "wavelength": 0.000001310,
+        "fiberCode": "B",
+        "ior": 1.4677,
+        "rbs": -79.44
+    },
+    {
+        "wavelength": 0.000001330,
+        "fiberCode": "B",
+        "ior": 1.4677,
+        "rbs": -79.65
+    },
+    {
+        "wavelength": 0.000001383,
+        "fiberCode": "B",
+        "ior": 1.4678,
+        "rbs": -80.205
+    },
+    {
+        "wavelength": 0.000001410,
+        "fiberCode": "B",
+        "ior": 1.4678,
+        "rbs": -80.48
+    },
+    {
+        "wavelength": 0.000001470,
+        "fiberCode": "B",
+        "ior": 1.468,
+        "rbs": -81
+    },
+    {
+        "wavelength": 0.000001490,
+        "fiberCode": "B",
+        "ior": 1.4681,
+        "rbs": -81.28
+    },
+    {
+        "wavelength": 0.000001510,
+        "fiberCode": "B",
+        "ior": 1.4682,
+        "rbs": -81.45
+    },
+    {
+        "wavelength": 0.000001530,
+        "fiberCode": "B",
+        "ior": 1.4683,
+        "rbs": -81.7
+    },
+    {
+        "wavelength": 0.000001550,
+        "fiberCode": "B",
+        "ior": 1.4683,
+        "rbs": -81.87
+    },
+    {
+        "wavelength": 0.000001570,
+        "fiberCode": "B",
+        "ior": 1.4684,
+        "rbs": -82
+    },
+    {
+        "wavelength": 0.000001590,
+        "fiberCode": "B",
+        "ior": 1.4685,
+        "rbs": -82.2
+    },
+    {
+        "wavelength": 0.000001610,
+        "fiberCode": "B",
+        "ior": 1.4686,
+        "rbs": -82.4
+    },
+    {
+        "wavelength": 0.000001625,
+        "fiberCode": "B",
+        "ior": 1.4687,
+        "rbs": -82.58
+    },
+    {
+        "wavelength": 0.000001630,
+        "fiberCode": "B",
+        "ior": 1.4687,
+        "rbs": -82.64
+    },
+    {
+        "wavelength": 0.000001650,
+        "fiberCode": "B",
+        "ior": 1.4689,
+        "rbs": -82.821
+    }
+]

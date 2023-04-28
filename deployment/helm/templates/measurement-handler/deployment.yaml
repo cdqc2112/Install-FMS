@@ -1,0 +1,109 @@
+{{ $serv_id := "measurement-handler" }}
+{{ $serv_uidgid := .Values.env.MEASUREMENT_HANDLER_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-measurement-handler") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: METRIC_PROXY_API_DNS
+            value: "alarming-metrics-proxy:7071"
+          - name: WAIT_HOSTS
+            value: "rtu-broker:61616"
+          - name: WAIT_HOSTS_TIMEOUT
+            value: "180"
+          - name: WAIT_SLEEP_INTERVAL
+            value: "20"
+          - name: RTU_BROKER_ADMIN_PASSWORD_FILE
+            value: "/run/secrets/rtu_broker_admin_pwd"
+          - name: JOLOKIA_USER
+            value: "{{.Values.env.JOLOKIA_USER}}"
+          - name: JOLOKIA_PASSWORD_FILE
+            value: "/run/secrets/jolokia_pwd"
+          - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+            value: "true"
+          - name: "JAVA_OPTS"
+            value: "-Xms1024m -Xmx{{.Values.env.MEMORY_LIMIT_MEASHANDLER_MO_JAVA}}m"
+          - name: "FORWARD_METRIC_JSON_URI"
+            value: "http://victoria-metrics:8428/api/v1/import/prometheus"
+          - name: "FILTERED_OUT_METRICS"
+            value: "olm_link_element_[a-z_]*|olm_section_[a-z_]*"
+          volumeMounts:
+          - name: logs
+            mountPath: /target/logs
+          - name: rtu-broker-admin-pwd
+            mountPath: /run/secrets/rtu_broker_admin_pwd
+            subPath: secret
+            readOnly: true
+          - name: jolokia-pwd
+            mountPath: /run/secrets/jolokia_pwd
+            subPath: secret
+            readOnly: true
+          resources:
+            limits:
+              memory: "{{.Values.env.MEMORY_LIMIT_MEASHANDLER_MO}}M"
+            requests:
+              memory: "242M"
+          startupProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - 'curl --silent --basic --fail --config <( echo "--user ${JOLOKIA_USER}:$(cat "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:8161/jolokia/exec/org.apache.camel:context=camel-1,type=health,name=DefaultHealthCheck/isHealthy()" | grep "\"value\":true"'
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 50
+          livenessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - 'curl --silent --basic --fail --config <( echo "--user ${JOLOKIA_USER}:$(cat "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:8161/jolokia/exec/org.apache.camel:context=camel-1,type=health,name=DefaultHealthCheck/isHealthy()" | grep "\"value\":true"'
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+      - name: logs
+      # FIXME: out of scope for now
+        emptyDir: {}
+      - name: rtu-broker-admin-pwd
+        secret:
+          secretName: {{.Values.env.RTU_BROKER_ADMIN_PASSWORD_SECRET}}
+          defaultMode: 0440
+      - name: jolokia-pwd
+        secret:
+          secretName: {{.Values.env.JOLOKIA_PASSWORD_SECRET}}
+          defaultMode: 0440

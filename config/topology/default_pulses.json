@@ -1,0 +1,50 @@
+[
+    {
+        "pulse": 0.000000005,
+        "nominalPulse": "5 ns"
+    },
+    {
+        "pulse": 0.000000010,
+        "nominalPulse": "10 ns"
+    },
+    {
+        "pulse": 0.000000030,
+        "nominalPulse": "30 ns"
+    },
+    {
+        "pulse": 0.000000050,
+        "nominalPulse": "50 ns"
+    },
+    {
+        "pulse": 0.000000100,
+        "nominalPulse": "100 ns"
+    },
+    {
+        "pulse": 0.000000275,
+        "nominalPulse": "275 ns"
+    },
+    {
+        "pulse": 0.000000500,
+        "nominalPulse": "500 ns"
+    },
+    {
+        "pulse": 0.000001000,
+        "nominalPulse": "1 µs"
+    },
+    {
+        "pulse": 0.000002500,
+        "nominalPulse": "2.5 µs"
+    },
+    {
+        "pulse": 0.000005000,
+        "nominalPulse": "5 µs"
+    },
+    {
+        "pulse": 0.000010000,
+        "nominalPulse": "10 µs"
+    },
+    {
+        "pulse": 0.000020000,
+        "nominalPulse": "20 µs"
+    }
+]

@@ -1,0 +1,694 @@
+[
+    {
+        "model": "FTBx-9110-SPLX-12-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 12,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "FTBx-9110-SPLX-12-B-101 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-SPLX-18-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 18,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "FTBx-9110-SPLX-18-B-101 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-DPLX-12-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 12,
+        "connectorType": "MPO",
+        "descriptiveLabel": "FTBx-9110-DPLX-12-B-101 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-SPLX-12-B-104",
+        "formFactor": "FTBX",
+        "effectivePortCount": 12,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "FTBx-9110-SPLX-12-B-104 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-SPLX-18-B-104",
+        "formFactor": "FTBX",
+        "effectivePortCount": 18,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "FTBx-9110-SPLX-18-B-104 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-SPLX-24-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 24,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "FTBx-9110-SPLX-24-B-101 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9110-DPLX-18-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 18,
+        "connectorType": "MPO",
+        "descriptiveLabel": "FTBx-9110-DPLX-18-B-101 - Optical Switch"
+    },
+	{
+        "model": "FTBx-9160-01-04-B-58",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "FC-APC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-58 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9160-01-04-B-88",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "SC-APC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-88 - Optical Switch"
+    },
+	{
+        "model": "FTBx-9160-01-04-B-89",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "FC-UPC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-89 - Optical Switch"
+    },
+	    {
+        "model": "FTBx-9160-01-04-B-91",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "SC-UPC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-91 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9160-01-04-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-101 - Optical Switch"
+    },
+    {
+        "model": "FTBx-9160-01-04-B-104",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-104 - Optical Switch"
+    },
+	  {
+        "model": "FTBx-9160-01-04-B-EI",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "SC-UPC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-EI - Optical Switch"
+    },
+    {
+        "model": "FTBx-9160-01-04-B-EA",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "SC-APC",
+        "descriptiveLabel": "FTBx-9160-01-04-B-EA - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-SPLX-26-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 26,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "RTUe-9110-SPLX-26-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-SPLX-52-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 52,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "RTUe-9110-SPLX-52-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-SPLX-26-B-104",
+        "formFactor": "USB",
+        "effectivePortCount": 26,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "RTUe-9110-SPLX-26-B-104 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-DPLX-26-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 26,
+        "connectorType": "LC-UPC",
+        "descriptiveLabel": "RTUe-9110-DPLX-26-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-DPLX-26-B-104",
+        "formFactor": "USB",
+        "effectivePortCount": 26,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "RTUe-9110-DPLX-26-B-104 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9110-SPLX-52-B-104",
+        "formFactor": "USB",
+        "effectivePortCount": 52,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "RTUe-9110-SPLX-52-B-104 - Optical switch"
+    },
+    {
+        "model": "RTUe-9110-NS2684",
+        "formFactor": "USB",
+        "effectivePortCount": 52,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "RTUe-9110-NS2684 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-256-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 256,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-256-B-101 - Optical Switch"
+    },
+	{
+        "model": "RTUe-9120-SPLX-256-B-88",
+        "formFactor": "USB",
+        "effectivePortCount": 256,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-256-B-88 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-128-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 128,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-128-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-128-B-88",
+        "formFactor": "USB",
+        "effectivePortCount": 128,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-128-B-88 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-64-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 64,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-64-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-64-B-88",
+        "formFactor": "USB",
+        "effectivePortCount": 64,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-64-B-88 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-32-B-101",
+        "formFactor": "USB",
+        "effectivePortCount": 32,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-32-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUe-9120-SPLX-32-B-88",
+        "formFactor": "USB",
+        "effectivePortCount": 32,
+        "connectorType": "MPO",
+        "descriptiveLabel": "RTUe-9120-SPLX-32-B-88 - Optical Switch"
+    },
+    {
+        "model": "RTUi-9199-SPLX-4-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 4,
+        "connectorType": "SC-APC",
+        "descriptiveLabel": "RTUi-9199-SPLX-4-B-101 - Optical Switch"
+    },
+    {
+        "model": "RTUi-9199-SPLX-16-B-101",
+        "formFactor": "FTBX",
+        "effectivePortCount": 16,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "RTUi-9199-SPLX-16-B-101 - Optical Switch"
+    },
+    {
+        "model": "OTH-7000-AWAT-16",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTH-7000-AWAT-16"
+    },
+    {
+        "model": "OTH-7000-AWAT-4",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTH-7000-AWAT-4"
+    },
+    {
+        "model": "OTH-7000-AWAT-1",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTH-7000-AWAT-1"
+    },
+    {
+        "model": "FTBx-8870",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "ORF"
+        ],
+        "descriptiveLabel": "FTBx-8870 - OpticalRF"
+    },
+    {
+        "model": "FTBx-730C-NS2684",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-NS2684 - iOLM"
+    },
+    {
+        "model": "FTBx-730C-SM7-OPM-EA",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-SM7 - iOLM"
+    },
+    {
+        "model": "FTBx-730C-SM7-TAM",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-SM7-TAM - iOLM"
+    },
+    {
+        "model": "FTBx-730C-SM7-TAM-EA",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-SM7-TAM-EA - iOLM"
+    },
+    {
+        "model": "FTBx-730C-SM7-TAM-EI",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-SM7-TAM-EI - iOLM"
+    },
+    {
+        "model": "FTBx-730C-SM7-EA-EUI-91",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-730C-SM7-EA-EUI-91 - iOLM"
+    },
+    {
+        "model": "FTBx-735C-SM7R-EA",
+        "formFactor": "FTBX",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "iOLM",
+            "OTDR"
+        ],
+        "descriptiveLabel": "FTBx-735C-SM7R - iOLM"
+    },
+    {        
+        "model": "FTBx-750C-SM3-EA",        
+        "formFactor": "FTBX",        
+        "effectivePortCount": 1,        
+        "testTypes": ["iOLM","OTDR"],
+        "descriptiveLabel": "FTBx-750C-SM3 - iOLM"    
+    },
+    {
+        "model": "OTM-740-DMET",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-DMET - OTDR"
+    },
+    {
+        "model": "OTM-750-DCOR",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-750-DCOR - OTDR"
+    },
+    {
+        "model": "OTM-740-AMET",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-AMET - OTDR"
+    },
+    {
+        "model": "OTM-740-ACOR",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-ACOR - OTDR"
+    },
+    {
+        "model": "OTM-700-NODE",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-700-NODE - OTDR"
+    },
+    {
+        "model": "OTM-740-CD01",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD01 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD02",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD02 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD03",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD03 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD04",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD04 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD05",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD05 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD06",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD06 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD07",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD07 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD08",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD08 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD09",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD09 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD10",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD10 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD11",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD11 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD12",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD12 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD13",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD13 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD14",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD14 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD15",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD15 - OTDR"
+    },
+    {
+        "model": "OTM-740-CD16",
+        "formFactor": "OTM",
+        "effectivePortCount": 1,
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTM-740-CD16 - OTDR"
+    },
+    {
+        "model": "NONE-1-SC",
+        "formFactor": "OSC",
+        "effectivePortCount": 1,
+        "connectorType": "SC-APC",
+        "descriptiveLabel": "NONE-1-SC"
+    },
+    {
+        "model": "NONE-1-FC",
+        "formFactor": "OSC",
+        "effectivePortCount": 1,
+        "connectorType": "FC-APC",
+        "descriptiveLabel": "NONE-1-FC"
+    },
+    {
+        "model": "OSC-4-SC",
+        "formFactor": "OSC",
+        "effectivePortCount": 4,
+        "connectorType": "SC-APC",
+        "descriptiveLabel": "OSC-4-SC"
+    },
+    {
+        "model": "OSC-4-FC",
+        "formFactor": "OSC",
+        "effectivePortCount": 4,
+        "connectorType": "FC-APC",
+        "descriptiveLabel": "OSC-4-FC"
+    },
+    {
+        "model": "OSC-8-LC",
+        "formFactor": "OSC",
+        "effectivePortCount": 8,
+        "connectorType": "LC-APC",
+        "descriptiveLabel": "OSC-8-LC"
+    },
+    {
+        "model": "OSC-12-MTP",
+        "formFactor": "OSC",
+        "effectivePortCount": 12,
+        "connectorType": "MTP",
+        "descriptiveLabel": "OSC-12-MTP"
+    },
+    {
+        "model": "DiCon GP700",
+        "formFactor": "ROTAU",
+        "connectorType": "LC-UPC",
+        "testTypes": [
+            "OTDR"
+        ]
+    },
+    {
+        "model": "DiCon MS",
+        "formFactor": "ROTAU",
+        "connectorType": "LC-UPC",
+        "testTypes": [
+            "OTDR"
+        ]
+    },
+    {
+        "model": "OTAU-9150-01-04-B-104",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 4,
+        "connectorType": "LC-APC",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-04-B-104 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-16-B-104",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 16,
+        "connectorType": "LC-APC",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-16-B-104 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-32-B-MPO16",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 32,
+        "connectorType": "MPO",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-32-B-MPO16 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-32-B-WDM-MPO16",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 32,
+        "connectorType": "MPO",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-32-B-WDM-MPO16 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-64-B-MPO16",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 64,
+        "connectorType": "MPO",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-64-B-MPO16 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-96-B-MPO24",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 96,
+        "connectorType": "MPO",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-96-B-MPO24 - Remote Optical Switch"
+    },
+    {
+        "model": "OTAU-9150-01-144-B-MPO24",
+        "type": "RemoteSwitch",
+        "formFactor": "OTAU",
+        "effectivePortCount": 144,
+        "connectorType": "MPO",
+        "testTypes": [
+            "OTDR",
+            "iOLM"
+        ],
+        "descriptiveLabel": "OTAU-9150-01-144-B-MPO24 - Remote Optical Switch"
+    }
+]

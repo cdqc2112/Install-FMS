@@ -1,0 +1,4 @@
+{{ $serv_id := "file-replication-client" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+{{ include "fms.volume.replication-data-root" (merge (dict "id" $serv_id) $) }}
+{{- end }}

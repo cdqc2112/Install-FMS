@@ -1,0 +1,2 @@
+{{ $serv_id := "victoria-metrics" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.VICTORIA_METRICS_DATA) $)}}

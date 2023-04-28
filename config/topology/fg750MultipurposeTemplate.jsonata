@@ -1,0 +1,366 @@
+$$.Metadata.TestType = "Health" ? {
+    "metadata": $$.Metadata,
+    "alarming": {
+        "payLoad": function ($v) {
+            (
+
+                $r1:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "PercentFreePhysicalMemory"
+                }), function ($x) {
+                    "wmi_free_physical_memory_percent{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentFreePhysicalMemory, "#0.00")
+                }));
+
+                $r2:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "PercentProcessorTime"
+                }), function ($x) {
+                    "wmi_processor_time_percent{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentProcessorTime, "#0.00")
+                }));
+
+                $r3:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "PercentFreeDiskSpace"
+                }), function ($x) {
+                    "wmi_free_disk_space_percent{volume=\"C:\",rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentFreeDiskSpace, "#0.00")
+                }));
+
+				$r5:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUTaskControllerStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUTaskController\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUTaskControllerStartTime) ? $string($x.RTUTaskControllerStartTime) :  "-1")
+                }));
+
+				$r6:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUPackageManagerStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUPackageManager\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUPackageManagerStartTime) ? $string($x.RTUPackageManagerStartTime) :  "-1")
+                }));
+
+				$r7:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUOTDRManagerStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUOTDRManager\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUOTDRManagerStartTime) ? $string($x.RTUOTDRManagerStartTime) :  "-1")
+                }));
+
+				$r8:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUSnmpAgentStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUSnmpAgent\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUSnmpAgentStartTime) ? $string($x.RTUSnmpAgentStartTime) :  "-1")
+                }));
+
+				$r9:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "FGMSUserManagementStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"FGMSUserManagement\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.FGMSUserManagementStartTime) ? $string($x.FGMSUserManagementStartTime) :  "-1")
+                }));
+
+				$r10:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RedisStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"Redis\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RedisStartTime) ? $string($x.RedisStartTime) :  "-1")
+                }));
+
+				$r11:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "FGMSAppServerStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"FGMSAppServer\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.FGMSAppServerStartTime) ? $string($x.FGMSAppServerStartTime) :  "-1")
+                }));
+
+				$r12:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUSecurityServiceStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUSecurityService\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUSecurityServiceStartTime) ? $string($x.RTUSecurityServiceStartTime) :  "-1")
+                }));
+
+				$r13:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUFMSMessengerServiceStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUFMSMessengerService\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUFMSMessengerServiceStartTime) ? $string($x.RTUFMSMessengerServiceStartTime) :  "-1")
+                }));
+
+				$r14:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "RTUFMSClientStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"RTUFMSClient\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUFMSClientStartTime) ? $string($x.RTUFMSClientStartTime) :  "-1")
+                }));
+
+				$r15:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "SQLServerStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"SQLServer\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.SQLServerStartTime) ? $string($x.SQLServerStartTime) :  "-1")
+                }));
+
+				$r16:= $join($map($sift($v, function ($v2, $k2) {
+				    $k2 = "PostgreSQLStartTime"
+                }), function ($x) {
+                    "wmi_service_start_time{name=\"PostgreSQL\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.PostgreSQLStartTime) ? $string($x.PostgreSQLStartTime) : "-1")
+                }));
+
+                $r17:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "HighestThermalZone"
+                }), function ($x) {
+                    "wmi_highest_thermal_zone{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", unit=\"Celsius\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.HighestThermalZone) ? $string($x.HighestThermalZone) : "\"$null\"")
+                }));
+
+				
+                $r18:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "CpuFanRPM"
+                }), function ($x) {
+                    "wmi_cpu_fan_rpm{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.CpuFanRPM) ? $string($x.CpuFanRPM) : "\"$null\"")
+                }));
+
+				 $r19:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "OtdrTemperature"
+                }), function ($x) {
+                    "wmi_otdr_temperature{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.OtdrTemperature) ? $string($x.OtdrTemperature) : "\"$null\"")
+                }));
+
+				 $r20:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "PowerSupplyState"
+                }), function ($x) {
+                    "wmi_power_supply_state{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.PowerSupplyState) ? $string($x.PowerSupplyState) : "\"$null\"")
+                }));
+
+				 $r21:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "RadioConnectionStatus"
+                }), function ($x) {
+                    "wmi_radio_connection_status{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RadioConnectionStatus) ? $string($x.RadioConnectionStatus) : "\"$null\"")
+                }));
+
+				 $r22:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "RadioSignalStrength"
+                }), function ($x) {
+                    "wmi_radio_signal_strength{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RadioSignalStrength) ? $string($x.RadioSignalStrength) : "\"$null\"")
+                }));
+
+				 $r23:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "RadioStatus"
+                }), function ($x) {
+                    "wmi_radio_status{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RadioStatus) ? $string($x.RadioStatus) : "\"$null\"")
+                }));
+
+				 $r24:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "OtdrStatus"
+                }), function ($x) {
+                    "wmi_otdr_status{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.OtdrStatus) ? $string($x.OtdrStatus) : "\"$null\"")
+                }));
+
+				 $r25:= $join($map($sift($v, function ($v2, $k2) {
+                    $k2 = "RTUMonitoringEnabled"
+                }), function ($x) {
+                    "wmi_otdr_monitoring_enabled{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($exists($x.RTUMonitoringEnabled) ? $string($x.RTUMonitoringEnabled) : "\"$null\"")
+                }));
+
+				$r26:= "platform_result_time{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $string($toMillis($$.Metadata.TestTime));
+
+                $r:= $r1 & "\n" & $r2 & "\n" & $r3 & "\n" & $r5 & "\n" & $r6 & "\n" & $r7 & "\n" & $r8 & "\n" & $r9 & "\n" & $r10 & "\n" & $r11 & "\n" & $r12 & "\n" & $r13 & "\n" & $r14 & "\n" & $r15 & "\n" & $r16 & "\n" & $r17 & "\n" & $r18 & "\n" & $r19 & "\n" & $r20 & "\n" & $r21 & "\n" & $r22 & "\n" & $r23 & "\n" & $r24 & "\n" & $r25 & "\n" & $r26;
+
+            )
+        }($$.RtuHealth)
+    }
+} : {
+"metadata" : {
+     "AssetId": $$.metadata.opticalRouteIdOnTopology,
+     "AssetType": "OpticalRoute",
+     "BaselineId": $$.metadata.fiberTestSetupParameterGuid,
+     "Filename": $$.metadata.filename,
+     "HasError" : $$.metadata.hasError,
+     "HasFault": $$.metadata.hasFault,
+     "LearningCount": $$.metadata.learningCount,
+     "PromiseId" : $$.metadata.promiseId,
+     "TestCategory": $$.metadata.resultTypeName = "FaultConfirmation" ? "Fault" : $$.metadata.resultTypeName,
+     "TestSetupId": $$.metadata.testSetupIdOnTopology,
+     "TestTime":  $$.metadata.resultTypeName = "FaultConfirmation" ? $now() : $$.metadata.resultStartDateTime,
+     "TestType": "OTDR"
+},
+"brief" : ($$.metadata.resultTypeName = "MonitoringWithoutFault" or $$.metadata.resultTypeName = "FaultConfirmation") ? null : $$.brief,
+"measurement" : null,
+"alarming" : {
+	"context": ($$.metadata.resultTypeName = "Adhoc" or $$.metadata.resultTypeName = "AdHoc") ? null : {
+    	"initialEventTime": $$.metadata.resultStartDateTime,
+		"sources": [{
+			"sourceCategory": "monitoredAsset",
+			"assetId": $$.metadata.opticalRouteIdOnTopology,
+			"resourceAddress": "/v1/results/${measurementId}",
+			"sourceDetailData": {
+				"baselineId": $$.metadata.fiberTestSetupParameterGuid,
+				"faultValues": "$null",
+				"hasError": $$.metadata.hasError,
+				"hasFault": $$.metadata.hasFault,
+				"promiseId": $$.metadata.promiseId,
+				"testCategory": $$.metadata.resultTypeName = "FaultConfirmation" ? "Fault" : $$.metadata.resultTypeName,
+				"testSetupId": $$.metadata.testSetupIdOnTopology,
+				"testTime": $$.metadata.resultTypeName = "FaultConfirmation" ? $now() : $$.metadata.resultStartDateTime,
+				"testType": "OTDR",
+            	"filename": $$.metadata.filename,
+				"measurementId": "${measurementId}"
+			},
+			"contextData": {
+				"assetType": "OpticalRoute",
+				"sourceResultTime": $toMillis($$.metadata.resultTypeName = "FaultConfirmation" ? $now() : $$.metadata.resultStartDateTime),
+				"assetName": $$.metadata.opticalRouteName,
+				"groups": "${groups}",
+				"rtuId": "${rtu_id}",
+				"rtuName": "${rtu_name}",
+				"rrhId": "$null",
+				"rrhName": "$null",
+				"rtuSiteId": "${rtu_site_id}",
+				"rtuSiteName": "${rtu_site_name}",
+				"rrhSiteId": "$null",
+				"rrhSiteName": "$null",
+				"associatedAssetId": "${associated_asset_id}",
+				"associatedAssetName": "${associated_asset_name}",
+				"physicalRouteId" 	 : "${physicalRouteId}",
+				"externalNmsRef1" 	 : "${externalNmsRef1}",
+				"externalNmsRef2" 	 : "${externalNmsRef2}"
+			}
+		}]
+	},
+	"payLoad" :
+       ($exists($$.Metadata.FaultStatus) and $$.Metadata.FaultStatus = "NotApplicable") or ($$.metadata.resultTypeName = "Adhoc" or $$.metadata.resultTypeName = "AdHoc") ? null : function($entries)
+            {
+                (
+                	$faultStatus:= {"New" : 1, "StillThere" : 2, "Changed" : 3, "Cleared" : 4};
+                    $linkLoss:= $max($filter($entries.totalLoss.current, function($item, $index, $array) { $item != null }));
+                    $referencLinkLoss:= $max($filter($entries.totalLoss.first, function($item, $index, $array) { $item != null }));
+                    $linkLength:= $$.measurement.olmMeasurement.LinkLength;
+                    
+                    $waveLength:= $$.measurement.olmMeasurement.WavelengthsUsed[0];
+                    $assetId:= $$.metadata.opticalRouteIdOnTopology;
+                    $assetType:= "OpticalRoute";
+                    $cableSegmentIds:= "${cable_segment_ids}";
+                    $groupIds:= "${group_ids}";
+                    $rtuId:= "${rtu_id}";
+                    $rtuSiteId:= "${rtu_site_id}";
+					$rftsFiberFault:= $$.brief.Measurement.OtdrMeasurements[0].RftsFiberFaults[0];
+					$resultTypeName:= $$.metadata.resultTypeName = "FaultConfirmation" ? "Fault" : $$.metadata.resultTypeName;
+                    $resultLastUpdateDateTime:= $$.metadata.resultTypeName = "FaultConfirmation" ? $now() : $$.metadata.resultStartDateTime;
+
+                    $linkLossMetric:= "otdr_link_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & ($linkLoss ? $string($linkLoss) : "NaN");
+                    $linkLossMetricDelta:= "otdr_link_loss_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & (($exists($linkLoss) and $exists($referencLinkLoss) and $linkLoss != "NaN" and $referencLinkLoss != "NaN") ? $string($abs($linkLoss - $referencLinkLoss)) : "NaN");
+                    $linkLengthMetric:= "otdr_link_length{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $string($linkLength);
+
+                    $testCategoryMetric:= ($$.metadata.resultType != null) ? "otdr_test_category{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",wavelength=\"" & $string($waveLength) & "\"} " & $string($$.metadata.resultType) : "";
+
+                    $resultTestimeMetric:= ($resultLastUpdateDateTime != null) ? "otdr_result_time{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\", test_category=\"" & $resultTypeName & "\"} " & $string($toMillis($resultLastUpdateDateTime)) : "";
+
+                    $faultPresenceMetric:= ($$.metadata.hasFault != null) ? "otdr_fault_presence{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\"} " & ($$.metadata.hasFault ? "1" : 0) : "";
+
+                	$faultStatusMetric:= $$.measurement.monitoringStatus.faultStatus != null ? "otdr_fault_status{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\"} " & $lookup($faultStatus, $$.measurement.monitoringStatus.faultStatus) : "";
+
+                    $faultConfirmationMetric:= ($$.measurement.monitoringStatus.confirmationCount != null) ? "otdr_fault_confirmation{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\"} " & $$.measurement.monitoringStatus.confirmationCount : "";
+
+		    		$faultPositionMetric:= ($rftsFiberFault.Position != null) ? "otdr_fault_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $rftsFiberFault.Position : "";
+
+                    $faultPositionMaxMetric:= ($rftsFiberFault.PositionMax != null) ? "otdr_fault_position_max{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $rftsFiberFault.PositionMax : "";
+
+                    $faultPositionMinMetric:= ($rftsFiberFault.PositionMin != null) ? "otdr_fault_position_min{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $rftsFiberFault.PositionMin : "";
+
+					$faultThresholdMetric:= ($rftsFiberFault.ThresholdLevel != null) ? "otdr_fault_threshold{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $rftsFiberFault.ThresholdLevel : "";
+
+					$faultThresholdTypeMetric:= "otdr_fault_threshold_name{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\"} " & ($rftsFiberFault.ThresholdName != null ? $rftsFiberFault.ThresholdName : 9999);
+
+                    $faultLossMetric:= ($rftsFiberFault.ObservedValue != null) ? "otdr_fault_loss_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $rftsFiberFault.ObservedValue : "";
+
+					$otdrMeasurementCodeMetric:= "otdr_measurement_code{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",has_error=\"" & ($$.metadata.hasError != null ? $$.metadata.hasError : false)  & "\"} " & $string($$.metadata.errorCode != null ? $$.metadata.errorCode : 9999);
+
+                    $allMetrics:= [$linkLossMetric, $linkLossMetricDelta, $linkLengthMetric, $resultTestimeMetric, $testCategoryMetric, $faultPresenceMetric, $faultStatusMetric, $faultConfirmationMetric, $faultPositionMetric, $faultPositionMaxMetric, $faultPositionMinMetric, $faultLossMetric, $faultThresholdTypeMetric, $faultThresholdMetric, $otdrMeasurementCodeMetric];
+
+                    $events:= $filter($entries, function($entry)
+                    {
+                        $entry.eventNumber != null
+                    });
+
+                    $eventMetrics:= $map($events, function($item, $index, $array){
+                        (
+                            $eventNumber:= $item.eventNumber;
+                            $eventType:= $item.type;
+
+                            $eventLossMetric:= $item.eventLoss.current != null ? "otdr_event_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.eventLoss.current) : "";
+
+                            $eventLossDeltaMetric:= ($item.eventLoss.current != null and $item.eventLoss.first != null) ? "otdr_event_loss_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($abs($item.eventLoss.current - $item.eventLoss.first)) : "";
+
+                            $eventReflectanceMetric:= $item.eventReflectance.current != null ? "otdr_event_reflectance{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.eventReflectance.current) : "";
+                            $eventReflectanceDeltaMetric:= ($item.eventReflectance.current != null and $item.eventReflectance.first != null) ? "otdr_event_reflectance_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($abs($item.eventReflectance.current - $item.eventReflectance.first)) : "";
+
+                            $eventPositionMetric:= $item.eventPosition !=null ? "otdr_event_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.eventPosition) : "";
+
+                            $eventMetrics:= $eventLossMetric & ";" & $eventLossDeltaMetric & ";" & $eventReflectanceMetric & ";" & $eventReflectanceDeltaMetric & ";" & $eventPositionMetric;
+                        )
+                    });
+
+                    $eventMetrics:= $join($eventMetrics, ";");
+
+                    $eventMetrics:= $split($eventMetrics, ";");
+
+                    $allMetrics:= $append($allMetrics, $eventMetrics);
+
+                    $sections:= $filter($entries, function($entry)
+                    {
+                        $entry.eventNumber = null
+                    });
+
+                    $sectionMetrics:= $map($sections, function($item, $index, $array)
+                    {
+                        (
+                            $eventNumberFilterResults:= $filter($entries, function($entry)
+                            {
+                                $entry.eventNumber != null and  $abs($entry.eventPosition - $item.eventPosition) < 0.000001
+                            });
+                            
+                            $eventNumber:= $exists($eventNumberFilterResults[0].eventNumber) ? $eventNumberFilterResults[0].eventNumber : "$null";
+                            
+                            $eventType:= $item.type;
+
+                            $sectionLoss:= $item.eventLoss.current != null ? "otdr_section_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.eventLoss.current) : "";
+                            $sectionLossDelta:= ($item.eventLoss.current != null and $item.eventLoss.first != null) ? "otdr_section_loss_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB\",wavelength=\"" & $string($waveLength) & "\"} " & $string($abs($item.eventLoss.current - $item.eventLoss.first)) : "";
+
+                            $sectionAttenuation:= $item.attenuation.current != null ? "otdr_section_attenuation{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB/km\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.attenuation.current * 1000) : "";
+                            $sectionAttenuationDelta:= ($item.attenuation.current != null and $item.attenuation.first != null) ? "otdr_section_attenuation_delta{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"dB/km\",wavelength=\"" & $string($waveLength) & "\"} " & $string($abs($item.attenuation.current - $item.attenuation.first) * 1000) : "";
+
+                            $sectionLength:= $item.eventLength != null ? "otdr_section_length{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",cable_segment_ids=\"" & $cableSegmentIds & "\",group_ids=\"" & $groupIds & "\",rtu_id=\"" & $rtuId & "\",rtu_site_id=\"" & $rtuSiteId & "\",event_number=\"" & $eventNumber & "\",event_type=\"" & $eventType & "\",unit=\"m\",wavelength=\"" & $string($waveLength) & "\"} " & $string($item.eventLength) : "";
+
+                            $sectionMetrics:= $sectionLoss & ";" & $sectionLossDelta & ";" & $sectionAttenuationDelta & ";" & $sectionAttenuation & ";" & $sectionLength;
+                        )
+                    });
+
+                    $sectionMetrics:= $join($sectionMetrics, ";");
+
+                    $sectionMetrics:= $split($sectionMetrics, ";");
+
+                    $allMetrics:= $append($allMetrics, $sectionMetrics);
+
+                    $allMetrics:= $filter($allMetrics, function($item, $index, $array)
+                    {
+                        $item
+                    });
+
+                    $allMetrics:=$sort($allMetrics);
+                    $metrics:=$join($allMetrics, "\n");
+                )
+            }
+            ($$.measurement.otdrLearning.otdrCharacterizationEvents.
+            {
+                "eventLoss" : {
+                    "current" : $.loss.current,
+                    "first" : $.loss.first
+                },
+                "type" : $.type,
+                "eventReflectance" :
+                {
+                    "current" : $.reflectance.current,
+                    "first" : $.reflectance.first
+                },
+                "eventPosition" : $.position,
+                "eventLength" : $.length,
+                "eventNumber" : $.eventNumber,
+                "attenuation" : {
+                    "current" : $.attenuation.current,
+                    "first" : $.attenuation.first
+                },
+                "totalLoss" :
+                {
+                    "current" : $.totalLoss.current,
+                    "first" : $.totalLoss.first
+                }
+            })
+	}
+}

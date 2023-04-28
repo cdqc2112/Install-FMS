@@ -1,0 +1,360 @@
+$$.Metadata.TestType = "Health" ? {
+	"metadata": $$.Metadata,
+	"alarming": {
+		"payLoad": function ($v) { 
+			(
+				$r1:= $join($map($sift($v, function ($v2, $k2) {
+					$k2 = "PercentFreePhysicalMemory"
+				}), function ($x) {
+					"wmi_free_physical_memory_percent{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentFreePhysicalMemory, "#0.00")
+				}));
+
+				$r2:= $join($map($sift($v, function ($v2, $k2) {
+					$k2 = "PercentProcessorTime"
+				}), function ($x) {
+					"wmi_processor_time_percent{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentProcessorTime, "#0.00")
+				}));
+
+				$r3:= $join($map($sift($v, function ($v2, $k2) {
+					$k2 = "PercentFreeDiskSpace"
+				}), function ($x) {
+					"wmi_free_disk_space_percent{volume=\"C:\",rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $formatNumber($x.PercentFreeDiskSpace, "#0.00")
+				}));
+
+				$r4:= $join($map($sift($v, function ($v2, $k2) {
+					$k2 = "TestCoordinatorStartTime"
+				}), function ($x) {
+					"wmi_service_start_time{name=\"ExfoTestCoordinator\", rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & ($boolean($x.TestCoordinatorStartTime) ? $string($x.TestCoordinatorStartTime) : "-1")
+				}));
+
+				$r5:= $join($map($sift($v, function ($v2, $k2) {
+					$k2 = "HighestThermalZone"
+				}), function ($x) {
+					"wmi_highest_thermal_zone{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", unit=\"Celsius\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $string($x.HighestThermalZone)
+				}));
+
+				$r6:= "platform_result_time{rtu_id=\"${rtu_id}\",rtu_name=\"${rtu_name}\",rtu_site_name=\"${rtu_site_name}\",rtu_site_id=\"${rtu_site_id}\", rtu_site_longitude=\"'${rtu_site_longitude}'\", rtu_site_latitude=\"'${rtu_site_latitude}'\"} " & $string($toMillis($$.Metadata.TestTime));
+
+				$r:= $r1 & "\n" & $r2 & "\n" & $r3 & "\n" & $r4 & "\n" & $r5 & "\n" & $r6;
+
+			)
+		}($$.RtuHealth)
+	}
+} : {
+	"resultid": $$.Metadata.ResultId,
+	"metadata": $$.Metadata,
+	"measurement": ($exists($$.AdditionalJsonataData.SendJsonMeasurement) and $$.AdditionalJsonataData.SendJsonMeasurement = false) ? null : $$.Measurement,
+	"brief": ($exists($$.AdditionalJsonataData.SendBrief) and $$.AdditionalJsonataData.SendBrief = false) ? null : $$.Visualization,
+	"alarming": ($exists($$.AdditionalJsonataData.SendAlarmingPayload) and $$.AdditionalJsonataData.SendAlarmingPayload = false) or
+				($exists($$.AdditionalJsonataData.SendAlarmingPayload) = false and (($exists($$.Metadata.FaultStatus) and $$.Metadata.FaultStatus = "NotApplicable") or ($$.Metadata.TestCategory = "Adhoc" or $$.Metadata.TestCategory = "AdHocRD" or $$.Metadata.TestCategory = "RLNulling" or $$.Metadata.TestCategory = "AnchorRD")))
+                   ? null : {
+		"payLoad": $.Metadata.TestType = "iOLM" ? function ($p) {
+			(
+                $returnNanIfDoesNotExist:= function($x) {(
+                    $exists($x) ? $x : "NaN"
+                )};
+
+                
+                $returnNanIfNotNumber:= function($x) {(
+                    ($exists($x) = true and $x != null and $x != 'NaN' and $string($x) != 'NaN') ? $x : "NaN"
+                )};
+
+                $assetId                      := $returnNanIfDoesNotExist($$.Metadata.AssetId);
+                $assetType                    := $returnNanIfDoesNotExist($$.Metadata.AssetType);
+                $elementLossDeviationThreshold:= $string($returnNanIfDoesNotExist($$.Measurement.Measures[0].Thresholds.Monitoring.LossDeviation.Fail));
+                $linkLossDeviationThreshold   := $string($returnNanIfDoesNotExist($$.Measurement.Measures[0].Thresholds.Monitoring.LinkLossDeviation.Fail));
+                $hasFault                     := $exists($$.Metadata.HasFault) ? $$.Metadata.HasFault ? "1" : "0" : "NaN";
+                $testTime                     := $string($exists($$.Metadata.TestTime) ? $toMillis($$.Metadata.TestTime) : "NaN");
+                $worstDeviationPosition       := $string($returnNanIfDoesNotExist($$.Visualization.Measurement.WorstDeviation.Position));
+				$worstDeviationMinPosition    := $string($returnNanIfDoesNotExist($$.Visualization.Measurement.WorstDeviation.MinPosition));
+				$worstDeviationMaxPosition    := $string($returnNanIfDoesNotExist($$.Visualization.Measurement.WorstDeviation.MaxPosition));
+                $worstDeviationLoss           := $string($returnNanIfDoesNotExist($$.Visualization.Measurement.WorstDeviation.LossDeviation));
+                $linkLength                   := $string($returnNanIfDoesNotExist($$.Measurement.Measures[0].LinkLength));
+                $linkLoss                     := $string($returnNanIfDoesNotExist($$.Measurement.Measures[0].LinkResults[0].Loss));
+
+				$concatenatedMetric:= $map($p, function ($v) 
+                {
+					(
+                        $physicalEventWavelength:= $string($returnNanIfDoesNotExist($v.PhysicalEventWavelength)); 
+                        $linkElementID          := $returnNanIfDoesNotExist($v.LinkElementID);
+                        $linkElementType        := $returnNanIfDoesNotExist($v.LinkElementType);
+
+						$linkElementLossMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementLoss"
+						}), function ($x) {
+							"olm_link_element_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.LinkElementLoss))
+						}));
+
+						$linkElementPositionMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementPosition"
+						}), function ($x) {
+							"olm_link_element_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.LinkElementPosition))
+						}));
+
+						$linkElementReflectanceMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementReflectance"
+						}), function ($x) {
+							"olm_link_element_reflectance{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.LinkElementReflectance))
+						}));
+
+						$linkElementDeviationLossMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementDeviationLoss"
+						}), function ($x) {
+							"olm_link_element_deviation_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.LinkElementDeviationLoss))
+						}));
+
+						$linkElementDeviationReflectanceMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementDeviationReflectance"
+						}), function ($x) {
+							"olm_link_element_deviation_reflectance{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.LinkElementDeviationReflectance))
+						}));
+
+						$linkElementDeviationVerdictMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "LinkElementDeviationVerdict"
+						}), function ($x) {
+							"olm_link_element_deviation_verdict{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string(($x.LinkElementDeviationVerdict = "Pass" ? 1 : 0))
+						}));
+
+						$sectionLengthMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "SectionLength"
+						}), function ($x) {
+							"olm_section_length{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.SectionLength))
+						}));
+
+						$sectionLossMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "SectionLoss"
+						}), function ($x) {
+							"olm_section_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.SectionLoss))
+						}));
+
+						$sectionDeviationLossMetric:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "SectionDeviationLoss"
+						}), function ($x) {
+							"olm_section_loss_deviation{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $string($returnNanIfDoesNotExist($x.SectionDeviationLoss))
+						}));
+
+                        $sectionLoss:= $returnNanIfNotNumber($v.SectionLoss);
+                        $sectionLength:= $returnNanIfNotNumber($v.SectionLength);
+                        $isNaN:= $sectionLoss = 'NaN' or $sectionLength = 'NaN' or $v.SectionLength = 0;
+
+                        $sectionLossAttenuation:= $isNaN ? 'NaN' : $v.SectionLoss / ($v.SectionLength * 0.001);
+
+                        $sectionLossAttenuationMetric:= "olm_section_loss_attenuation{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",link_element_id=\"" & $linkElementID & "\",link_element_type=\"" & $linkElementType & "\",unit=\"dB/km\",wavelength=\"" & $physicalEventWavelength & "\"} " & $sectionLossAttenuation;
+
+						$concatenatedMetric:= $linkElementLossMetric                    & "\n" & 
+                                              $linkElementPositionMetric                & "\n" & 
+                                              $linkElementReflectanceMetric             & "\n" & 
+                                              $linkElementDeviationLossMetric           & "\n" & 
+                                              $linkElementDeviationReflectanceMetric    & "\n" & 
+                                              $linkElementDeviationVerdictMetric        & "\n" & 
+                                              $sectionLengthMetric                      & "\n" & 
+                                              $sectionLossMetric                        & "\n" & 
+                                              $sectionDeviationLossMetric               & "\n" & 
+                                              $sectionLossAttenuationMetric;
+
+					)
+				});
+
+                $physicalEventWavelength            := $string($returnNanIfDoesNotExist($p[0].PhysicalEventWavelength)); 
+
+				$testTimeMetric                     := "olm_result_time{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\", cable_segment_ids=\"${cable_segment_ids}" & "\"} " & $testTime;
+				$hasFaultMetric                     := "olm_fault_presence{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\", cable_segment_ids=\"${cable_segment_ids}" & "\"} " & $hasFault;
+				$linkLossMetric                     := "olm_link_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $linkLoss;
+				$linkLengthMetric                   := "olm_link_length{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $linkLength;
+				$worstDeviationLossMetric           := "olm_worst_deviation_loss{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $worstDeviationLoss;
+				$worstDeviationPositionMetric       := "olm_worst_deviation_element_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $worstDeviationPosition;
+				$worstDeviationMinPositionMetric    := "olm_worst_deviation_element_min_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $worstDeviationMinPosition;
+				$worstDeviationMaxPositionMetric    := "olm_worst_deviation_element_max_position{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"m\",wavelength=\"" & $physicalEventWavelength & "\"} " & $worstDeviationMaxPosition;
+				$elementLossDeviationThresholdMetric:= "olm_element_loss_deviation_threshold{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $elementLossDeviationThreshold;
+				$linkLossDeviationThresholdMetric   := "olm_link_loss_deviation_threshold{asset_id=\"" & $assetId & "\",asset_type=\"" & $assetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${associated_rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\",unit=\"dB\",wavelength=\"" & $physicalEventWavelength & "\"} " & $linkLossDeviationThreshold;
+				
+                $concatenatedMetrics                := $append($concatenatedMetric, $testTimeMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $hasFaultMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $linkLossMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $linkLengthMetric);
+                $concatenatedMetrics                := $append($concatenatedMetrics, $worstDeviationLossMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $worstDeviationPositionMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $worstDeviationMinPositionMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $worstDeviationMaxPositionMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $elementLossDeviationThresholdMetric);
+				$concatenatedMetrics                := $append($concatenatedMetrics, $linkLossDeviationThresholdMetric);
+
+				$joinedMetrics                      := $join($concatenatedMetrics, "\n");
+				$splitedMetrics                     := $split($joinedMetrics, "\n");
+				$sortedMetrics                      := $sort($splitedMetrics);
+				$computedMetrics                    := $join($sortedMetrics, "\n")
+			)
+
+		}($$.Measurement.Measures[0].LinkElements. {
+			"LinkElementLoss"                : $exists($.PhysicalEvents[0].PhysicalEvent.Loss) ? $.PhysicalEvents[0].PhysicalEvent.Loss : "NaN",
+			"LinkElementPosition"            : $exists($.Position) ? $.Position : "NaN",
+			"LinkElementType"                : $exists($.Type) ? $.Type : "NaN",
+			"LinkElementID"                  : $exists($.ID) ? $.ID : "NaN",
+			"LinkElementReflectance"         : $exists($.PhysicalEvents[0].PhysicalEvent.Reflectance) ? $.PhysicalEvents[0].PhysicalEvent.Reflectance : "NaN",
+			"PhysicalEventWavelength"        : $exists($.PhysicalEvents[0].Wavelength) ? $.PhysicalEvents[0].Wavelength : "NaN",
+			"LinkElementDeviationLoss"       : $exists($.PhysicalEvents[0].Deviation.Loss) ? $.PhysicalEvents[0].Deviation.Loss : "NaN",
+			"LinkElementDeviationReflectance": $exists($.PhysicalEvents[0].Deviation.Reflectance) ? $.PhysicalEvents[0].Deviation.Reflectance : "NaN",
+			"LinkElementDeviationVerdict"    : $exists($.CultureDependent.DeviationState) ? $.CultureDependent.DeviationState : "NaN",
+			"SectionLoss"                    : $exists($.PhysicalEvents[0].PreviousFiberSection.Loss) ? $.PhysicalEvents[0].PreviousFiberSection.Loss : "NaN",
+			"SectionLength"                  : $exists($.PhysicalEvents[0].PreviousFiberSection.Length) ? $.PhysicalEvents[0].PreviousFiberSection.Length : "NaN",
+			"SectionDeviationLoss"           : $exists($.PhysicalEvents[0].Deviation.PreviousFiberSectionLoss) ? $.PhysicalEvents[0].Deviation.PreviousFiberSectionLoss : "NaN"
+		}) : function ($p) {
+			(
+
+				$r1:= "orf_los_presence{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"} " & ($$.Measurement.Uplink.LOSAlarmState = "Present" ? 1 : 0);
+				$r2:= "orf_lof_presence{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"} " & ($$.Measurement.Uplink.LOFAlarmState = "Present" ? 1 : 0);
+
+				$d:= $map($p, function ($v) {
+					(
+						$r3:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "PimValue"
+						}), function ($x) {
+							"orf_pim_value{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\",unit=\"dB\"} " & $x.PimValue
+						}));
+
+						$r4:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "PimThreshold"
+						}), function ($x) {
+							"orf_pim_threshold_level{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\",unit=\"dB\"} " & $x.PimThreshold
+						}));
+
+						$r5:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "PowerEventAlarm"
+						}), function ($x) {
+							"orf_power_event_alarm_presence{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & ($x.PowerEventAlarm = "Present" ? 1 : 0)
+						}));
+
+						$r6:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "PowerEventCount"
+						}), function ($x) {
+							"orf_power_event_count{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & $x.PowerEventCount
+						}));
+
+
+						$r7:= $join($map($sift($v, function ($v2, $k2) {
+							$k2 = "PimAlarm"
+						}), function ($x) {
+							"orf_pim_alarm_presence{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & ($x.PimAlarm = "Present" ? 1 : 0)
+						}));
+
+
+						$r8:= $map($v.PowerEvents, function ($n) {
+							(
+								$r1:= $join($map($sift($n, function ($v2, $k2) {
+									$k2 = "PowerEventValue"
+								}), function ($x) {
+									"orf_power_event_amplitude{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & $x.PowerEventValue
+								}));
+
+								$r2:= $join($map($sift($n, function ($v2, $k2) {
+									$k2 = "PowerEventFrequency"
+								}), function ($x) {
+									"orf_power_event_frequency{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & $x.PowerEventFrequency
+								}));
+
+								$r3:= $join($map($sift($n, function ($v2, $k2) {
+									$k2 = "PowerEventThresholdLevel"
+								}), function ($x) {
+									"orf_power_event_threshold_level{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}\"," & "axc_number=\"" & $v.AxCNumber & "\",axc_name=\"" & $v.AxCName & "\"} " & $x.PowerEventThresholdLevel
+								}));
+
+								$r:= $append($r1, $r2); $r:= $append($r, $r3);
+
+								$j:= $join($r, "\n");
+							)
+
+						});
+
+						$r8:= $join($r8, "\n");
+
+                        $r:= $length($r3) > 0 ? $r3 & "\n" & $r4 & "\n" & $r5 & "\n" & $r6 & "\n" & $r7 : $r4 & "\n" & $r5 & "\n" & $r6 & "\n" & $r7;
+						$r:= $length($r8) > 0 ? $r & "\n" & $r8 : $r;
+
+					)
+				});
+
+				$r7:= "orf_result_time{asset_id=\"" & $$.Metadata.AssetId & "\", asset_type=\"" & $$.Metadata.AssetType & "\",rtu_id=\"${rtu_id}\",rrh_site_id=\"${rrh_site_id}\",rtu_site_id=\"${rtu_site_id}\",group_ids=\"${group_ids}" & "\"} " & $string($toMillis($$.Metadata.TestTime));
+
+				$d:= $append($d, $r1);
+				$d:= $append($d, $r2);
+				$d:= $append($d, $r7);
+
+				$j:= $join($d, "\n");
+
+				$sp:= $split($j, "\n");
+
+				$srt:= $sort($sp);
+
+				$r:= $join($srt, "\n")
+			)
+
+		}(
+			$filter($$.Measurement.Uplink.AxCResultsList, function ($v1, $i1) {
+				$filter($$.Measurement.Config.Uplink.AxCConfigsList, function ($v2, $i2) {
+					$v1.AxCNumber = $v2.AxCNumber
+				}).Monitored
+			})
+			. {
+				"AssetType"		 : $$.Metadata.AssetType,
+				"AssetId"		 : $$.Metadata.AssetId,
+				"HasFault"		 : $$.Metadata.HasFault,
+				"TestTime"		 : $string($toMillis($$.Metadata.TestTime)),
+				"LossOfSignal"	 : $$.Measurement.Uplink.LOSAlarmState,
+				"LossOfFrame"	 : $$.Measurement.Uplink.LOFAlarmState,
+				"AxCName"		 : $filter($$.Measurement.Config.Uplink.AxCConfigsList, function ($v) { $v.AxCNumber = $.AxCNumber })[0].AxCName,
+				"AxCNumber"		 : $.AxCNumber,
+				"PimValue"		 : $boolean($filter($$.Measurement.Config.Uplink.AxCConfigsList, function ($v) { $v.AxCNumber = $.AxCNumber })[0].PimMonitorConfig.PimEnable) ? $.MaxPimValueDb,
+				"PimThreshold"	 : $exists($$.Measurement.Config.Uplink.AxCConfigsList) ? $filter($$.Measurement.Config.Uplink.AxCConfigsList, function ($v) { $v.AxCNumber = $.AxCNumber })[0].PimMonitorConfig.PimThresholdValueDb : "NaN",
+				"PimAlarm"       : $.HistoricalPimAlarmStatus,
+				"PowerEventAlarm": $.RfPwrMaskAlarmStatus,
+				"PowerEventCount": $count($.RfPwrMaskThresholdCrossings),
+				"PowerEvents"    : $.RfPwrMaskThresholdCrossings[]. {
+					"PowerEventValue"         : $.AmplitudeDb,
+					"PowerEventFrequency"     : $.FrequencyMHz,
+					"PowerEventThresholdLevel": $.ThresholdDb
+				}
+			}),
+		"context": ($exists($$.AdditionalJsonataData.SendAlarmingContext) and $$.AdditionalJsonataData.SendAlarmingContext = false) or
+                   ($exists($$.AdditionalJsonataData.SendAlarmingContext) = false and ($$.Metadata.TestCategory = "Adhoc" or $$.Metadata.TestCategory = "AdHocRD" or $$.Metadata.TestCategory = "RLNulling" or $$.Metadata.TestCategory = "AnchorRD"))
+                   ? null :  {
+			"initialEventTime"   : $$.Metadata.TestTime,
+			"sources"            : [{
+				"sourceCategory"  : "monitoredAsset",
+				"assetId"         : $$.Metadata.AssetId,
+				"resourceAddress" : "/v1/results/${measurementId}",
+				"sourceDetailData": {
+					"baselineId"   : $$.Metadata.BaselineId,
+					"faultValues"  : $$.Metadata.FaultValues,
+					"hasError"     : $$.Metadata.HasError,
+					"hasFault"     : $$.Metadata.HasFault,
+					"promiseId"    : $$.Metadata.PromiseId,
+					"testCategory" : $$.Metadata.TestCategory,
+					"testSetupId"  : $$.Metadata.TestSetupId,
+					"testTime"     : $$.Metadata.TestTime,
+					"testType"     : $$.Metadata.TestType,
+					"filename"     : $$.Metadata.Filename,
+					"measurementId": "${measurementId}"
+				},
+				"contextData"     : {
+					"assetType"          : $$.Metadata.AssetType,
+					"sourceResultTime"   : $toMillis($$.Metadata.TestTime),
+					"assetName"          : $$.Metadata.AssetName,
+					"groups"             : "${groups}",
+					"rtuId"              : "${rtu_id}",
+					"rtuName"            : "${rtu_name}",
+					"rrhId"              : $.Metadata.TestType = "ORF" ? "${rrh_id}" : "${associated_rrh_id}",
+					"rrhName"            : $.Metadata.TestType = "ORF" ? "${rrh_name}" : "${associated_rrh_name}",
+					"rtuSiteId"          : "${rtu_site_id}",
+					"rtuSiteName"        : "${rtu_site_name}",
+					"rrhSiteId"          : $.Metadata.TestType = "ORF" ? "${rrh_site_id}" : "${associated_rrh_site_id}",
+					"rrhSiteName"        : $.Metadata.TestType = "ORF" ? "${rrh_site_name}" : "${associated_rrh_site_name}",
+					"associatedAssetId"  : "${associated_asset_id}",
+					"associatedAssetName": "${associated_asset_name}",
+					"physicalRouteId" 	 : "${physicalRouteId}",
+					"externalNmsRef1" 	 : "${externalNmsRef1}",
+					"externalNmsRef2" 	 : "${externalNmsRef2}"
+				}
+			}]
+		}
+	}
+}

@@ -1,0 +1,2 @@
+{{ $serv_id := "rtu-broker" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.RTU_BROKER) $) }}

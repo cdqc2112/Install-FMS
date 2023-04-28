@@ -1,0 +1,50 @@
+
+-- The Atlantic project MIB node hanging on the 'exfo' node.
+
+NQMSFIBER-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	OBJECT-IDENTITY, MODULE-IDENTITY
+		FROM SNMPv2-SMI
+	exfoProductMib, exfo, exfoModules
+		FROM EXFO-SMI-REG;
+
+nqmsFiberMib MODULE-IDENTITY
+	LAST-UPDATED "201503181130Z"
+	ORGANIZATION 
+		"EXFO Electro-Optical Engineering Inc."
+	CONTACT-INFO 
+      "EXFO
+       Technical Support
+
+       Address: 400, avenue Godin
+                Quebec(Quebec) G1M 2K2
+                CANADA
+       
+       Phone: +1 866 683-0155
+       Fax:   +1 418 683-9224
+
+       E-mail: support@exfo.com
+       Web:    www.exfo.com"
+	DESCRIPTION 
+		"Describes the NqmsFiber base MIB node."
+     REVISION    "201503181130Z"
+     DESCRIPTION 
+     "David Carpenter's manual Adjustments for latest Wireshark"
+
+	REVISION "200611031503Z"
+	DESCRIPTION "ORIGINAL BUILD"
+
+::= { exfoModules 30 }
+
+
+nqmsFiber  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"Subtree for registration"
+	::= { exfoProductMib 2 }
+END
+
+
+
+

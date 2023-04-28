@@ -1,0 +1,23 @@
+{
+    "type": "Monitoring",
+    "resolution": "Normal",
+    "autoSettings": true,
+    "dataUploadPolicy": true,
+    "range": 20000,
+    "pulse": 0.000001,
+    "duration": null,
+    "spliceLossThreshold": 0.02,
+    "reflectanceThreshold": -72,
+    "endOfFiberThreshold": 4,
+    "targetedLearningCount": 30,
+    "learningBeReset": false,
+    "resetFrequency": null,
+    "resetPeriodicity": null,
+    "learningBeExpanded": true,
+    "expandFrequency": 14,
+    "expandPeriodicity": "Days",
+    "expandStep": 1,
+    "expandLimit": 54,
+    "extendedMode": false,
+    "thresholdSetName": "Normal"
+}

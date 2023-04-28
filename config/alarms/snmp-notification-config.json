@@ -1,0 +1,57 @@
+[
+	{
+		"snmpReceiver" : "",
+		"snmpPort" : 162,
+		"snmpVersion" : "v3",
+		"snmpEngineId" : "0x80001F88801AD83C40E70FFA5C00000000",
+		"snmpAuthUser": "user",
+		"snmpAuthPassword": "password",
+		"snmpAuthProtocol": "SHA",
+		"snmpPrivProtocol": "DES",
+		"snmpPrivPassword": "exfo1234",
+		"snmpCommunity" : "public",
+		"IS_SNMP_NOTIFY" : "true"
+	},
+
+	{
+		"snmpReceiver" :"",
+		"snmpPort" : 162,
+		"snmpVersion" : "v3",
+		"snmpEngineId" : "0x80001F88801AD83C40E70FFA5C00000000",
+		"snmpAuthUser": "user",
+		"snmpAuthPassword": "password",
+		"snmpAuthProtocol": "MD5",
+		"snmpPrivProtocol": "AES",
+		"snmpPrivPassword": "exfo1234",
+		"snmpCommunity" : "public",
+		"IS_SNMP_NOTIFY" : "true"
+	},
+
+	{
+		"snmpReceiver" : "",
+		"snmpPort" : 162,
+		"snmpVersion" : "v3",
+		"snmpEngineId" : "0x80001F88801AD83C40E70FFA5C00000000",
+		"snmpAuthUser": "user",
+		"snmpAuthPassword": "password",
+		"snmpAuthProtocol": "SHA",
+		"snmpPrivProtocol": "AES",
+		"snmpPrivPassword": "exfo1234",
+		"snmpCommunity" : "public",
+		"IS_SNMP_NOTIFY" : "true"
+	},
+
+	{
+		"snmpReceiver" : "",
+		"snmpPort" : 162,
+		"snmpVersion" : "v3",
+		"snmpEngineId" : "0x80001F88801AD83C40E70FFA5C00000000",
+		"snmpAuthUser": "user",
+		"snmpAuthPassword": "password",
+		"snmpAuthProtocol": "SHA",
+		"snmpPrivProtocol": "AES",
+		"snmpPrivPassword": "exfo1234",
+		"snmpCommunity" : "public",
+		"IS_SNMP_NOTIFY" : "true"
+	}
+]

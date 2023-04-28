@@ -1,0 +1,201 @@
+groups:
+- name: platform_metrics_rules
+  rules:  
+  - alert: platform_service_major_alert
+    expr: wmi_service_start_time == -1
+    for: 1h
+    labels:
+      severity: major
+      alarmType: Equipment        
+      state: new
+      triggeredThreshold: RTU ExfoTestCoordinator Service
+      thresholdUnit: datetime
+      asset_id: '{{$labels.rtu_id}}_TestService'
+      alertType: Local Platform Service Stopped
+      thresholdLevel :
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+      thresholdObservedValue: >
+         {{ with printf "timestamp(wmi_service_start_time)" | query }}
+            {{. | first | value | humanizeTimestamp	|}}      
+         {{ end }}
+
+  - alert: platform_absenceOfMetrics_major_alert
+    expr: rate(platform_result_time[10m]) == 0  
+    for: 55m
+    labels:
+      severity: major
+      alarmType: Equipment       
+      state: new
+      triggeredThreshold: Absence Of RTU Metrics
+      thresholdUnit: datetime
+      asset_id: '{{$labels.rtu_id}}_AbsenceOfMetrics'
+      alertType: Absence of Metrics
+      thresholdLevel : 
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+      thresholdObservedValue: >
+         {{ with printf "timestamp(wmi_processor_time_percent)" | query }}
+            {{. | first | value | humanizeTimestamp |}}      
+         {{ end }}
+
+  - alert: platform_processor_major_alert
+    expr: wmi_processor_time_percent >= 1
+    for: 1h
+    labels:
+      severity: major
+      alarmType: Equipment       
+      state: new
+      triggeredThreshold: RTU Processor Time
+      thresholdUnit: '%'
+      asset_id: '{{$labels.rtu_id}}_ProcessorTime'
+      alertType: High CPU Usage
+      thresholdLevel : 100
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      thresholdObservedValue: '{{ $value }}'
+
+  - alert: platform_diskSpace_major_alert
+    expr: wmi_free_disk_space_percent <= 0.05
+    for: 1h
+    labels:
+      severity: major
+      alarmType: Equipment       
+      state: new      
+      triggeredThreshold: High Disk Space Usage
+      thresholdUnit: '%'
+      asset_id: '{{$labels.rtu_id}}_DiskSpace'
+      alertType: High Disk Space Usage
+      thresholdLevel : 5
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      thresholdObservedValue: '{{ $value }}'
+
+  - alert: platform_thermalZone_minor_alert
+    expr: wmi_highest_thermal_zone >= 80
+    for: 1h
+    labels:
+      severity: minor
+      alarmType: Environmental        
+      state: new      
+      triggeredThreshold: RTU Highest Thermal Zone
+      thresholdUnit: '{{$labels.unit}}'
+      asset_id: '{{$labels.rtu_id}}_ThermalZone'
+      alertType: High Temperature
+      thresholdLevel : 80
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      thresholdObservedValue: '{{ $value }}'
+      
+  - alert: platform_powerSupply_major_alert
+    expr: wmi_power_supply_state == 0
+    for: 1d
+    labels:
+      severity: major
+      alarmType: Equipment    
+      state: new
+      triggeredThreshold: RTU Power Supply
+      asset_id: '{{$labels.rtu_id}}_PowerSupply'
+      alertType: Platform Power Supply Down
+      thresholdLevel : equal to 0
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      thresholdObservedValue: '{{ $value }}'
+      
+  - alert: platform_service_clear_alert
+    expr: wmi_service_start_time != -1    
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_TestService'
+      alertType: Local Platform Service Stopped
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+
+  - alert: platform_absenceOfMetrics_clear_alert
+    expr: rate(platform_result_time[10m]) > 0 
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_AbsenceOfMetrics'
+      alertType: Absence of Metrics
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}         
+
+  - alert: platform_processor_clear_alert
+    expr: wmi_processor_time_percent < 1    
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_ProcessorTime'
+      alertType: High CPU Usage
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}      
+
+  - alert: platform_diskSpace_clear_alert
+    expr: wmi_free_disk_space_percent > 0.05    
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_DiskSpace'
+      alertType: High Disk Space Usage
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}      
+
+  - alert: platform_thermalZone_clear_alert
+    expr: wmi_highest_thermal_zone < 80    
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_ThermalZone'
+      alertType: High Temperature
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}  
+         
+  - alert: platform_powerSupply_clear_alert
+    expr: wmi_power_supply_state == 1    
+    labels:
+      severity: cleared
+      state: closed
+      asset_id: '{{$labels.rtu_id}}_PowerSupply'
+      alertType: Platform Power Supply Down
+    annotations:
+      sourceResultTime: >
+         {{ with printf "platform_result_time{rtu_id='%s'}" .Labels.rtu_id | query }}
+            {{. | first | value |}}      
+         {{ end }}

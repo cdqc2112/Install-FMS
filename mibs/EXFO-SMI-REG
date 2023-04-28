@@ -1,0 +1,119 @@
+-- *****************************************************************
+-- ExfoSmiReg.my:  EXFO's Structure Management Information
+--
+-- 
+-- Copyright (c) 2000-2008 by EXFO Electro-Optical Engineering Inc.
+-- All rights reserved.
+-- 
+-- *****************************************************************
+--
+EXFO-SMI-REG DEFINITIONS ::= BEGIN
+
+--------------------------------------------------------------------
+-- Import
+
+IMPORTS
+   MODULE-IDENTITY,
+   OBJECT-IDENTITY,
+   enterprises
+      FROM SNMPv2-SMI;
+
+--------------------------------------------------------------------
+-- Module registration.
+
+exfoSmi MODULE-IDENTITY
+   LAST-UPDATED "201905161106Z"
+   ORGANIZATION "EXFO Electro-Optical Engineering Inc."
+   CONTACT-INFO
+      "EXFO
+       Technical Support
+
+       Address: 400, avenue Godin
+                Quebec(Quebec) G1M 2K2
+                CANADA
+       
+       Phone: +1 866 683-0155
+       Fax:   +1 418 683-9224
+
+       E-mail: support@exfo.com
+       Web:    www.exfo.com"
+
+   DESCRIPTION
+      "EXFO's Structure Management Information"
+
+   REVISION "201905161106Z"
+   DESCRIPTION "ORIGINAL BUILD"
+   ::= { exfoModules 1 }
+
+--------------------------------------------------------------------
+-- Textual conventions.
+
+
+--------------------------------------------------------------------
+-- Exfo identification.
+
+exfo OBJECT IDENTIFIER ::= { enterprises 6718 }   
+
+--------------------------------------------------------------------
+-- exfo sub-tree.
+
+exfoRegistration OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for registration"
+   ::= { exfo  1 }
+
+exfoCommonMib OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for object and event definitions used by multiple 
+       products"
+   ::= { exfo 2 }
+
+exfoProductMib OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for object and event definitions associated with 
+       specific products"
+   ::= { exfo 3 }
+
+exfoAgentCapability OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for agent profiles"
+   ::= { exfo 4 }
+
+exfoRequirements OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for management application requirements"
+   ::= { exfo 5 }
+
+exfoExperiment OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree for experimental definitions. MIBs are 
+       typically based here if they have not been assigned a 
+       permanent object identifier by the EXFO assigned number 
+       authority, typically because the MIB is not ready for 
+       deployment.
+
+       NOTE:  Support for MIBs in the exfoExperiment subtree 
+              will be deleted when a permanent object 
+              identifier assignment is performed."
+   ::= { exfo 6 }
+   
+
+--------------------------------------------------------------------
+-- exfoRegistration sub-tree.
+
+exfoModules OBJECT-IDENTITY
+   STATUS         current
+   DESCRIPTION
+      "Subtree to register the values assigned to modules with 
+       the MODULE-IDENTITY construct."
+   ::= { exfoRegistration 1 }
+
+
+END
+

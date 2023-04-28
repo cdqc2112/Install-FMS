@@ -1,0 +1,1026 @@
+-- Version 1.1
+-- Last Modified Date 26-Jun-2019.
+
+-- Variables needed to be take in account for sending traps.
+
+NQMSFIBER-VARIABLES-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	OBJECT-TYPE, OBJECT-IDENTITY, MODULE-IDENTITY, 
+	Integer32, Unsigned32
+		FROM SNMPv2-SMI
+	TEXTUAL-CONVENTION, TimeInterval
+		FROM SNMPv2-TC
+	exfoModules
+		FROM EXFO-SMI-REG
+	nqmsFiber
+		FROM NQMSFIBER-MIB;
+
+nqmsFiberVariablesMib MODULE-IDENTITY
+	LAST-UPDATED "201905161106Z"
+	ORGANIZATION 
+		"EXFO Electro-Optical Engineering Inc."
+	CONTACT-INFO 
+		"EXFO
+		       Technical Support
+		
+		       Address: 400, avenue Godin
+		                Quebec(Quebec) G1M 2K2
+		                CANADA
+		       
+		              Phone: +1 866 683-0155
+                              Fax:   +1 418 683-9224
+		
+		       E-mail: support@exfo.com
+		       Web:    www.exfo.com"
+	DESCRIPTION 
+		"Contains all variables the NqmsFiber can send in an SNMP trap.
+		The variables are grouped according to their functionality."
+    REVISION "201905161106Z"
+    DESCRIPTION
+        "Added variables to support additional thresholds for OFR and
+        iOLM measurement types"
+::= { exfoModules 31 }
+
+
+NqmsFiberTC ::= TEXTUAL-CONVENTION
+	STATUS     current
+	DESCRIPTION 
+		"Interpretation of the fault type in a trap."
+	SYNTAX  INTEGER {
+		break (0),
+		degradation (1),
+		manualcleared (2),
+		systemcleared (3)
+	}
+
+
+variableList  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"The groups of variables the NqmsFiber can handle 
+		are hanging on this node."
+	::= { nqmsFiber 1 }
+
+measurementType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related to measurement results."
+	::= { variableList 1 }
+
+systemType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related
+		to system status information."
+	::= { variableList 2 }
+
+nqmsFiberFaultType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related
+		to nqmsFiberFaultType results."
+	::= { variableList 3 }
+	
+nqmsFiberRtuStatusType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related
+		to system status information."
+	::= { variableList 4 }	
+	
+nqmsfiberStatusType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related
+		to nqmsFiberFaultType results."
+	::= { variableList 5 }	
+	
+nqmsFiberRtuLogType  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"This is a node that groups a subset of the NqmsFiber
+		variables. Under this node there are variables related
+		to nqmsFiberFaultType results."
+	::= { variableList 6 }		
+
+messageIdentifier  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Unique message identifier for tracking purposes."
+	::= { measurementType 1 }
+	
+	
+
+faultIdentifier  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Unique fault identifier."
+	::= { measurementType 2 }
+
+faultDescription  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Description of the fault."
+	::= { measurementType 3 }
+
+faultType  OBJECT-TYPE
+	SYNTAX     NqmsFiberTC
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault type: break, degradation, manual cleared or system cleared"
+	::= { measurementType 4 }
+
+
+
+level  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Level in dB."
+	::= { measurementType 5 }
+
+rtuName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Name of the RTU."
+	::= { measurementType 6 }
+
+rtuOpticalSwitchPort  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Port number of the RTU optical switch."
+	::= { measurementType 7 }
+
+-- min: 0, max: infinite
+
+faultDistanceEstimated  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"meter"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the RTU (in meters)
+		   Estimated (Note: a distance of 0 represents the entire route)
+		"
+	::= { measurementType 8 }
+
+-- min: 0, max: infinite
+
+faultDistanceMin  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"meter"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the RTU (in meters)
+		     Min: this will be used when we cannot determine the exact position"
+	::= { measurementType 9 }
+
+-- min: 0, max: infinite
+
+faultDistanceMax  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"meter"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the RTU (in meters)
+		     Max: this will be used when we cannot determine the exact position"
+	::= { measurementType 10 }
+
+remoteSwitchNumber  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Remote Switch number if applicable."
+	::= { measurementType 11 }
+
+remoteSwitchPort  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Remote switch port if applicable."
+	::= { measurementType 12 }
+
+-- min: 0, max: infinite
+
+faultDistanceToRS  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"meter"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the RS in meters, if applicable."
+	::= { measurementType 13 }
+
+opticalRouteNumber  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Optical route number if applicable."
+	::= { measurementType 14 }
+
+opticalRouteGISReference  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"GIS reference of the optical route if applicable."
+	::= { measurementType 15 }
+
+-- min: 1, max: 2
+
+defaultIORValue  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"IOR metrics"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Default IOR value. (real number)"
+	::= { measurementType 16 }
+
+-- min: 0%, max: 100%
+
+defaultHelixFactorValue  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"percent"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Default helix factor value. (real number)"
+	::= { measurementType 17 }
+
+freeDiskSpaceSystem  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"kByte"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Free disk space left currently in the system in MB."
+	::= { systemType 1 }
+
+systemUptime  OBJECT-TYPE
+	SYNTAX     TimeInterval
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"System uptime in time interval format. It is the UTC number of secs elapsed since 1st jan 1970"
+	::= { systemType 2 }
+	
+alertTime  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Time when the alert was generated. Format of the time is 'EEE, d MMM yyyy HH:mm:ss timezone' ex:Wed, 4 Jul 2008 12:08:56 GMT"
+	::= { nqmsFiberFaultType 1 }
+
+alertType   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Type of the alert."
+	::= { nqmsFiberFaultType 2 }
+	
+alertProvider  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Device name on which alert was generated"
+	::= { nqmsFiberFaultType 3 }
+	
+alertRecipient  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Alert recipient name"
+	::= { nqmsFiberFaultType 4 }
+
+
+alertDeliveryAddress  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Recipient address."
+	::= { nqmsFiberFaultType 5 }
+
+alarmId  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Alarm Id for which alert was generated"
+	::= { nqmsFiberFaultType 6 }
+
+
+alarmType  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"AlarmType for which alarm was generated"
+	::= { nqmsFiberFaultType 7 }
+
+alarmTime  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Time when alarm was generated. Format of the time is 'EEE, d MMM yyyy HH:mm:ss timezone' ex:Wed, 4 Jul 2008 12:08:56 GMT"
+	::= { nqmsFiberFaultType 8 }
+
+
+alarmSeverity  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"meter"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Severity of the alarm "
+	::= { nqmsFiberFaultType 9 }
+
+
+
+alarmState  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"State of the alarm"
+	::= { nqmsFiberFaultType 10 }
+	
+alarmEvent  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Name of the Event for which alarm was generated"
+	::= { nqmsFiberFaultType 11 }
+
+alarmEventTime  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Time at which alarm Event was generated. Format of the time is 'EEE, d MMM yyyy HH:mm:ss timezone' ex:Wed, 4 Jul 2008 12:08:56 GMT"
+	::= { nqmsFiberFaultType 12 }
+
+
+faultStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Status of the fault for which alarm was generated"
+	::= { nqmsFiberFaultType 13 }
+
+faultConfirmations  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Confirmation count of fault for which alarm was generated"
+	::= { nqmsFiberFaultType 14 }
+
+
+
+faultPositionKM  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"KM"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault position"
+	::= { nqmsFiberFaultType 15 }
+
+
+
+faultMaximumPositionKm  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"KM"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the rtu"
+	::= { nqmsFiberFaultType 16 }
+	
+	
+	
+faultMinimumPositionKM  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"KM"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance of the fault in relation to the rtu"
+	::= { nqmsFiberFaultType 17}
+
+faultLoss  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault Loss"
+	::= { nqmsFiberFaultType 18 }
+
+faultThresholdType  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault thershold Type"
+	::= { nqmsFiberFaultType 19 }
+	
+faultThresholdValueDB  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault threshold value"
+	::= { nqmsFiberFaultType 20 }
+	
+faultAppliedThresholdDB  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault applied threshold"
+	::= { nqmsFiberFaultType 21 }
+	
+faultEventTime  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Time when fault occured.Format of the time is 'EEE, d MMM yyyy HH:mm:ss timezone' ex:Wed, 4 Jul 2008 12:08:56 GMT"
+	::= { nqmsFiberFaultType 22 }
+	
+
+	
+rtuSiteName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Site name for which the alert was generated"
+	::= { nqmsFiberFaultType 23 }
+
+otdrSerialNumber  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"OTDR serial number"
+	::= { nqmsFiberFaultType 24 }
+	
+othSerialNumber  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"OTH serial number"
+	::= { nqmsFiberFaultType 25 }
+	
+otauPort  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"OTAU port number"
+	::= { nqmsFiberFaultType 26 }
+	
+rotauPort  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"ROTAU port number"
+	::= { nqmsFiberFaultType 27 }	
+	
+opticalRouteName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Optical route name for which alert was generated"
+	::= { nqmsFiberFaultType 28 }
+	
+cableTemplateName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" "
+	::= { nqmsFiberFaultType 29 }
+
+ospRouteId  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"physical route Id"
+	::= { nqmsFiberFaultType 30}
+	
+externalNMSrouteref1  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"External NMS route ref 1  "
+	::= { nqmsFiberFaultType 31 }
+	
+externalNMSrouteref2  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" External NMS route ref 2 "
+	::= { nqmsFiberFaultType 32 }
+
+fiberCode  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"fiberCode "
+	::= { nqmsFiberFaultType 33 }
+	
+testSetupName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"TestSetup name for which alert was generated"
+	::= { nqmsFiberFaultType 34 }
+	
+testSetupType  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"TestSetup Type"
+	::= { nqmsFiberFaultType 35 }
+	
+testSetupWavelength  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"nm"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"TestSetup Wavelength "
+	::= { nqmsFiberFaultType 36 }
+	
+nearestSite  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Nearest site name for which alert was generated"
+	::= { nqmsFiberFaultType 37 }
+	
+distanceFromNearestSiteKM  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"KM"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Distance from nearestSite "
+	::= { nqmsFiberFaultType 38 }
+	
+	
+	
+affectedClient  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault affected Client Names seperated by :"
+	::= { nqmsFiberFaultType 39 }	
+
+assignee  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Trouble Ticket Assignee"
+	::= { nqmsFiberFaultType 40 }	
+troubleTicketDescription   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Trouble Ticket Description"
+	::= { nqmsFiberFaultType 41 }	
+	
+faultLng   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault Longitude"
+	::= { nqmsFiberFaultType 42 }	
+	
+faultLat   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Fault Lattitude"
+	::= { nqmsFiberFaultType 43 }	
+	
+nearestSiteLng   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Nearest Site Longitude"
+	::= { nqmsFiberFaultType 44 }	
+	
+nearestSiteLat   OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Nearest Site Lattitude"
+	::= { nqmsFiberFaultType 45 }
+
+alarmUuid  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"UUID based identifier of the alarm"
+	::= { nqmsFiberFaultType 46 }
+	
+triggeredThreshold  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Threshold that has been triggered"
+	::= { nqmsFiberFaultType 47 }
+    
+thresholdLevel  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Threshold level that has been set"
+	::= { nqmsFiberFaultType 48 }
+
+thresholdUnit  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Threshold unit based on each measurement type (dB, count)"
+	::= { nqmsFiberFaultType 49 }
+    
+observedThreshold  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Value observed that has triggered the threshold"
+	::= { nqmsFiberFaultType 50 }  
+    
+assetName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Asset name primarily impacted by the alarm"
+	::= { nqmsFiberFaultType 51 }	
+	
+sourceDataSet  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"DataSource of the alarmType for which alarm was generated"
+	::= { nqmsFiberRtuStatusType 1 }
+	
+	
+primaryAlarmSource  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"PrimarySource of the alarm"
+	::= { nqmsFiberRtuStatusType 2 }
+	
+
+alarmStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Status of the alarm "
+	::= { nqmsFiberRtuStatusType 3 }
+	
+	
+	
+secondaryAlarmSource  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"SecondarySource of the alarm "
+	::= { nqmsFiberRtuStatusType 4 }
+	
+alarmDetails  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Details of the alarm "
+	::= { nqmsFiberRtuStatusType 5 }
+	
+availableMemory  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"MB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Available memory of the system "
+	::= { alarmDetails 1 }	
+	
+uptime  OBJECT-TYPE
+	SYNTAX     TimeInterval
+	UNITS 	"secs"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Uptime of the system.it is the UTC number of secs elapsed since 1st jan 1970"
+	::= { alarmDetails 2 }	
+	
+
+	
+status  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Status of the system"
+	::= { alarmDetails 3 }
+	
+processorLoad  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"%"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" ProcessorLoad of the  system"
+	::= { alarmDetails 4 }	
+	
+emsName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Name of the System on which Ems Application is running"
+	::= { alarmDetails 5 }	
+	
+	
+hostName  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Host name"
+	::= { alarmDetails 6 }	
+	
+raidStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Raid Status"
+	::= { alarmDetails 7 }	
+	
+lastSynchronizationStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Last Synchronization status"
+	::= { alarmDetails 8 }	
+	
+hardwareKey  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Hardware Key"
+	::= { alarmDetails 9 }	
+	
+rtuStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" Status of the RTU"
+	::= { alarmDetails 10 }	
+	
+upsStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU UPS Status"
+	::= { alarmDetails 11 }	
+	
+errorLogCount  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Error Log count"
+	::= { alarmDetails 12 }	
+	
+warningLogCount  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Warning Log count"
+	::= { alarmDetails 13 }	
+	
+messageCategory  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Log Message category"
+	::= { alarmDetails 14 }	
+	
+messageData  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" RTU Log Message data"
+	::= { alarmDetails 15 }	
+	
+freeDiskSpaceDatabase  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" FreeDiskSpace of the Database"
+	::= { alarmDetails 16 }	
+	
+freeDiskSpaceBackup  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" FreeDiskSpace of the Backup"
+	::= { alarmDetails 17 }	
+	
+availableMemoryPer  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"MB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"Available memory percentage of the system "
+	::= { alarmDetails 18 }	
+
+rtu3G/4GState  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"3G/4G status of RTU "
+	::= { alarmDetails 19 }	
+	
+systemTemperature  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"Celsius"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"System temperature"
+	::= { alarmDetails 20 }	
+
+cpuTemperature  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"Celsius"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"CPU temperature of system"
+	::= { alarmDetails 21 }	
+
+freeDiskSpacePer  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"percent"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"free disk space percentage of system"
+	::= { alarmDetails 22 }	
+	
+powerSupply  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"power supply status of system"
+	::= { alarmDetails 23 }	
+	
+systemFanRPM  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"system fan RPM"
+	::= { alarmDetails 24 }	
+
+otdrTemperature  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"Celsius"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"OTDR Temperature of system"
+	::= { alarmDetails 25 }
+	
+otdrStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"OTDR status of system"
+	::= { alarmDetails 26 }	
+
+rotauStatus  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"ROTAU status of system"
+	::= { alarmDetails 27 }			
+	
+SystemFanState  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		"System FAN State"
+	::= { alarmDetails 28 }
+	
+freeTableSpaceDatabaseUser  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" FreeDiskSpace of the Database"
+	::= { alarmDetails 29 }
+	
+freeTableSpaceDatabaseTbsBlob  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	UNITS 	"dB"
+	MAX-ACCESS accessible-for-notify
+	STATUS     current
+	DESCRIPTION 
+		" FreeDiskSpace of the Database"
+	::= { alarmDetails 30 }	
+		
+END
+
+
+-- This MIB was created using NuDesign Team's Visual MIBuilder (Ver 4.7).
+

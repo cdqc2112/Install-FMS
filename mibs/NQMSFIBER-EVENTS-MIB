@@ -1,0 +1,299 @@
+-- Version 1.1
+-- Last Modified Date 26-Jun-2019.
+-- Version 1.2
+-- Last Modified Date 09-Jun-2021.
+
+
+NQMSFIBER-EVENT-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	NOTIFICATION-TYPE, OBJECT-IDENTITY, MODULE-IDENTITY
+		FROM SNMPv2-SMI
+	exfoModules
+		FROM EXFO-SMI-REG
+	nqmsFiber
+		FROM NQMSFIBER-MIB
+	systemUptime, freeDiskSpaceSystem, rtuOpticalSwitchPort, rtuName, remoteSwitchPort, 
+	remoteSwitchNumber, opticalRouteNumber, opticalRouteGISReference, level, faultType, 
+	faultDistanceToRS, faultDistanceMin, faultDistanceMax, faultDistanceEstimated, faultDescription, 
+	defaultIORValue, defaultHelixFactorValue, faultIdentifier, messageIdentifier, alertTime, alertType, 
+	alertProvider, alertRecipient, alertDeliveryAddress, alarmId, alarmType, alarmTime, alarmSeverity, 
+	alarmState, alarmEvent, alarmEventTime, faultStatus, faultConfirmations, faultPositionKM, 
+	faultMaximumPositionKm, faultMinimumPositionKM, faultLoss, faultThresholdType, faultThresholdValueDB, 
+	faultAppliedThresholdDB, faultEventTime, rtuSiteName, otdrSerialNumber, othSerialNumber, otauPort, 
+	rotauPort, opticalRouteName, cableTemplateName, ospRouteId, externalNMSrouteref1, externalNMSrouteref2, 
+	fiberCode, testSetupName, testSetupType, testSetupWavelength, nearestSite, alarmUuid,triggeredThreshold,
+	thresholdLevel,	thresholdUnit, observedThreshold, assetName, distanceFromNearestSiteKM, 
+	affectedClient, assignee, troubleTicketDescription, sourceDataSet, primaryAlarmSource, alarmStatus, 
+	secondaryAlarmSource, alarmDetails, availableMemory, uptime, status, processorLoad, emsName, hostName, 
+	raidStatus, lastSynchronizationStatus, hardwareKey, rtuStatus, upsStatus, errorLogCount, warningLogCount, 
+	messageCategory, messageData, freeDiskSpaceDatabase, freeDiskSpaceBackup,
+	otdrTemperature,rotauStatus,otdrStatus,systemFanRPM,powerSupply,freeDiskSpacePer,cpuTemperature,systemTemperature,rtu3G/4GState,SystemFanState,freeTableSpaceDatabaseUser,freeTableSpaceDatabaseTbsBlob 
+		FROM NQMSFIBER-VARIABLES-MIB;
+
+nqmsFiberEvents MODULE-IDENTITY
+	LAST-UPDATED "201905161106Z"
+	ORGANIZATION 
+		"EXFO Electro-Optical Engineering Inc."
+	CONTACT-INFO 
+      "EXFO
+       Technical Support
+
+       Address: 400, avenue Godin
+                Quebec(Quebec) G1M 2K2
+                CANADA
+       
+       Phone: +1 866 683-0155
+       Fax:   +1 418 683-9224
+
+       E-mail: support@exfo.com
+       Web:    www.exfo.com"
+	DESCRIPTION 
+		"Notifications for NqmsFiber."
+	REVISION "201905161106Z"
+	DESCRIPTION "ORIGINAL BUILD"
+
+::= { exfoModules 32 }
+
+
+nqmsFiberEventTypes  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"Trap types are grouped under this node."
+	::= { nqmsFiber 2 }
+
+measurementTypeAlarm  NOTIFICATION-TYPE
+	OBJECTS { messageIdentifier, 
+		faultIdentifier, 
+		faultDescription,
+		faultType, 
+		level, 
+		rtuName, 
+		rtuOpticalSwitchPort,
+		faultDistanceEstimated, 
+		faultDistanceMin, 
+		faultDistanceMax, 
+		remoteSwitchNumber, 	
+		remoteSwitchPort, 
+		faultDistanceToRS, 
+		opticalRouteNumber, 
+		opticalRouteGISReference, 
+		defaultIORValue, 
+		defaultHelixFactorValue }
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for measurement related notification."
+	::= { nqmsFiberEventTypes 1 }
+
+systemTypeAlarm  NOTIFICATION-TYPE
+	OBJECTS { freeDiskSpaceSystem, 
+		systemUptime }
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for system related notification."
+	::= { nqmsFiberEventTypes 2 }
+	
+nqmsFiberFaultTypeAlarm  NOTIFICATION-TYPE
+	OBJECTS { alertTime, 
+		alertType, 
+		alertProvider,
+		alertRecipient,
+		alertDeliveryAddress,
+		alarmId,
+		alarmType,
+		alarmTime,
+		alarmSeverity,
+		alarmState,
+		alarmEvent,
+		alarmEventTime, 
+		faultType,
+		faultStatus,
+		faultConfirmations, 
+		faultPositionKM, 
+		faultLng,
+		faultLat,
+		faultMinimumPositionKM,
+		faultMaximumPositionKm,
+		faultLoss,
+		faultThresholdType,
+		faultThresholdValueDB,
+		faultAppliedThresholdDB,
+		faultEventTime,
+		rtuName,
+		rtuSiteName,
+		otdrSerialNumber,
+		othSerialNumber,
+		otauPort,
+		rotauPort,
+		opticalRouteName,
+		cableTemplateName,
+		ospRouteId,
+		externalNMSrouteref1,
+		externalNMSrouteref2,
+		fiberCode,
+		testSetupName,
+		testSetupType,
+		testSetupWavelength,
+		nearestSite,
+		alarmUuid,
+		triggeredThreshold,
+		thresholdLevel,
+		thresholdUnit,
+		observedThreshold,
+		assetName,
+		nearestSiteLng,
+		nearestSiteLat,
+		distanceFromNearestSiteKM,
+		affectedClient ,
+            assignee,
+            troubleTicketDescription }
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for measurement related notification."
+	::= { nqmsFiberEventTypes 3 }
+
+nqmsFiberRtuStatusTypeAlarm  NOTIFICATION-TYPE
+	OBJECTS { 	rtuName,
+	          	freeDiskSpaceSystem,
+	          	sourceDataSet,
+	          	alarmType,
+		  		primaryAlarmSource,
+		  		alarmSeverity,
+		  		alarmStatus,
+		  		alarmEvent,
+		  		alarmEventTime,
+		  		secondaryAlarmSource,
+		  		availableMemory,
+				uptime,
+				status,
+				processorLoad,
+				emsName,
+				hostName,
+				raidStatus,
+				lastSynchronizationStatus,
+				hardwareKey,
+				rtuStatus,
+				upsStatus,
+				errorLogCount,
+				warningLogCount,
+				messageCategory,
+				messageData,
+				freeDiskSpaceDatabase,
+				freeDiskSpaceBackup,
+				alarmDetails,
+				alarmId,
+				alertTime,
+				alertType,
+				alarmState,
+				alarmTime,
+				alertProvider,
+				alertRecipient,
+				alertDeliveryAddress,
+             	assignee,
+          		troubleTicketDescription,
+				alarmUuid,
+				triggeredThreshold,
+				thresholdLevel,
+				thresholdUnit,
+				observedThreshold,
+				assetName,
+				otdrTemperature,
+				rotauStatus,
+				otdrStatus,
+				systemFanRPM,
+				powerSupply,
+				freeDiskSpacePer,
+				cpuTemperature,
+				systemTemperature,
+				rtu3G/4GState,
+				SystemFanState,
+				freeTableSpaceDatabaseUser,
+				freeTableSpaceDatabaseTbsBlob  }
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for system related notification."
+	::= { nqmsFiberEventTypes 4 }
+	
+nqmsFiberStatusTypeAlarm  NOTIFICATION-TYPE
+      OBJECTS { freeDiskSpaceSystem,
+                sourceDataSet,
+      	        alarmType,
+      			primaryAlarmSource,
+      			alarmSeverity,
+      			alarmStatus,
+      			alarmEvent,
+      			alarmEventTime,
+      			secondaryAlarmSource,
+				alarmDetails,
+      			availableMemory,
+				uptime,
+				status,
+				processorLoad,
+				emsName,
+				hostName,
+				raidStatus,
+				lastSynchronizationStatus,
+				hardwareKey,
+				rtuStatus,
+				upsStatus,
+				errorLogCount,
+				warningLogCount,
+				messageCategory,
+				messageData,
+				freeDiskSpaceDatabase,
+				freeDiskSpaceBackup,
+      			alertTime,
+      			alertRecipient,
+				alertDeliveryAddress,
+            	assignee,
+            	troubleTicketDescription,
+				SystemFanState,
+				freeTableSpaceDatabaseUser, 
+				freeTableSpaceDatabaseTbsBlob }
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for system related notification."
+	::= { nqmsFiberEventTypes 5 }
+	
+nqmsFiberRtuLogTypeAlarm  NOTIFICATION-TYPE
+      OBJECTS { rtuName,
+                sourceDataSet,
+            	alarmType,
+                primaryAlarmSource,
+            	alarmSeverity,
+            	alarmStatus,
+            	alarmEvent,
+            	alarmEventTime,
+            	secondaryAlarmSource,
+				alarmDetails,
+            	availableMemory,
+				uptime,
+				status,
+				processorLoad,
+				emsName,
+				hostName,
+				raidStatus,
+				lastSynchronizationStatus,
+				hardwareKey,
+				rtuStatus,
+				upsStatus,
+				errorLogCount,
+				warningLogCount,
+				messageCategory,
+				messageData,
+				freeDiskSpaceDatabase,
+				freeDiskSpaceBackup ,
+            	alertTime,
+            	alertRecipient,
+				alertDeliveryAddress,
+            	assignee,
+            	troubleTicketDescription,
+				SystemFanState,
+				freeTableSpaceDatabaseUser,
+				freeTableSpaceDatabaseTbsBlob 		}
+	STATUS     current
+	DESCRIPTION 
+		"Alarm for system related notification."
+	::= { nqmsFiberEventTypes 6 }
+	
+END

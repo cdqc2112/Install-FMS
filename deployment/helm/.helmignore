@@ -1,0 +1,9 @@
+# Match any text file
+*.txt
+
+*.tmp
+*.old
+*.local
+
+# Match only directories named mydir
+addons

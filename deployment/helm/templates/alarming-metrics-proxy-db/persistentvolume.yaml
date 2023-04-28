@@ -1,0 +1,2 @@
+{{ $serv_id := "alarming-metrics-proxy-db" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.METRIC_DATA) $) }}

@@ -1,0 +1,80 @@
+{{ $serv_id := "alarming-metrics-proxy-db" }}
+{{ $serv_uidgid := "999:999" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  serviceName: {{ include "fms.fullname" . }}-{{$serv_id}}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-mongo") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: "{{.Values.env.MONGO_USERNAME_ALARMING_METRICS}}"
+          - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+            value: "/run/secrets/alarming_metrics_db_pwd"
+          volumeMounts:
+          - name: data
+            mountPath: /data/db
+          - name: alarming-metrics-db-pwd
+            mountPath: /run/secrets/alarming_metrics_db_pwd
+            subPath: secret
+            readOnly: true
+          startupProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - '[ -f "$INIT_DONE_FILE" ] && cat < /dev/null > /dev/tcp/$HOSTNAME/27017 '
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 200
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: "{{.Values.env.MEMORY_LIMIT_MONGODB_ALARMINGMETRICSPROXY_MO}}M"
+            requests:
+              memory: "102.4M"
+      volumes:
+      - name: alarming-metrics-db-pwd
+        secret:
+          secretName: {{.Values.env.MONGO_PASSWORD_ALARMING_METRICS_SECRET}}
+          defaultMode: 0440
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    {{- include "fms.volumeclaim.data" (merge (dict "id" $serv_id) $) | nindent 4 }}

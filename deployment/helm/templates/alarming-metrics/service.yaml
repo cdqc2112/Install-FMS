@@ -1,0 +1,13 @@
+{{ $serv_id := "alarming-metrics" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$serv_id}}
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/service: {{$serv_id}}
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP

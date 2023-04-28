@@ -1,0 +1,26 @@
+{
+    "title" : "testapp",
+    "tolerance" : 0.5,
+    "traceColors" : {
+        "curr": "orange",
+        "ref": "darkgray",
+        "min": "lightblue",
+        "max": "blue",
+        "avg":"green",
+        "default": "lightgray"
+    },
+    "enableCustomTraceColor" : true,
+    "traceSelection": {
+        "isMaxTraceVisible" : false,
+        "isMinTraceVisible" : false,
+        "isAvgTraceVisible" : false
+    },
+    "units": {
+        "distance": 1,
+        "power": "dB"
+    },
+    "isShowEventImage" : false,
+    "screenMode" : 1,
+    "isTraceInfoBoxMinimize" : false,
+    "isLegacy" : false
+}

@@ -1,0 +1,120 @@
+groups:  
+- name: olm_metrics_rules
+  rules:      
+  - alert: olm_critical_alert
+    expr: max(olm_fault_presence) by(asset_id) == 1 and max(olm_worst_deviation_loss) by(asset_id) >= 4 
+    labels:
+      severity: critical
+      state: new
+      probableCause: Communication subsystem failure
+      triggeredThreshold : Link loss deviation
+      thresholdLevelUnit : dB
+      alarmType: Communication      
+    annotations:
+      sourceResultTime: >
+         {{ with printf "olm_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      observedThreshold: >
+         {{ with printf "olm_worst_deviation_loss{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      positionUnit: >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | label "unit"}}
+         {{ end }}
+      worstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      maxWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_max_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      minWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_min_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      thresholdLevel: >
+         {{ with printf "olm_link_loss_deviation_threshold{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+         
+  - alert: olm_major_alert
+    expr:  max(olm_fault_presence) by(asset_id) == 1 and max(olm_worst_deviation_loss) by(asset_id) < 4 and 
+            (max(olm_worst_deviation_loss) by(asset_id) > max(olm_element_loss_deviation_threshold) by(asset_id) and
+                max(olm_worst_deviation_loss) by(asset_id) > max(olm_link_loss_deviation_threshold) by(asset_id))  
+    labels:
+      severity: major      
+      state: new
+      probableCause: Degraded signal
+      triggeredThreshold : Link loss deviation
+      thresholdLevelUnit : dB 
+      alarmType: Communication
+    annotations:
+      sourceResultTime: >
+         {{ with printf "olm_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      observedThreshold: >
+         {{ with printf "olm_worst_deviation_loss{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      positionUnit: >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | label "unit"}}
+         {{ end }}
+      worstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      maxWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_max_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      minWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_min_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      thresholdLevel: >
+         {{ with printf "olm_link_loss_deviation_threshold{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      
+  - alert: olm_minor_alert
+    expr:  (max(olm_element_loss_deviation_threshold) by(asset_id) < max(olm_worst_deviation_loss) by(asset_id)
+           and max(olm_worst_deviation_loss) by(asset_id) <= max(olm_link_loss_deviation_threshold) by(asset_id) and
+           max(olm_fault_presence) by(asset_id) == 1 and max(olm_worst_deviation_loss) by(asset_id) < 4) 
+    labels:
+      severity: minor      
+      state: new
+      probableCause: Degraded signal
+      triggeredThreshold : Element loss deviation
+      thresholdLevelUnit : dB    
+      alarmType: Communication
+    annotations:
+      thresholdLevel : '{{$value}}'
+      sourceResultTime: >
+         {{ with printf "olm_result_time{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      observedThreshold: >
+         {{ with printf "olm_worst_deviation_loss{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value |}}      
+         {{ end }}
+      positionUnit: >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}"  .Labels.asset_id | query }}
+            {{. | first | label "unit"}}
+         {{ end }}
+      worstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_position{asset_id='%s'}"  .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}     
+      maxWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_max_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}
+      minWorstDeviationPosition : >
+         {{ with printf "olm_worst_deviation_element_min_position{asset_id='%s'}" .Labels.asset_id | query }}
+            {{. | first | value}}
+         {{ end }}          

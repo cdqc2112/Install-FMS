@@ -1,0 +1,4 @@
+{{ $serv_id := "keycloak-postgresql-replica" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+{{ include "fms.volume.replication-data" (merge (dict "id" $serv_id "path" .Values.env.SECURITY_DATA) $) }}
+{{- end }}

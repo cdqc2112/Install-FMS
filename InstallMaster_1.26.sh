@@ -204,7 +204,8 @@ else
         # Show Docker versions
         if [ "$FMS_INSTALLER" = "apt" ]; then
             $FMS_INSTALLER-cache madison docker-ce | awk '{ print $3 }'
-            read -e -p 'Copy version above and paste here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
+            echo 'Copy the version string above'
+            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce=$VERSION_STRING \
             docker-ce-cli=$VERSION_STRING \
@@ -216,17 +217,14 @@ else
                 --add-repo \
                 https://download.docker.com/linux/centos/docker-ce.repo
             $FMS_INSTALLER list docker-ce --showduplicates | sort -r
-            read -e -p 'Copy version above and paste here: ' -i "20.10.24" VERSION_STRING
+            echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen, separated by a hyphen (-)'
+            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "20.10.24" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce-$VERSION_STRING \
             docker-ce-cli-$VERSION_STRING \
             containerd.io \
             docker-compose-plugin
         fi
-        # Choose Docker version to install
-        #CentOS 8
-        #wget https://download.docker.com/linux/centos/8/x86_64/stable/Packages/docker-ce-20.10.23-3.el8.x86_64.rpm
-        #yum install docker-ce-20.10.23-3.el8.x86_64.rpm
     fi
     systemctl enable docker
     systemctl start docker

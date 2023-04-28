@@ -204,7 +204,9 @@ else
         # Show Docker versions
         if [ "$FMS_INSTALLER" = "apt" ]; then
             $FMS_INSTALLER-cache madison docker-ce | awk '{ print $3 }'
+            echo
             echo 'Copy the version string above'
+            echo
             read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce=$VERSION_STRING \
@@ -217,7 +219,9 @@ else
                 --add-repo \
                 https://download.docker.com/linux/centos/docker-ce.repo
             $FMS_INSTALLER list docker-ce --showduplicates | sort -r
-            echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen, separated by a hyphen (-)'
+            echo
+            echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'
+            echo
             read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "20.10.24" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce-$VERSION_STRING \
@@ -290,11 +294,12 @@ else
             touch $WORKINGDIR/.certs
         else
             read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
-            echo
-            echo "rootCA.crt will be created in /opt/fms/solution/cer that will need to be installed in browser"
-            echo "or imported into Trusted Root Certification Authorities"
     
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+                clear
+                echo "rootCA.crt will be created in /opt/fms/solution/cer that will need to be installed in browser"
+                read -n 1 -r -s -p $'or imported into Trusted Root Certification Authorities Press enter to continue...\n'
+                echo
                 read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
                 read -e -p 'Enter the state or province: ' -i "State" STATE
                 read -e -p 'Enter the locality: ' -i "City" CITY

@@ -6,6 +6,7 @@
 
 # Create csr conf
 
+
 cat > ${DOMAIN}.conf <<EOF
 [ req ]
 default_bits = 2048

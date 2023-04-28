@@ -1,7 +1,6 @@
 #! /bin/bash
 # InstallMaster - 1.26
 
-
 clear
 
 WORKINGDIR=${PWD}

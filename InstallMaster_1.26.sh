@@ -26,7 +26,7 @@ function installPackage() {
     fi
 }
 
-echo "Script to install Docker and setup FMS on Ubuntu"
+echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
 echo
 echo
 # Solution and backup volume LVM

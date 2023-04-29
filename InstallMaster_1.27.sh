@@ -391,9 +391,8 @@ fi
 echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
 echo
-echo "Add required GIS addon to /opt/fms/solution/deployment/"
-echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+echo "Add required GIS addon to /opt/fms/solution/deployment/"
 cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
 {
   "isCentralizedMode": true,

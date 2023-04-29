@@ -1,5 +1,5 @@
 #! /bin/bash
-# InstallMaster - 1.26
+# InstallMaster - 1.27
 
 clear
 
@@ -410,7 +410,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         cd $WORKINGDIR/images/
         tar -xvf images.tgz
         rm -rf images.tgz
-        ./loadImages.sh
+        for a in *.tar;do docker load -i $a;done
     fi
     cd /opt/fms/solution/deployment/
     if test -f ".env_used";then

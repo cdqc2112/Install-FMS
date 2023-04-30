@@ -9,6 +9,9 @@ Included addons:
   
 Gis addon is not included. It needs to be added to /opt/fms/solution/deployment
 
+Run InstallMaster script on Master node
+
+Run InstallWorker on Worker nodes and Replica
 
 • Required volumes and NFS share
 

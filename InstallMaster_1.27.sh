@@ -383,6 +383,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
 fi
 # Replica
 echo
+echo 'If Replica node is required, it must have joined the swarm before proceeding'
 read -r -p 'Will there be replica node to set-up? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then

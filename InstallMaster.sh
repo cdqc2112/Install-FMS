@@ -290,7 +290,7 @@ else
             export COUNTRY
             export STATE
             export CITY
-            ./csr_1.1.sh            
+            ./csr.sh            
             echo
             echo "Do not continue before you get the certificate"
             echo
@@ -311,7 +311,7 @@ else
                 export COUNTRY
                 export STATE
                 export CITY
-                ./selfSignedCert_1.2.sh
+                ./selfSignedCert.sh
                 echo "$(date): Certificate ${DOMAIN}.crt created" >> $LOGFILE
                 touch $WORKINGDIR/.certs
             fi

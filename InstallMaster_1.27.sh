@@ -386,8 +386,11 @@ echo
 read -r -p 'Will there be replica node to set-up? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    docker node ls
     echo
-    echo 'Run "docker node update --label-add role=replica <nodeid>". Replace nodeid with the replica node ID'
+    read -p 'Enter the node ID of the replica server: ' RNODEID
+    echo
+    docker node update --label-add role=replica $RNODEID
     echo
     sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
     sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env

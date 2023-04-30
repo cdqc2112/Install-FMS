@@ -120,13 +120,15 @@ else
     # offline
     if test -f "$WORKINGDIR/.offline";then
         cd $WORKINGDIR/packages
-        for a in *.deb;
-        dpkg -i $a.deb;
-        done
+        if $FMS_INSTALLER=apt;then
+            dpkg -i *.deb
         #dpkg -i dos2unix_7.4.2-2_amd64.deb
         #dpkg -i openssl_3.0.2-0ubuntu1.8_amd64.deb
         #dpkg -i rsync_3.2.7-0ubuntu0.22.04.2_amd64.deb
+        else
+            rpm -iUvh *.rpm
         cd $WORKINGDIR
+    fi
     else
         # online
         $FMS_INSTALLER install -y \

@@ -155,7 +155,7 @@ else
     # offline
     if test -f "$WORKINGDIR/.offline";then
         if [ "$FMS_INSTALLER" = "apt" ]; then
-            cd $WORKINGDIR/packages/
+            cd $WORKINGDIR/docker/
             dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
             ./docker-ce_20.10.24~3-0~ubuntu-jammy_amd64.deb \
             ./docker-ce-cli_20.10.24~3-0~ubuntu-jammy_amd64.deb \
@@ -163,8 +163,8 @@ else
             ./docker-compose-plugin_2.17.2-1~ubuntu.22.04~jammy_amd64.deb
             cd $WORKINGDIR
         else
-            cd $WORKINGDIR/packages/
-            yum install *.rpm
+            cd $WORKINGDIR/docker/
+            $FMS_INSTALLER install *.rpm
             cd $WORKINGDIR
         fi
     else

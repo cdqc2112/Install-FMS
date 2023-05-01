@@ -135,7 +135,7 @@ else
                 dos2unix \
                 bash-completion \
                 rsync \
-                openssl \
+                openssl
     fi
     # Firewall
     if [ "$FMS_INSTALLER" = "apt" ]; then

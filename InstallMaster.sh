@@ -58,6 +58,9 @@ echo
 read -r -p 'Is this an offline installation? [y/N] ' response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    echo
+    echo "Copy images.tgz file to $WORKINGDIR"
+    echo
     touch $WORKINGDIR/.offline
 fi
 
@@ -417,8 +420,8 @@ read -r -p 'Are you ready to start the FMS? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     if test -f "$WORKINGDIR/.offline";then
+        tar -xvf WORKINGDIR/images.tgz
         cd $WORKINGDIR/images/
-        tar -xvf images.tgz
         rm -rf images.tgz
         for a in *.tar;do docker load -i $a;done
     fi

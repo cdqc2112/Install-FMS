@@ -2,6 +2,10 @@
 
 Installation script for FMS 7.13.0.2, online and offline on Ubuntu 20.04, 22.04 or CentOS 7
 
+Offline installation:
+
+	Copy images.tgz to installation folder
+
 Included addons:
   email-fault-image-provider.addon
   self-monitoring.addon

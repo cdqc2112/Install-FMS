@@ -45,9 +45,18 @@ if test -f "$WORKINGDIR/.nfs"; then
 
 else
 
-    $FMS_INSTALLER install -y nfs-common
-    $FMS_INSTALLER install -y nfs-utils
-
+    if test -f "$WORKINGDIR/.offline";then
+        cd $WORKINGDIR/nfs
+        if [ "$FMS_INSTALLER" = "apt" ]; then
+            dpkg -i *.deb
+        else
+            rpm -iUvh *.rpm
+        cd $WORKINGDIR
+        fi
+    else
+        $FMS_INSTALLER install -y nfs-common
+        $FMS_INSTALLER install -y nfs-utils
+    fi
     if test -f "$WORKINGDIR/.replica"; then
         mkdir -p /opt/fms/master
     else
@@ -105,22 +114,19 @@ else
         cd $WORKINGDIR/packages
         if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
-        #dpkg -i dos2unix_7.4.2-2_amd64.deb
-        #dpkg -i openssl_3.0.2-0ubuntu1.8_amd64.deb
-        #dpkg -i rsync_3.2.7-0ubuntu0.22.04.2_amd64.deb
         else
             rpm -iUvh *.rpm
         cd $WORKINGDIR
-    fi
+        fi
     else
-        # online
+    # online
         $FMS_INSTALLER install -y \
                 dos2unix \
                 bash-completion \
                 rsync \
                 openssl
     fi
-        # Firewall
+    # Firewall
         if [ "$FMS_INSTALLER" = "apt" ]; then
             ufw allow 2377
             ufw allow 7946
@@ -265,8 +271,10 @@ else
     echo "$(date): Swarm joined" >> $LOGFILE
 fi
 if test -f "$WORKINGDIR/.offline";then
-    tar -xvf $WORKINGDIR/images.tgz
+    cd $WORKINGDIR/
+    tar -xvf images.tgz
     cd $WORKINGDIR/images/
     for a in *.tar;do docker load -i $a;done
+    cd $WORKINGDIR/
     rm -rf images.tgz
 fi

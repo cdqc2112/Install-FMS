@@ -125,9 +125,6 @@ else
         cd $WORKINGDIR/packages
         if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
-        #dpkg -i dos2unix_7.4.2-2_amd64.deb
-        #dpkg -i openssl_3.0.2-0ubuntu1.8_amd64.deb
-        #dpkg -i rsync_3.2.7-0ubuntu0.22.04.2_amd64.deb
         else
             rpm -iUvh *.rpm
         cd $WORKINGDIR
@@ -138,7 +135,7 @@ else
                 dos2unix \
                 bash-completion \
                 rsync \
-                openssl
+                openssl \
     fi
     # Firewall
     if [ "$FMS_INSTALLER" = "apt" ]; then

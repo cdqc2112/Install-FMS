@@ -25,6 +25,9 @@ echo
 read -r -p 'Is this an offline installation? [y/N] ' response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    echo
+    echo "Copy images.tgz file to $WORKINGDIR"
+    echo
     touch $WORKINGDIR/.offline
 fi
 
@@ -260,4 +263,10 @@ else
 
     touch $WORKINGDIR/.swarm
     echo "$(date): Swarm joined" >> $LOGFILE
+fi
+if test -f "$WORKINGDIR/.offline";then
+    tar -xvf $WORKINGDIR/images.tgz
+    cd $WORKINGDIR/images/
+    for a in *.tar;do docker load -i $a;done
+    rm -rf images.tgz
 fi

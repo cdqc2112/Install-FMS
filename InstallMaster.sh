@@ -374,16 +374,16 @@ fi
 # Workers
 if test -f "$WORKINGDIR/.multinode";then
     echo
-    #read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
+    read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
     echo
-    #if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
         echo
         docker swarm join-token worker
         echo
         echo "When this is done, you can continue here and start the FMS"
         echo
-    #fi
+    fi
     # Replica
     echo
     echo 'If Replica node is required, it must have joined the swarm before proceeding'

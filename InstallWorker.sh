@@ -93,12 +93,9 @@ else
     fi
 fi
 
-if test -f "$WORKINGDIR/.soft"; then
-
+if test -f "$WORKINGDIR/.soft";then
     read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'
-
 else
-
     # Install tools
     # offline
     if test -f "$WORKINGDIR/.offline";then
@@ -119,6 +116,7 @@ else
                 bash-completion \
                 rsync \
                 openssl
+    fi
         # Firewall
         if [ "$FMS_INSTALLER" = "apt" ]; then
             ufw allow 2377
@@ -157,7 +155,6 @@ else
                   containerd \
                   runc
         echo "$(date): Previous Docker version removed" >> $LOGFILE
-    fi
     # Install Docker Ubuntu
     # offline
     if test -f "$WORKINGDIR/.offline";then
@@ -171,7 +168,7 @@ else
             cd $WORKINGDIR
         else
             cd $WORKINGDIR/docker/
-            $FMS_INSTALLER install *.rpm
+            $FMS_INSTALLER install -y *.rpm
             cd $WORKINGDIR
         fi
     else

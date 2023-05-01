@@ -374,7 +374,7 @@ echo
 read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    echo "Run InstallWorker script on worker nodes and use this token below to join them to this swarm"
+    echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
     echo
     docker swarm join-token worker
     echo

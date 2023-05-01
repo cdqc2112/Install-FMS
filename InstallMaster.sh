@@ -188,7 +188,7 @@ else
             cd $WORKINGDIR
         else
             cd $WORKINGDIR/docker/
-            $FMS_INSTALLER install *.rpm
+            $FMS_INSTALLER install -y *.rpm
             cd $WORKINGDIR
         fi
     else

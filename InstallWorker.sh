@@ -20,6 +20,13 @@ fi
 echo "Script to install Docker and setup LVM on workers and replica server"
 echo "It requires at least 60GB on /var for Docker and a volume for solution and backups on the replica server"
 echo "Master node must be ready before running this script"
+echo
+echo
+read -r -p 'Is this an offline installation? [y/N] ' response
+
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    touch $WORKINGDIR/.offline
+fi
 
 read -r -p 'Is this a replica node [y/N] ' response
 

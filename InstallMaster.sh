@@ -420,9 +420,11 @@ read -r -p 'Are you ready to start the FMS? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     if test -f "$WORKINGDIR/.offline";then
-        tar -xvf $WORKINGDIR/images.tgz
+        cd $WORKINGDIR/
+        tar -xvf images.tgz
         cd $WORKINGDIR/images/
         for a in *.tar;do docker load -i $a;done
+        cd $WORKINGDIR/
         rm -rf images.tgz
     fi
     cd /opt/fms/solution/deployment/

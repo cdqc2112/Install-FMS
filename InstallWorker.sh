@@ -100,7 +100,7 @@ else
     # offline
     if test -f "$WORKINGDIR/.offline";then
         cd $WORKINGDIR/packages
-        if $FMS_INSTALLER=apt;then
+        if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
         #dpkg -i dos2unix_7.4.2-2_amd64.deb
         #dpkg -i openssl_3.0.2-0ubuntu1.8_amd64.deb

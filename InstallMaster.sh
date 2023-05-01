@@ -72,6 +72,7 @@ else
     echo 
     read -r -p 'Is this a single node with local volume storage? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
         echo "A separated volume is required and will be erased"
         lsblk
@@ -112,6 +113,7 @@ else
         mount -av
         mkdir -p /opt/fms/solution/cer
         touch $WORKINGDIR/.volume
+        touch $WORKINGDIR/.multinode
         echo "$(date): NFS client installed" >> $LOGFILE
     fi
 fi
@@ -370,34 +372,36 @@ else
     chmod -R ugo+rX,go-w /opt/fms/solution/config
 fi
 # Workers
-echo
-read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
-echo
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
+if test -f "$WORKINGDIR/.multinode";then
     echo
-    docker swarm join-token worker
+    #read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
     echo
-    echo "When this is done, you can continue here and start the FMS"
+    #if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
+        echo
+        docker swarm join-token worker
+        echo
+        echo "When this is done, you can continue here and start the FMS"
+        echo
+    #fi
+    # Replica
     echo
-fi
-# Replica
-echo
-echo 'If Replica node is required, it must have joined the swarm before proceeding'
-read -r -p 'Will there be replica node to set-up? [y/N] ' response
-echo
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    docker node ls
+    echo 'If Replica node is required, it must have joined the swarm before proceeding'
+    read -r -p 'Will there be replica node to set-up? [y/N] ' response
     echo
-    read -p 'Enter the node ID of the replica server: ' RNODEID
-    echo
-    docker node update --label-add role=replica $RNODEID
-    echo
-    sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
-    sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env
-else
-    sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
-    sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        docker node ls
+        echo
+        read -p 'Enter the node ID of the replica server: ' RNODEID
+        echo
+        docker node update --label-add role=replica $RNODEID
+        echo
+        sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
+        sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env
+    else
+        sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
+        sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
+    fi
 fi
 echo
 read -r -p 'Are you using GIS addon? [y/N] ' response

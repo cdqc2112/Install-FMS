@@ -1,6 +1,11 @@
 #! /bin/bash
 # InstallMaster - 1.27
 
+if [ "$UID" != 0 ]; then
+    echo "Run as root"
+    exit 1
+fi
+
 clear
 
 WORKINGDIR=${PWD}

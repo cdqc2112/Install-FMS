@@ -1,6 +1,11 @@
 #! /bin/bash
 # InstallWorker - 1.8
 
+if [ "$UID" != 0 ]; then
+    echo "Run as root"
+    exit 1
+fi
+
 clear
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log

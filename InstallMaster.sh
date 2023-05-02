@@ -69,60 +69,60 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.offline
 fi
 
-./lvm.sh
-# if test -f "$WORKINGDIR/.volume";then
-#     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
-# else
-#     echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
-#     echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
-#     echo 
-#     read -r -p 'Is this a single node with local volume storage? [y/N] ' response
-#     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-#         touch $WORKINGDIR/.singlenode
-#         echo "This will create a single LVM to hold the FMS application files and backups"
-#         echo "A separated volume is required and will be erased"
-#         lsblk
-#         read -rep "Enter the name of the disk to be used (will be parted): " disk
-#         parted /dev/$disk mklabel msdos
-#         parted -m -s /dev/$disk unit mib mkpart primary 1 100%
-#         sleep 2
-#         lsblk
-#         read -rep "Enter the name of the newly created partition on the $disk disk: " disk1
-#         pvcreate /dev/$disk1
-#         vgcreate replica_vg /dev/$disk1
-#         lvcreate -l 25%VG -n replica_live replica_vg
-#         lvcreate -l 50%VG -n replica_backups replica_vg
-#         mkfs.xfs /dev/replica_vg/replica_live
-#         mkfs.xfs /dev/replica_vg/replica_backups
-#         mkdir -p /opt/fms/solution
-#         mkdir -p /opt/fms/replication
-#         mkdir -p /opt/fms/replication/backup
-#         mkdir -p /mnt/snapshot
-#         echo /dev/replica_vg/replica_live  /opt/fms/solution xfs defaults,nofail 0 0  | tee /etc/fstab -a
-#         echo /dev/replica_vg/replica_backups /opt/fms/replication/backup xfs defaults,nofail 0 0  | tee /etc/fstab -a
-#         mount -avt xfs
-#         ln -s /opt/fms/solution /opt/fms/master
-#         mkdir -p /opt/fms/replication/backup/history
-#         mkdir -p /opt/fms/solution/deployment
-#         mkdir -p /opt/fms/solution/cer
-#         lsblk
-#         touch $WORKINGDIR/.volume
-#         echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
-#     else
-#         # Install NFS client
-#         $FMS_INSTALLER install -y nfs-common
-#         $FMS_INSTALLER install -y nfs-utils
-#         mkdir -p /opt/fms/solution
-#         echo "A NFS share is required to hold the FMS application files"
-#         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-#         echo $SHARE     /opt/fms/solution  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
-#         mount -av
-#         mkdir -p /opt/fms/solution/cer
-#         touch $WORKINGDIR/.volume
-#         touch $WORKINGDIR/.multinode
-#         echo "$(date): NFS client installed" >> $LOGFILE
-#     fi
-# fi
+if grep /dev/replica_vg/ /etc/fstab ; then
+#if test -f "$WORKINGDIR/.volume";then
+    read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
+else
+    echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
+    echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
+    echo 
+    read -r -p 'Is this a single node with local volume storage? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.singlenode
+        echo "This will create a single LVM to hold the FMS application files and backups"
+        echo "A separated volume is required and will be erased"
+        lsblk
+        read -rep "Enter the name of the disk to be used (will be parted): " disk
+        parted /dev/$disk mklabel msdos
+        parted -m -s /dev/$disk unit mib mkpart primary 1 100%
+        sleep 2
+        lsblk
+        read -rep "Enter the name of the newly created partition on the $disk disk: " disk1
+        pvcreate /dev/$disk1
+        vgcreate replica_vg /dev/$disk1
+        lvcreate -l 25%VG -n replica_live replica_vg
+        lvcreate -l 50%VG -n replica_backups replica_vg
+        mkfs.xfs /dev/replica_vg/replica_live
+        mkfs.xfs /dev/replica_vg/replica_backups
+        mkdir -p /opt/fms/solution
+        mkdir -p /opt/fms/replication
+        mkdir -p /opt/fms/replication/backup
+        mkdir -p /mnt/snapshot
+        echo /dev/replica_vg/replica_live  /opt/fms/solution xfs defaults,nofail 0 0  | tee /etc/fstab -a
+        echo /dev/replica_vg/replica_backups /opt/fms/replication/backup xfs defaults,nofail 0 0  | tee /etc/fstab -a
+        mount -avt xfs
+        ln -s /opt/fms/solution /opt/fms/master
+        mkdir -p /opt/fms/replication/backup/history
+        mkdir -p /opt/fms/solution/deployment
+        mkdir -p /opt/fms/solution/cer
+        lsblk
+        touch $WORKINGDIR/.volume
+        echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
+    else
+        Install NFS client
+        $FMS_INSTALLER install -y nfs-common
+        $FMS_INSTALLER install -y nfs-utils
+        mkdir -p /opt/fms/solution
+        echo "A NFS share is required to hold the FMS application files"
+        read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
+        echo $SHARE     /opt/fms/solution  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        mount -av
+        mkdir -p /opt/fms/solution/cer
+        touch $WORKINGDIR/.volume
+        touch $WORKINGDIR/.multinode
+        echo "$(date): NFS client installed" >> $LOGFILE
+    fi
+fi
 
 if test -f "$WORKINGDIR/.soft";then
     read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'

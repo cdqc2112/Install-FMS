@@ -69,8 +69,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.offline
 fi
 
-if grep /dev/replica_vg/ /etc/fstab ; then
-#if test -f "$WORKINGDIR/.volume";then
+if test -f "$WORKINGDIR/.volume";then
     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
 else
     echo "The storage can be a file system hosted on a local device, or network remote (NFS)."

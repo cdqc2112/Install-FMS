@@ -401,7 +401,6 @@ echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-echo "Add required GIS addon to /opt/fms/solution/deployment/"
 touch /opt/fms/solution/config/topology_ui/global.json
 cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
 {
@@ -410,8 +409,9 @@ cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
   "isGisEnabled": true
 }
 EOF
+else
+    rm -rf /opt/fms/solution/deployment/gis.addon
 fi
-echo
 # Starting FMS
 if test -f "$WORKINGDIR/.secrets";then
     read -n 1 -r -s -p $'Secrets already done. Press enter to continue...\n'

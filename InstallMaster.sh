@@ -365,17 +365,6 @@ else
     sed -i 's/SERVER_CERT_KEY_SECRET=/SERVER_CERT_KEY_SECRET=SERVER_CERT_KEY_SECRET/g' /opt/fms/solution/deployment/.env
     touch $WORKINGDIR/.files
 fi
-# Starting FMS
-if test -f "$WORKINGDIR/.secrets";then
-    read -n 1 -r -s -p $'Secrets already done. Press enter to continue...\n'
-else
-    touch $WORKINGDIR/.secrets
-    cd /opt/fms/solution/deployment/
-    ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
-    chmod -R 755 /opt/fms/solution/config/
-    chown -R root /opt/fms/solution/config
-    chmod -R ugo+rX,go-w /opt/fms/solution/config
-fi
 # Workers
 if test -f "$WORKINGDIR/.multinode";then
     echo
@@ -422,6 +411,17 @@ cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
 EOF
 fi
 echo
+# Starting FMS
+if test -f "$WORKINGDIR/.secrets";then
+    read -n 1 -r -s -p $'Secrets already done. Press enter to continue...\n'
+else
+    touch $WORKINGDIR/.secrets
+    cd /opt/fms/solution/deployment/
+    ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
+    chmod -R 755 /opt/fms/solution/config/
+    chown -R root /opt/fms/solution/config
+    chmod -R ugo+rX,go-w /opt/fms/solution/config
+fi
 read -r -p 'Are you ready to start the FMS? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then

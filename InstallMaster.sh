@@ -252,14 +252,14 @@ else
     echo 'vm.max_map_count=262144' | sudo tee --append /etc/sysctl.d/95-fms.conf > /dev/null
     sed -i 's/After=network-online.target\ docker.socket\ firewalld.service\ containerd.service/After=network-online.target\ docker.socket\ firewalld.service\ containerd.service\ local-fs.target\ remote-fs.target/g' /lib/systemd/system/docker.service
     systemctl daemon-reload
-cat > /etc/docker/daemon.json <<EOF
-{
-    "log-driver":"json-file",
-    "log-opts":{
-        "max-size": "10M",
-        "max-file": "10"
+    cat > /etc/docker/daemon.json <<EOF
+    {
+        "log-driver":"json-file",
+        "log-opts":{
+            "max-size": "10M",
+            "max-file": "10"
+        }
     }
-}
 EOF
     service docker restart
     touch $WORKINGDIR/.soft
@@ -401,13 +401,13 @@ echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-touch /opt/fms/solution/config/topology_ui/global.json
-cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
-{
-  "isCentralizedMode": true,
-  "delayForSaveGraphMl": 500,
-  "isGisEnabled": true
-}
+    touch /opt/fms/solution/config/topology_ui/global.json
+    cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
+    {
+    "isCentralizedMode": true,
+    "delayForSaveGraphMl": 500,
+    "isGisEnabled": true
+    }
 EOF
 else
     rm -rf /opt/fms/solution/deployment/gis.addon

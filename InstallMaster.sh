@@ -435,9 +435,8 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     fi
     cd /opt/fms/solution/deployment/
     if test -f ".env_used";then
-        ./swarm.sh --fill-secrets
+        ./swarm.sh
     else
-        ./swarm.sh --fill-secrets --no-deploy
         ./swarm.sh --list-usefull-env >> .env_used
         sed -i '/^[  ]/d' .env_used
         sed -i '/^#/d' .env_used

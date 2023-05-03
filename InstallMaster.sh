@@ -108,7 +108,7 @@ else
         touch $WORKINGDIR/.volume
         echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
     else
-        # Install NFS client
+        Install NFS client
         $FMS_INSTALLER install -y nfs-common
         $FMS_INSTALLER install -y nfs-utils
         mkdir -p /opt/fms/solution

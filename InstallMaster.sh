@@ -401,10 +401,8 @@ echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    cd /opt/fms/solution/deployment/
-    ./swarm.sh --no-deploy
-    touch /opt/fms/solution/config/topology_ui/global.json
-    cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
+    touch $WORKINGDIR/global.json
+    cat > $WORKINGDIR/global.json <<EOF
     {
     "isCentralizedMode": true,
     "delayForSaveGraphMl": 500,
@@ -421,6 +419,7 @@ else
     touch $WORKINGDIR/.secrets
     cd /opt/fms/solution/deployment/
     ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
+    mv $WORKINGDIR/global.json /opt/fms/solution/config/topology_ui
     chmod -R 755 /opt/fms/solution/config/
     chown -R root /opt/fms/solution/config
     chmod -R ugo+rX,go-w /opt/fms/solution/config

@@ -10,10 +10,12 @@ clear
 
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
-RED='\033[1;31m'
-NC='\033[0m' # No Color
+
 export LOGFILE
 export WORKINGDIR
+
+RED='\033[1;31m'
+NC='\033[0m' # No Color
 
 touch $LOGFILE
 source /etc/os-release

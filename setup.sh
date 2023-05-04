@@ -15,11 +15,11 @@
       cat <<- _EOF_
         Please Select:
 
-        1. Install Master node
-        2. Install Worker/Replica
+        1. Install FMS on Master node
+        2. Setup Worker/Replica node
         0. Quit
 
-    _EOF_
+_EOF_
 
       read -p "Enter selection [0-2] > " selection
       
@@ -46,4 +46,4 @@
 
     # Restore screen
     tput rmcup
-    echo "Program terminated."
+    echo

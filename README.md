@@ -10,6 +10,7 @@ Included addons:
   email-fault-image-provider.addon
   self-monitoring.addon
   trending-supervision.addon
+  gis.addon
 
 Run InstallMaster script on Master node
 

@@ -63,17 +63,19 @@ else
         $FMS_INSTALLER install -y nfs-utils
     fi
     if test -f "$WORKINGDIR/.replica"; then
-        mkdir -p /opt/fms/master
+        DEP_DIR="/opt/fms/master"
+        mkdir -p $DEP_DIR
     else
-        mkdir -p /opt/fms/solution
+        DEP_DIR="/opt/fms/solution"
+        mkdir -p $DEP_DIR
     fi
     
     read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
 
     if test -f "$WORKINGDIR/.replica"; then
-        echo $SHARE     /opt/fms/master  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
     else
-        echo $SHARE     /opt/fms/solution  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
     fi
 
     mount -av
@@ -83,7 +85,7 @@ else
 
 fi
 
-if [ ! -f "/opt/fms/master/deployment/.env" ]; then
+if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
 
     read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on /opt/fms/master"\n'
     

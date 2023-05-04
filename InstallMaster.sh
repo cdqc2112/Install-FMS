@@ -401,6 +401,8 @@ echo
 read -r -p 'Are you using GIS addon? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+    cd /opt/fms/solution/deployment/
+    ./swarm.sh --no-deploy
     touch /opt/fms/solution/config/topology_ui/global.json
     cat > /opt/fms/solution/config/topology_ui/global.json <<EOF
     {

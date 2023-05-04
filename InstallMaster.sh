@@ -83,7 +83,7 @@ else
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
-        echo -e "A separated volume is required and will be ${RED}erased${NC}"
+        echo -e "A separated volume is required and will be erased"
         lsblk
         read -rep "Confirm the disk to be used (will be partitioned): " -i "sdb" disk
         parted /dev/$disk mklabel msdos

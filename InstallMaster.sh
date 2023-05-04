@@ -10,7 +10,8 @@ clear
 
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
-
+RED='\033[1;31m'
+NC='\033[0m' # No Color
 export LOGFILE
 export WORKINGDIR
 
@@ -31,7 +32,7 @@ function installPackage() {
     fi
 }
 
-echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
+echo -e "Script to install Docker and setup FMS on ${RED}Ubuntu${NC} or ${RED}CentOS${NC}"
 echo
 echo
 # Solution and backup volume LVM
@@ -79,14 +80,14 @@ else
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
-        echo "A separated volume is required and will be erased"
+        echo -e "A separated volume is required and will be ${RED}erased${NC}"
         lsblk
-        read -rep "Enter the name of the disk to be used (will be parted): " disk
+        read -rep "Confirm the disk to be used (will be partitioned): " -i "sdb" disk
         parted /dev/$disk mklabel msdos
         parted -m -s /dev/$disk unit mib mkpart primary 1 100%
         sleep 2
         lsblk
-        read -rep "Enter the name of the newly created partition on the $disk disk: " disk1
+        read -rep "Confirm the newly created partition on the $disk disk: " -i "${disk}1" disk1
         pvcreate /dev/$disk1
         vgcreate replica_vg /dev/$disk1
         lvcreate -l 25%VG -n replica_live replica_vg
@@ -217,7 +218,7 @@ else
             echo
             echo 'Copy the version string above'
             echo
-            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce=$VERSION_STRING \
             docker-ce-cli=$VERSION_STRING \
@@ -232,7 +233,7 @@ else
             echo
             echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'
             echo
-            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "20.10.24" VERSION_STRING
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "20.10.24" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce-$VERSION_STRING \
             docker-ce-cli-$VERSION_STRING \
@@ -269,10 +270,13 @@ fi
 clear
 if test -f "$WORKINGDIR/.certs";then
     read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
+    DOMAIN=$(ls -tr|grep *.dom)
+    DOMAIN="${DOMAIN::-4}"
 else
     while true; do
     echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
     read DOMAIN
+    touch $WORKINGDIR/$DOMAIN.dom
     if [ -z $DOMAIN ]; then
         echo "Error: No FQDN provided"
         echo "Usage: Provide a valid FQDN"
@@ -372,6 +376,7 @@ else
     cp /opt/fms/solution/deployment/example.env /opt/fms/solution/deployment/.env
     sed -i 's/fms.<customer_domain>/'${DOMAIN}'/g' /opt/fms/solution/deployment/.env
     echo "$(date): DNS set in .env file" >> $LOGFILE
+    sed -i 's/SNMP_IMPLEMENTATION_VERSION=0/SNMP_IMPLEMENTATION_VERSION=1/g' /opt/fms/solution/deployment/.env 
     # Create secrets
     docker secret create SERVER_CERT_SECRET /opt/fms/solution/cer/${DOMAIN}.crt
     docker secret create SERVER_CERT_KEY_SECRET /opt/fms/solution/cer/${DOMAIN}.key

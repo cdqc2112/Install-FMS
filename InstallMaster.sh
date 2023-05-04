@@ -309,7 +309,7 @@ else
             export CITY
             ./csr.sh            
             echo
-            echo "Copy this csr and submit to Certificate Authotity (ex. Godaddy, Verisign, Let's Encrypt, ...)"
+            echo "Copy this csr and submit to Certificate Authotity (ex.: Godaddy, Verisign, Let's Encrypt, ...)"
             echo
             cat ${DOMAIN}.csr
             echo

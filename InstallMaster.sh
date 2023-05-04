@@ -14,8 +14,8 @@ LOGFILE=$WORKINGDIR/install.log
 export LOGFILE
 export WORKINGDIR
 
-RED='\033[1;31m'
-NC='\033[0m' # No Color
+RED=`tput setab 1 setaf 7`
+NC=`tput sgr0`
 
 touch $LOGFILE
 source /etc/os-release

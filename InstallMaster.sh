@@ -347,6 +347,7 @@ fi
 if test -f "$WORKINGDIR/.swarm";then
     read -n 1 -r -s -p $'Docker swarm init and node labels already done. Press enter to continue...\n'
 else
+
     # Login to Dockerhub
     docker login
     echo "Starting swarm"

@@ -10,7 +10,8 @@ clear
 
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
-
+RED='\033[5;31m'
+NC='\033[0m' # No Color
 export LOGFILE
 export WORKINGDIR
 
@@ -79,14 +80,14 @@ else
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
-        echo "A separated volume is required and will be erased"
+        echo -e "A separated volume is required and will be ${RED}erased${NC}"
         lsblk
-        read -rep "Confirm the disk to be used (will be parted): " -i "sdb" disk
+        read -rep "Confirm the disk to be used (will be partitioned): " -i "sdb" disk
         parted /dev/$disk mklabel msdos
         parted -m -s /dev/$disk unit mib mkpart primary 1 100%
         sleep 2
         lsblk
-        read -rep "Confirm the newly created partition on the $disk disk: " -i "sdb1" disk1
+        read -rep "Confirm the newly created partition on the $disk disk: " -i "${disk}1" disk1
         pvcreate /dev/$disk1
         vgcreate replica_vg /dev/$disk1
         lvcreate -l 25%VG -n replica_live replica_vg

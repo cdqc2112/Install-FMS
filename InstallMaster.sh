@@ -102,7 +102,6 @@ else
         mount -avt xfs
         ln -s /opt/fms/solution /opt/fms/master
         mkdir -p /opt/fms/replication/backup/history
-        mkdir -p /opt/fms/solution/deployment
         mkdir -p /opt/fms/solution/cer
         lsblk
         touch $WORKINGDIR/.volume
@@ -266,22 +265,33 @@ EOF
     echo "$(date): Docker installed" >> $LOGFILE
 fi
 
-# Certificates
+# Domain and Certificates
 clear
-read -p 'Enter the URL to access the FMS (ex.: fms.domain.com): ' DOMAIN
-
-if [ -z ${DOMAIN} ];then
-    echo "Error: No FQDN name provided"
-    echo "Usage: Provide a domain name as an argument"
-    exit 1
-fi
 if test -f "$WORKINGDIR/.certs";then
     read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
 else
-    read -r -p 'Do you have the certificate? [y/N] ' response
+    while true; do
+    echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
+    read DOMAIN
+    if [ -z $DOMAIN ]; then
+        echo "Error: No FQDN provided"
+        echo "Usage: Provide a valid FQDN"
+        continue
+    fi
+    break
+    done
 
+    #read -p 'Enter the URL to access the FMS (ex.: fms.domain.com): ' DOMAIN
+    #if [ -z ${DOMAIN} ];then
+    #    echo "Error: No FQDN name provided"
+    #    echo "Usage: Provide a domain name as an argument"
+    #    exit 1
+    #fi
+    
+    read -r -p 'Do you have the certificate? [y/N] ' response
+    
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to installation folder $WORKINGDIR"
+        echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
         echo
         echo
         touch $WORKINGDIR/.certs
@@ -299,9 +309,13 @@ else
             export CITY
             ./csr.sh            
             echo
-            echo "Do not continue before you get the certificate"
+            echo "Copy this csr to request the certificate from Certificate Authotity (ex. Godaddy, Verisign, Let's Encrypt, ...)"
             echo
-            echo "Copy certificate to /opt/fms/solution/cer folder"
+            cat ${DOMAIN}.csr
+            echo
+            echo "Wait unitl you get the certificate to continue"
+            echo
+            echo "Copy certificate ${DOMAIN}.crt when received from CA to folder $WORKINGDIR"
             touch $WORKINGDIR/.certs
         else
             read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response

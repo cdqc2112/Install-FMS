@@ -5,14 +5,15 @@ Installation script for FMS 7.13.0.2, online and offline on Ubuntu 20.04, 22.04 
 For offline installation, copy images.tgz to installation folder
 
 Included addons:
+
   email-fault-image-provider.addon,
   self-monitoring.addon,
   trending-supervision.addon,
   gis.addon
 
-Run InstallMaster script on Master node
+• Installation
 
-Run InstallWorker on Worker nodes and Replica
+Run setup.sh to install FMS on master node and/or setup worker/replica node
 
 • Volumes and NFS share requirements
 

@@ -7,6 +7,7 @@ if [ "$UID" != 0 ]; then
 fi
 
 clear
+
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
 
@@ -47,7 +48,6 @@ read -r -p 'Is this a replica node [y/N] ' response
 if test -f "$WORKINGDIR/.nfs"; then
 
     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
-
 else
 
     if test -f "$WORKINGDIR/.offline";then

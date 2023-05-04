@@ -10,7 +10,7 @@ clear
 
 WORKINGDIR=${PWD}
 LOGFILE=$WORKINGDIR/install.log
-RED='\033[5;31m'
+RED='\033[1;31m'
 NC='\033[0m' # No Color
 export LOGFILE
 export WORKINGDIR
@@ -32,7 +32,7 @@ function installPackage() {
     fi
 }
 
-echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
+echo -e "Script to install Docker and setup FMS on ${RED}Ubuntu${NC} or ${RED}CentOS${NC}"
 echo
 echo
 # Solution and backup volume LVM

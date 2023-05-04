@@ -309,11 +309,11 @@ else
             export CITY
             ./csr.sh            
             echo
-            echo "Copy this csr to request the certificate from Certificate Authotity (ex. Godaddy, Verisign, Let's Encrypt, ...)"
+            echo "Copy this csr and submit to Certificate Authotity (ex. Godaddy, Verisign, Let's Encrypt, ...)"
             echo
             cat ${DOMAIN}.csr
             echo
-            echo "Wait unitl you get the certificate to continue"
+            echo "Wait until you get the certificate to continue"
             echo
             echo "Copy certificate ${DOMAIN}.crt when received from CA to folder $WORKINGDIR"
             touch $WORKINGDIR/.certs

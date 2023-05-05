@@ -40,23 +40,6 @@ spec:
           env:
           - name: WF_SERVER
             value: "conductor-server:8080"
-
-          startupProbe:
-            httpGet:
-              path: /
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 13
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 5000
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "1024M"

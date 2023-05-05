@@ -60,26 +60,6 @@ spec:
             mountPath: /run/secrets/rtu_api_gateway_db_pwd
             subPath: secret
             readOnly: true
-          startupProbe:
-            exec:
-              command:
-              - sh
-              - -c 
-              - 'curl --fail --silent http://localhost:8081/actuator/health | grep "{\"status\":\"UP\""'
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 18
-          livenessProbe:
-            exec:
-              command:
-              - sh
-              - -c 
-              - 'curl --fail --silent http://localhost:8081/actuator/health | grep "{\"status\":\"UP\""'
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "3072M"

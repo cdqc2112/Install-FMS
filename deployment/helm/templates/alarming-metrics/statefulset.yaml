@@ -48,20 +48,32 @@ spec:
               memory: "{{.Values.env.MEMORY_LIMIT_ALARMINGMETRICS_MO}}M"
             requests:
               memory: "242M"
-          startupProbe:
-            httpGet:
-              path: /-/healthy  
-              port: 9090
-            initialDelaySeconds: 5
-            timeoutSeconds: 8
-            periodSeconds: 10
-            failureThreshold: 9
           livenessProbe:
-            httpGet:
-              path: /-/healthy  
-              port: 9090
+            exec:
+              command:
+              - /bin/wget
+              - -q
+              - -Y off
+              - http://localhost:9090/-/healthy  
+              - -O
+              - /dev/null 
+            initialDelaySeconds: 90
+            timeoutSeconds: 8
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3      
+          readinessProbe:
+            exec:
+              command:
+              - /bin/wget
+              - -q
+              - -Y off
+              - http://localhost:9090/-/healthy  
+              - -O
+              - /dev/null
             timeoutSeconds: 8
             periodSeconds: 15
+            successThreshold: 1
             failureThreshold: 3
       volumes:
       - name: config

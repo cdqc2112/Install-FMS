@@ -32,10 +32,6 @@ spec:
         fsGroup: {{ (split ":" $serv_uidgid)._1 }}
       nodeSelector:
         role: "primary"
-      hostAliases:
-      - ip: "127.0.0.1"
-        hostnames:
-        - "{{$serv_id}}"
       containers:
         - name: {{$serv_id}}
           {{ include "fms.docker-image" (merge (dict "image_id" "fms-metric-proxy") $ ) | nindent 10 }}
@@ -61,32 +57,6 @@ spec:
             value: "topology"
           - name: TOPOLOGY_API_PORT
             value: "9090"
-          startupProbe:
-            httpGet:
-              path: /v1/healthcheck
-              port: 7071
-              httpHeaders:
-              - name: x-Token-Username
-                value: alarmingUser
-              - name: x-Token-Roles
-                value: '["fg-alarm-master","fg-alarm-read"]'
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 18
-          livenessProbe:
-            httpGet:
-              path: /v1/healthcheck
-              port: 7071
-              httpHeaders:
-              - name: x-Token-Username
-                value: alarmingUser
-              - name: x-Token-Roles
-                value: '["fg-alarm-master","fg-alarm-read"]'
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           volumeMounts:
           - name: logs
             mountPath: /var/www/logs

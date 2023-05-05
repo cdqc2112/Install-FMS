@@ -1,4 +1,0 @@
-{{ $serv_id := "replication-victoria-metrics-srv" }}
-{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.VICTORIA_METRICS_DATA) $) }}
-{{- end }}

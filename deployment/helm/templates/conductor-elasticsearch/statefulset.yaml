@@ -59,20 +59,6 @@ spec:
           volumeMounts:
           - name: data
             mountPath: /usr/share/elasticsearch/data
-          startupProbe:
-            exec: 
-              command: [ bash, -c, '[ -f "$INIT_DONE_FILE" ] && curl -f -s http://localhost:9200/_cluster/health?wait_for_status=yellow > /dev/null || exit 1' ]
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 120
-          livenessProbe:
-            exec: 
-              command: [ bash, -c, '[ -f "$INIT_DONE_FILE" ] && curl -f -s http://localhost:9200/_cluster/health?wait_for_status=yellow > /dev/null || exit 1' ]
-            timeoutSeconds: 10
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "3072M"

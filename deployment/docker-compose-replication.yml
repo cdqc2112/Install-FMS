@@ -7,7 +7,7 @@ version: "3.7"
 
 services:
   postgresql-topology-replica:
-    image: "exfo/fms-postgresql-db:git-5ff37206c8f3542a69615cf4871e64a532424ad8"
+    image: "exfo/fms-postgresql-db:git-5d05b2c44a8b995dc14cf9902c2bd86224bbef0f"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/topology_db_pwd
@@ -46,7 +46,7 @@ services:
       topology-network:
 
   postgresql-keycloak-replica:
-    image: "exfo/fms-postgresql-db:git-5ff37206c8f3542a69615cf4871e64a532424ad8"
+    image: "exfo/fms-postgresql-db:git-5d05b2c44a8b995dc14cf9902c2bd86224bbef0f"
     environment:
       - POSTGRES_PASSWORD_FILE=/run/secrets/keycloak_db_pwd
       - POSTGRES_USER=keycloak
@@ -88,7 +88,7 @@ services:
       - { source : mongo_measure_replica_key, target: /keyfile/key, mode: 0400, uid: "999" }
 
   measurement-data-db-replica:
-    image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+    image: "exfo/fms-mongo:git-a8fa6cc0e5f81604c767f7885a2057b058d34b4c"
     user: 999:999
     environment:
       - MONGO_REPLICATION=secondary
@@ -130,7 +130,7 @@ services:
       - { source : mongo_alarm_replica_key, target: /keyfile/key, mode: 0400, uid: "999" }
 
   alarming-db-replica:
-    image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+    image: "exfo/fms-mongo:git-a8fa6cc0e5f81604c767f7885a2057b058d34b4c"
     user: 999:999
     environment:
       - MONGO_REPLICATION=secondary

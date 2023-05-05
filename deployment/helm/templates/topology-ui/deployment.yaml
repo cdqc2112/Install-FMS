@@ -62,22 +62,6 @@ spec:
           - name: config
             mountPath: /etc/ui/customConfig
             readOnly: true
-          startupProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8081
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 12
-          livenessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8081
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "1024M"

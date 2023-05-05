@@ -56,20 +56,6 @@ spec:
             mountPath: /run/secrets/topology_db_pwd
             subPath: secret
             readOnly: true
-          startupProbe:
-            exec:
-              command: [ "bash", "-c", "netstat -ltn | grep -c :5432 && pg_isready" ]
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 130
-          livenessProbe:
-            exec:
-              command: [ "bash", "-c", "netstat -ltn | grep -c :5432 && pg_isready" ]
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "4096M"

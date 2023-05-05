@@ -51,23 +51,6 @@ spec:
             mountPath: /run/secrets/rtu_api_gateway_db_pwd
             subPath: secret
             readOnly: true
-          startupProbe:
-            exec:
-              command:
-              - bash
-              - -c
-              - '[ -f "$INIT_DONE_FILE" ] && cat < /dev/null > /dev/tcp/$HOSTNAME/27017 '
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 200
-          livenessProbe:
-            tcpSocket:
-              port: 27017
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "3072M"

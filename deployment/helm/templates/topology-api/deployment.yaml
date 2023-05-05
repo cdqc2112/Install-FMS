@@ -107,19 +107,6 @@ spec:
               memory: "{{.Values.env.MEMORY_LIMIT_TOPOLOGYAPI_MO}}M"
             requests:
               memory: "242M"
-          startupProbe:
-            httpGet:
-              path: /api/topology/healthcheck
-              port: 9090
-              httpHeaders:
-              - name: x-Token-Username
-                value: swarm
-              - name: x-Token-Roles
-                value: '["fg-topology-read"]'
-            initialDelaySeconds: 30
-            timeoutSeconds: 10
-            periodSeconds: 10
-            failureThreshold: 68
           livenessProbe:
             httpGet:
               path: /api/topology/healthcheck
@@ -129,8 +116,24 @@ spec:
                 value: swarm
               - name: x-Token-Roles
                 value: '["fg-topology-read"]'
-            timeoutSeconds: 30
+            initialDelaySeconds: 680
+            timeoutSeconds: 60
             periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path: /api/topology/healthcheck
+              port: 9090
+              httpHeaders:
+              - name: x-Token-Username
+                value: swarm
+              - name: x-Token-Roles
+                value: '["fg-topology-read"]'
+            initialDelaySeconds: 400
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
             failureThreshold: 4
       volumes:
       - name: config

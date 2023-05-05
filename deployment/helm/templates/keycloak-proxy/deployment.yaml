@@ -41,27 +41,6 @@ spec:
             value: "info"
           - name: KEYCLOAK_DNS
             value: "{{.Values.env.KEYCLOAK_DNS}}"
-
-          startupProbe:
-            exec:
-              command:
-              - bash 
-              - -c 
-              - 'curl --silent --fail "http://localhost:9901/ready" | grep "^LIVE$"'
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time in period
-            failureThreshold: 6
-          livenessProbe:
-            exec:
-              command:
-              - bash 
-              - -c 
-              - 'curl --silent --fail "http://localhost:9901/ready" | grep "^LIVE$"'
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "1024M"

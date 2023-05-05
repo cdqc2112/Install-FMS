@@ -49,20 +49,6 @@ spec:
             mountPath: /opt/cerebro/data
           - name: cerebro-logs
             mountPath: /opt/cerebro/logs
-          startupProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 15
-          livenessProbe:
-            tcpSocket:
-              port: 8080
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "1024M"

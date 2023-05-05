@@ -42,17 +42,19 @@ spec:
               memory: "{{.Values.env.MEMORY_LIMIT_VICTORIA_METRICS_MO}}M"
             requests:
               memory: "{{div .Values.env.MEMORY_LIMIT_VICTORIA_METRICS_MO 3 }}M"
-          startupProbe:
-            httpGet:
-              path: /-/healthy
-              port: 8428
-            periodSeconds: 10
-            timeoutSeconds: 8
-            failureThreshold: 24
           livenessProbe:
             httpGet:
               path: /-/healthy
               port: 8428
+            timeoutSeconds: 30
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 8428
+            initialDelaySeconds: 240
             timeoutSeconds: 30
             periodSeconds: 60
             successThreshold: 1

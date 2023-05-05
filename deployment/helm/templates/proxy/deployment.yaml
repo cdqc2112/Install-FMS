@@ -66,8 +66,6 @@ spec:
             value: "{name: 'measurement_data', path: '{{.Values.env.DATA_DNS}}', service: 'measurement-data:8080' , subfolders: [ { path: '/upload', service: 'measurement-files:9080' } ] }"
           - name: "MAP_DNS_ALARM"
             value: "{name: 'alarming', path: '{{.Values.env.ALARM_DNS}}', service: 'alarming:7070' }"
-          - name: "MAP_FOLDER_REMOTE_LOG"
-            value: "{path: '/rtu_fms_log_streaming', service: 'rtu-log-collector:8888', jwtauth: true }"
           - name: "PROXY_SECRET_LUA_SESSION_FILE_PATH"
             value: "/run/secrets/proxy_session"
           - name: "MAP_FOLDER_ADMIN_ACTIVEMQ"
@@ -84,8 +82,6 @@ spec:
             value: "{path: '/admin/es', service: 'conductor-elasticsearch-cerebro:8080', 'roles': '{\"fg-es-administrator\"}' }"
           - name: "MAP_FOLDER_ADMIN_VICTORIA_METRICS"
             value: "{path: '/admin/victoria-metrics', service: 'victoria-metrics:8428', 'roles': '{\"fg-sys-admin\"}' }"
-          - name: "MAP_FOLDER_SERVICE_AUTHORIZATION_PROXY"
-            value: "{path: '/iam', service: 'service-authorization-proxy:8085', 'roles': '{\"fg-topology-master\"}' }"
           - name: "IAM_TYPE"
             value: "{{.Values.env.IAM_TYPE}}"
           - name: "IAM_IAT_SLACK_SEC"
@@ -165,22 +161,6 @@ spec:
             subPath: secret
             readOnly: true
           {{ end }}
-          startupProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "1024M"

@@ -175,13 +175,6 @@
         "descriptiveLabel": "RTUe-9120-SPLX-128-B-101 - Optical Switch"
     },
     {
-        "model": "RTUe-9120-SPLX-128-B-88",
-        "formFactor": "USB",
-        "effectivePortCount": 128,
-        "connectorType": "MPO",
-        "descriptiveLabel": "RTUe-9120-SPLX-128-B-88 - Optical Switch"
-    },
-    {
         "model": "RTUe-9120-SPLX-64-B-101",
         "formFactor": "USB",
         "effectivePortCount": 64,
@@ -189,25 +182,11 @@
         "descriptiveLabel": "RTUe-9120-SPLX-64-B-101 - Optical Switch"
     },
     {
-        "model": "RTUe-9120-SPLX-64-B-88",
-        "formFactor": "USB",
-        "effectivePortCount": 64,
-        "connectorType": "MPO",
-        "descriptiveLabel": "RTUe-9120-SPLX-64-B-88 - Optical Switch"
-    },
-    {
         "model": "RTUe-9120-SPLX-32-B-101",
         "formFactor": "USB",
         "effectivePortCount": 32,
         "connectorType": "MPO",
         "descriptiveLabel": "RTUe-9120-SPLX-32-B-101 - Optical Switch"
-    },
-    {
-        "model": "RTUe-9120-SPLX-32-B-88",
-        "formFactor": "USB",
-        "effectivePortCount": 32,
-        "connectorType": "MPO",
-        "descriptiveLabel": "RTUe-9120-SPLX-32-B-88 - Optical Switch"
     },
     {
         "model": "RTUi-9199-SPLX-4-B-101",

@@ -1,4 +1,0 @@
-{{ $serv_id := "replication-cfg-srv" }}
-{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-{{ include "fms.volume.root" (merge (dict "id" $serv_id ) $) }}
-{{- end }}

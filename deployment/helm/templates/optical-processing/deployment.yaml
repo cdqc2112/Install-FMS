@@ -46,18 +46,24 @@ spec:
               memory: "1024M"
             requests:
               memory: "102.4M"
-          startupProbe:
-            httpGet:
-              path: /healthcheck
-              port: 5000
-            initialDelaySeconds: 5
-            timeoutSeconds: 8
-            periodSeconds: 10
-            failureThreshold: 18     
           livenessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 5000
+            exec:
+              command:
+              - curl
+              - -f
+              - http://localhost:5000/healthcheck
+            initialDelaySeconds: 180
+            timeoutSeconds: 8
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 3      
+          readinessProbe:
+            exec:
+              command:
+              - curl 
+              - -f
+              - http://localhost:5000/healthcheck
+            initialDelaySeconds: 30
             timeoutSeconds: 8
             periodSeconds: 30
             successThreshold: 1

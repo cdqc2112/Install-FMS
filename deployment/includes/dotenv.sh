@@ -2,7 +2,7 @@
 # shellcheck shell=bash
 # Dynamic deps
 MODULE_MD5SUM_MODULES_SH=e9fb7bd46882b73e0f76bba5d408a7bf
-MODULE_MD5SUM_DEFAULTS_SH=70823a848edb840dda3de3c564cc6c13
+MODULE_MD5SUM_DEFAULTS_SH=49a7013caaf717bf7450747d2a7d7010
 
 DOTENV_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 

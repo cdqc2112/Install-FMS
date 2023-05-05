@@ -47,19 +47,25 @@ spec:
               memory: "2048M"
             requests:
               memory: "204.8M"
-          startupProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-            initialDelaySeconds: 5
-            timeoutSeconds: 8
-            periodSeconds: 10
-            failureThreshold: 24
           livenessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
+            exec:
+              command:
+              - curl
+              - -f
+              - http://localhost:8080/healthcheck
+            initialDelaySeconds: 240
             timeoutSeconds: 8
-            periodSeconds: 30
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 3      
+          readinessProbe:
+            exec:
+              command:
+              - curl 
+              - -f
+              - http://localhost:8080/healthcheck
+            initialDelaySeconds: 30
+            timeoutSeconds: 8
+            periodSeconds: 60
             successThreshold: 1
             failureThreshold: 3

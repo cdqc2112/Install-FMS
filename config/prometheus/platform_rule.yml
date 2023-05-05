@@ -9,7 +9,7 @@ groups:
       alarmType: Equipment        
       state: new
       triggeredThreshold: RTU ExfoTestCoordinator Service
-      thresholdUnit: datetime
+      thresholdUnit:
       asset_id: '{{$labels.rtu_id}}_TestService'
       alertType: Local Platform Service Stopped
       thresholdLevel :
@@ -32,7 +32,7 @@ groups:
       alarmType: Equipment       
       state: new
       triggeredThreshold: Absence Of RTU Metrics
-      thresholdUnit: datetime
+      thresholdUnit:
       asset_id: '{{$labels.rtu_id}}_AbsenceOfMetrics'
       alertType: Absence of Metrics
       thresholdLevel : 

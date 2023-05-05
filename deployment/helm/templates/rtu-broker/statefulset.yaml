@@ -99,20 +99,6 @@ spec:
             mountPath: /run/secrets/rtu_broker_admin_pwd
             subPath: secret
             readOnly: true
-          startupProbe:
-            exec:
-              command: [ timeout, '8', bash, -c, 'curl --silent --netrc-file <(cat <<<"machine localhost port $ACTIVEMQ_UI login $JOLOKIA_USER password $(< "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:$ACTIVEMQ_UI/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=rtu-broker,service=Health" | grep "\"CurrentStatus\":\"Good\"" ' ]
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 21
-          livenessProbe:
-            exec:
-              command: [ timeout, '20', bash, -c, 'curl --silent --netrc-file <(cat <<<"machine localhost port $ACTIVEMQ_UI login $JOLOKIA_USER password $(< "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:$ACTIVEMQ_UI/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=rtu-broker,service=Health" | grep "\"CurrentStatus\":\"Good\"" ' ]
-            timeoutSeconds: 25
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "{{.Values.env.MEMORY_LIMIT_RTUBROKER_MO}}M"

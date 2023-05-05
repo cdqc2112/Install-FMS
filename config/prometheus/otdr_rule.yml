@@ -217,9 +217,7 @@ groups:
          {{ end }} 
       
   - alert: absenceofmeasurement_warning_alert
-    expr: max by (asset_id,rtu_id) (rate(otdr_result_time[6h]) == 0 ) 
-         and 
-         (max by(asset_id,rtu_id) (max_over_time(otdr_measurement_code[6h])) != 6008 and max by(asset_id,rtu_id) (max_over_time(otdr_measurement_code[6h])) != 6014)
+    expr: rate(otdr_result_time[6h]) == 0
     for: 18h
     labels:
       severity: warning

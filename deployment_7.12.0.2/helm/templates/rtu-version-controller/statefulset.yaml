@@ -38,12 +38,8 @@ spec:
           env:
           - name: PROXY_DNS
             value: "{{.Values.env.TOPOLOGY_UI_DNS}}"
-          - name: LOG_URL
-            value: "{{.Values.env.ROOT_DNS}}/rtu_fms_log_streaming"
           - name: SECRET_KEY_FILE
             value: "/secret/key"
-          - name: REMOTE_LOG_BLACKLIST
-            value: "{{.Values.env.REMOTE_LOG_BLACKLIST}}"
           volumeMounts:
           - name: logs
             mountPath: /var/www/logs
@@ -67,21 +63,27 @@ spec:
               memory: "2048M"
             requests:
               memory: "204.8M"
-
-          startupProbe:
-            httpGet:
-              path: /fms-rtu-version-controller/healthcheck
-              port: 8085
-            initialDelaySeconds: 5
-            timeoutSeconds: 8
-            periodSeconds: 10
-            failureThreshold: 12
           livenessProbe:
-            httpGet:
-              path: /fms-rtu-version-controller/healthcheck
-              port: 8085
+            exec:
+              command:
+              - curl
+              - -f
+              - http://localhost:8085/fms-rtu-version-controller/healthcheck
+            initialDelaySeconds: 120
+            timeoutSeconds: 8
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3      
+          readinessProbe:
+            exec:
+              command:
+              - curl 
+              - -f
+              - http://localhost:8085/fms-rtu-version-controller/healthcheck
+            initialDelaySeconds: 30
             timeoutSeconds: 8
             periodSeconds: 15
+            successThreshold: 1
             failureThreshold: 3
       volumes:
       - name: logs

@@ -1,11 +1,11 @@
 #!/bin/bash
 # Dynamic deps
 MODULE_MD5SUM_MODULES_SH=e9fb7bd46882b73e0f76bba5d408a7bf
-MODULE_MD5SUM_DOTENV_SH=1c61bbfd10ed98dbb6c41442227f2a53
-MODULE_MD5SUM_DOCKER_COMPOSE_YML=9236ac3dde5886d6cf70064f07e633ae
-MODULE_MD5SUM_DOCKER_COMPOSE_REPLICATION_YML=475104e3d57747ccffd748bb4561daf5
-MODULE_MD5SUM_DOCKER_COMPOSE_YML=9236ac3dde5886d6cf70064f07e633ae
-MODULE_MD5SUM_DOCKER_COMPOSE_REPLICATION_YML=475104e3d57747ccffd748bb4561daf5
+MODULE_MD5SUM_DOTENV_SH=6964b1821725902e4d59a53c2c1d0a75
+MODULE_MD5SUM_DOCKER_COMPOSE_YML=ce415e6100c94ade31278d3fed398ef1
+MODULE_MD5SUM_DOCKER_COMPOSE_REPLICATION_YML=2baa1e04b8701c6f438f093425a53c80
+MODULE_MD5SUM_DOCKER_COMPOSE_YML=ce415e6100c94ade31278d3fed398ef1
+MODULE_MD5SUM_DOCKER_COMPOSE_REPLICATION_YML=2baa1e04b8701c6f438f093425a53c80
 
 [ "$BASH_VERSION" ] || (echo "Bash required"; exit 1)
 
@@ -17,7 +17,7 @@ source "$SWARM_SH_SOURCE_DIR/includes/modules.sh" -- swarm.sh
 # shellcheck source=./includes/dotenv.sh
 source "$SWARM_SH_SOURCE_DIR/includes/dotenv.sh"
 
-DEFAULT_UMASK="`umask -p`"
+
 umask 022
 
 
@@ -690,10 +690,8 @@ computeSecretUid RTU_BROKER_UID "${RTU_BROKER_UID_GID}"
 computeSecretUid MEASUREMENT_HANDLER_UID "${MEASUREMENT_HANDLER_UID_GID}"
 computeSecretUid RTU_API_GATEWAY_UID "${RTU_API_GATEWAY_UID_GID}"
 checkSecret 'IAM_CLIENT_SECRET'
-checkSecret 'IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_SECRET'
 checkSecret 'MONGO_PASSWORD_RTU_API_GATEWAY_SECRET'
 computeSecretUid RTU_API_GATEWAY_UID  "${RTU_API_GATEWAY_UID_GID}"
-computeSecretUid SERVICE_AUTHORIZATION_PROXY_UID  "${SERVICE_AUTHORIZATION_PROXY_UID_GID}"
 
 
 # Expose RTU Broker Ports
@@ -809,7 +807,6 @@ createDirectory "${ROOT_PATH}${PERSISTENT_DATA_DIR}${VICTORIA_METRICS_DATA}" "${
 createDirectory "${ROOT_PATH}${LOG_DIR}${RTU_BROKER}" "$RTU_BROKER_UID_GID" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${PROXY_LOG}" "${PROXY_EFFECTIVE_UID_GID:-${PROXY_UID_GID}}" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${TOPOLOGY_LOG}" "${TOPOLOGY_API_UID_GID}" "$LOG_DIR_MOD"
-createDirectory "${ROOT_PATH}${LOG_DIR}${KEYCLOAK_LOG}" "${KEYCLOAK_UID_GID}" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${MEASUREMENT_HANDLER_LOG}" "$MEASUREMENT_HANDLER_UID_GID" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${ALARM_LOG}" "${ALARMING_UID_GID:-1008:1008}" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${RTU_VERSION_CONTROLLER}" "$RTU_VERSION_CONTROLLER_UID_GID" "$LOG_DIR_MOD"
@@ -821,7 +818,6 @@ fi
 createDirectory "${ROOT_PATH}${LOG_DIR}${ALARMING_METRICS_PROXY_LOG}" "${ALARMING_METRICS_PROXY_UID_GID}" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${RTU_API_GATEWAY}" "${RTU_API_GATEWAY_UID_GID}" "$LOG_DIR_MOD"
 createDirectory "${ROOT_PATH}${LOG_DIR}${CONDUCTOR_CEREBRO}" "${CONDUCTOR_CEREBRO_UID_GID}" "$LOG_DIR_MOD"
-createDirectory "${ROOT_PATH}${LOG_DIR}${RTU_LOG_COLLECTOR}" "${RTU_LOG_COLLECTOR_UID_GID}" "$LOG_DIR_MOD"
 
 # Custom configuration
 createDirectory "${ROOT_PATH}${CONFIG}${TOPOLOGY_DATA}" 0:0 755
@@ -915,12 +911,7 @@ if [ "$ORCHESTRATOR" = "k8s" ]; then
     generateKustomizePatches
 
     if [ "$SKIP_DEPLOY" = true ]; then
-        # Output according to caller umask
-        $DEFAULT_UMASK
         cp -r "${PROCESSED_HELM_OUTPUT_DIR}/." helm-out
-        # Open according to caller umask
-        chmod -R +rwX helm-out
-
         echo " * Skipped stack deployment."
         echo "Helm chart is available in helm-out/ and can be deployed with the following command"
         echo "helm upgrade fms helm-out  --post-renderer=helm-out/kustomize/kustomize.sh --install --force"

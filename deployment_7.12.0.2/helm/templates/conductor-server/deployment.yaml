@@ -63,22 +63,6 @@ spec:
             value: ""
           - name: "JAVA_OPTS"
             value: "-Xms1024m -Xmx2042m"
-          startupProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 66
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           volumeMounts:
           - name: conductor-db-pwd
             mountPath: /run/secrets/conductor_db_pwd

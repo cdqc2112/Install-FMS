@@ -37,22 +37,6 @@ spec:
           {{ include "fms.docker-image" (merge (dict "image_id" "optical-alarming-proxy") $ ) | nindent 10 }}
           imagePullPolicy: IfNotPresent
           args: ["--storage.path=/alertmanager", "--cluster.listen-address="]
-          startupProbe:
-            httpGet:
-              path: /-/ready
-              port: 9093
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 12
-          livenessProbe:
-            httpGet:
-              path: /-/ready
-              port: 9093
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "2048M"

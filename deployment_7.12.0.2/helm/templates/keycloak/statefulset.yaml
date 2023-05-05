@@ -1,5 +1,5 @@
 {{ $serv_id := "keycloak" }}
-{{ $serv_uidgid := .Values.env.KEYCLOAK_UID_GID }}
+{{ $serv_uidgid := "1000:1000" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -90,30 +90,20 @@ spec:
             value: "true"
           - name: KEYCLOAK_SECRET_FILE
             value: "/run/secrets/iam_client_secret"
-          - name: KEYCLOAK_SERVICE_AUTHORIZATION_PROXY_SECRET_FILE
-            value: "/run/secrets/iam_service_authorization_proxy_client_secret"
           - name: JAVA_OPTS_APPEND
             value: "-XX:+ExitOnOutOfMemoryError -XX:+CrashOnOutOfMemoryError -Xms1024m -Xmx2042m"
-          - name: KEYCLOAKLOGS_CONF_ROTATE
-            value: "rotate ${KEYCLOAK_LOG_EXPIRATION_PERIOD_DAYS}"
           volumeMounts:
           - name: config
             mountPath: /opt/fgms/keycloak/config
             readOnly: true
           - name: container-conf
             mountPath: /opt/keycloak/conf
-          - name: logs
-            mountPath: /opt/keycloak/data/log
           - name: keycloak-db-pwd
             mountPath: /run/secrets/keycloak_db_pwd
             subPath: secret
             readOnly: true
           - name: iam-client-secret
             mountPath: /run/secrets/iam_client_secret
-            subPath: secret
-            readOnly: true
-          - name: iam-service-authorization-proxy-client-secret
-            mountPath: /run/secrets/iam_service_authorization_proxy_client_secret
             subPath: secret
             readOnly: true
           {{ if and ( not ( empty .Values.env.KEYCLOAK_FIBER_ADMIN_USER_INIT ) ) ( not ( empty .Values.env.KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET ) ) }}
@@ -134,20 +124,6 @@ spec:
             subPath: secret
             readOnly: true
           {{ end }}
-          startupProbe:
-            exec:
-              command: [ timeout, '5', bash, -c, '[ -f "$INIT_DONE_FILE" ] && cat < /dev/null > /dev/tcp/localhost/8080 && cat < /dev/null > /dev/tcp/localhost/8443' ]
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 90
-          livenessProbe:
-            exec:
-              command: [ timeout, '5', bash, -c, '[ -f "$INIT_DONE_FILE" ] && cat < /dev/null > /dev/tcp/localhost/8080 && cat < /dev/null > /dev/tcp/localhost/8443' ]
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "3072M"
@@ -156,8 +132,6 @@ spec:
       volumes:
       - name: config
         {{- include "fms.pod-volume.config" (merge (dict "id" "KEYCLOAK_CONFIG") $) | nindent 8 }}
-      - name: logs
-        {{- include "fms.pod-volume.log" (merge (dict "id" $serv_id "path" .Values.env.KEYCLOAK_LOG) $) | nindent 8 }}
       - name: keycloak-db-pwd
         secret:
           secretName: {{.Values.env.KEYCLOAK_DB_PASSWORD_SECRET}}
@@ -165,10 +139,6 @@ spec:
       - name: iam-client-secret
         secret:
           secretName: {{.Values.env.IAM_CLIENT_SECRET}}
-          defaultMode: 0440
-      - name: iam-service-authorization-proxy-client-secret
-        secret:
-          secretName: {{.Values.env.IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_SECRET}}
           defaultMode: 0440
       {{ if and ( not ( empty .Values.env.KEYCLOAK_FIBER_ADMIN_USER_INIT ) ) ( not ( empty .Values.env.KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET ) ) }}
       - name: keycloak-fiber-admin-user-pwd

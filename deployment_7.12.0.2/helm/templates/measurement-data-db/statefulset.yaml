@@ -31,51 +31,17 @@ spec:
         fsGroup: {{ (split ":" $serv_uidgid)._1 }}
       nodeSelector:
         role: "primary"
-      hostAliases:
-      - ip: "127.0.0.1"
-        hostnames:
-        - "{{$serv_id}}"
-      {{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-      initContainers:
-      # Copy key to temp storage as mongo arbitrarely refuses default 660 permission for the key
-      - name: init-db-key
-        {{ include "fms.docker-image" (merge (dict "image_id" "fms-mongo") $ ) | nindent 8 }}
-        command: 
-        - install
-        - --mode=600
-        - /keyfile-in/key 
-        - /keyfile/key
-        volumeMounts:
-        - name: db-replication-key
-          mountPath: /keyfile-in/key
-          subPath: secret
-          readOnly: true
-        - name: db-replication-key-adjusted
-          mountPath: /keyfile/
-          readOnly: false
-      {{ end }}
       containers:
         - name: {{$serv_id}}
           {{ include "fms.docker-image" (merge (dict "image_id" "fms-mongo") $ ) | nindent 10 }}
           imagePullPolicy: IfNotPresent
           env:
-          {{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-          - name: MONGO_REPLICATION
-            value: primary
-          - name: MONGO_PRIMARY
-            value: measurement-data-db
-          - name: MONGO_SECONDARY
-            value: measurement-data-db-replica
-          {{- end }}
           - name: MONGO_INITDB_ROOT_USERNAME
             value: "{{.Values.env.MONGO_USERNAME_MEASURE}}"
           - name: MONGO_INITDB_ROOT_PASSWORD_FILE
             value: "/run/secrets/measure_db_pwd"
           - name: MONGO_INITDB_DATABASE
             value: "admin"
-          {{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-          args: [ --replSet, replset, --bind_ip_all, --keyFile, /keyfile/key ]
-          {{- end }}
           volumeMounts:
           - name: data
             mountPath: /data/db
@@ -83,28 +49,6 @@ spec:
             mountPath: /run/secrets/measure_db_pwd
             subPath: secret
             readOnly: true
-          {{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-          - name: db-replication-key-adjusted
-            mountPath: /keyfile/
-            readOnly: true
-          {{- end }}
-          startupProbe:
-            exec:
-              command:
-              - bash
-              - -c
-              - '[ -f "$INIT_DONE_FILE" ] && cat < /dev/null > /dev/tcp/$HOSTNAME/27017 '
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 200
-          livenessProbe:
-            tcpSocket:
-              port: 27017
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
           resources:
             limits:
               memory: "{{.Values.env.MEMORY_LIMIT_MONGODB_MEASDATA_MO}}M"
@@ -115,17 +59,6 @@ spec:
         secret:
           secretName: {{.Values.env.MONGO_PASSWORD_MEASURE_SECRET}}
           defaultMode: 0440
-      {{- if eq .Values.env.REPLICATION_ENABLED "true" }}
-      - name: db-replication-key
-        secret:
-          secretName: {{.Values.env.MONGO_MEASURE_REPLICATION_TOKEN_SECRET}}
-          defaultMode: 0400
-      - name: db-replication-key-adjusted
-        emptyDir:
-          sizeLimit: 50Mi
-          medium: Memory
-      {{- end }}
-
   volumeClaimTemplates:
   - metadata:
       name: data

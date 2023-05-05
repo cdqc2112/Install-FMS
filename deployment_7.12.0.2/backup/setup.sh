@@ -1,7 +1,7 @@
 #!/bin/bash
 # Dynamic deps
 MODULE_MD5SUM_MODULES_SH=e9fb7bd46882b73e0f76bba5d408a7bf
-MODULE_MD5SUM_DOTENV_SH=1c61bbfd10ed98dbb6c41442227f2a53
+MODULE_MD5SUM_DOTENV_SH=6964b1821725902e4d59a53c2c1d0a75
 
 [ "$BASH_VERSION" ] || (echo "Bash required"; exit 1)
 

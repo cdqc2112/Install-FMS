@@ -110,94 +110,8 @@ spec:
   accessModes: [ "ReadWriteOnce" ]
   hostPath:
     path: "{{.Values.env.ROOT_PATH}}{{.Values.env.PERSISTENT_DATA_DIR}}{{.path}}"
-    type: "Directory"
 {{- end }}
 {{- end }}
-
-{{- define "fms.volume.root" -}}
-{{- if .Values.useHostForStorage }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-  labels:
-    {{- include "fms.labels" . | nindent 4 }}
-    type: local
-    name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-spec:
-  storageClassName: manual
-  persistentVolumeReclaimPolicy: Delete
-  capacity:
-    storage: "10G"
-  accessModes: [ "ReadWriteOnce" ]
-  hostPath:
-    path: "{{.Values.env.ROOT_PATH}}"
-    type: "Directory"
-{{- end }}
-{{- end }}
-
-
-
-{{/*
-    Satisfy volume claim automatically when using host storage
-    Expect:
-      Values
-      id - unique id for the volume
-      path
-*/}}
-{{- define "fms.volume.replication-data" -}}
-{{- if .Values.useHostForStorage }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-  labels:
-    {{- include "fms.labels" . | nindent 4 }}
-    type: local
-    name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-spec:
-  storageClassName: manual
-  persistentVolumeReclaimPolicy: Delete
-  capacity:
-    storage: "10G"
-  accessModes: [ "ReadWriteOnce" ]
-  hostPath:
-    path: "{{.Values.env.REPLICATION_ROOT_PATH}}{{.Values.env.REPLICATION_DATA_DIR}}{{.Values.env.PERSISTENT_DATA_DIR}}{{.path}}"
-    type: "Directory"
-{{- end }}
-{{- end }}
-
-{{/*
-    Satisfy volume claim automatically when using host storage for replication
-    Expect:
-      Values
-      id - unique id for the volume
-*/}}
-{{- define "fms.volume.replication-data-root" -}}
-{{- if .Values.useHostForStorage }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-  labels:
-    {{- include "fms.labels" . | nindent 4 }}
-    type: local
-    name: data-{{ include "fms.fullname" . }}-{{.id}}-0
-spec:
-  storageClassName: manual
-  persistentVolumeReclaimPolicy: Delete
-  capacity:
-    storage: "10G"
-  accessModes: [ "ReadWriteOnce" ]
-  hostPath:
-    path: "{{.Values.env.REPLICATION_ROOT_PATH}}{{.Values.env.REPLICATION_DATA_DIR}}"
-    type: "Directory"
-{{- end }}
-{{- end }}
-
 
 
 {{/*
@@ -209,12 +123,7 @@ spec:
 {{- define "fms.pod-volume.log" -}}
 {{- if .Values.useHostForStorage }}
 hostPath:
-{{- if not .replica }}
   path: "{{.Values.env.ROOT_PATH}}{{.Values.env.LOG_DIR}}{{.path}}"
-{{- else }}
-  path: "{{.Values.env.MASTER_ROOT_PATH}}{{.Values.env.LOG_DIR}}{{.path}}"
-{{- end }}
-  type: "Directory"
 {{- else }}
 emptyDir: {}
 {{- end }}

@@ -75,26 +75,6 @@ spec:
               memory: "{{.Values.env.MEMORY_LIMIT_MEASHANDLER_MO}}M"
             requests:
               memory: "242M"
-          startupProbe:
-            exec:
-              command:
-              - bash
-              - -c
-              - 'curl --silent --basic --fail --config <( echo "--user ${JOLOKIA_USER}:$(cat "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:8161/jolokia/exec/org.apache.camel:context=camel-1,type=health,name=DefaultHealthCheck/isHealthy()" | grep "\"value\":true"'
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 8
-            # Allowed startup time
-            failureThreshold: 50
-          livenessProbe:
-            exec:
-              command:
-              - bash
-              - -c
-              - 'curl --silent --basic --fail --config <( echo "--user ${JOLOKIA_USER}:$(cat "${JOLOKIA_PASSWORD_FILE}")") "http://localhost:8161/jolokia/exec/org.apache.camel:context=camel-1,type=health,name=DefaultHealthCheck/isHealthy()" | grep "\"value\":true"'
-            timeoutSeconds: 8
-            periodSeconds: 30
-            failureThreshold: 3
       volumes:
       - name: logs
       # FIXME: out of scope for now

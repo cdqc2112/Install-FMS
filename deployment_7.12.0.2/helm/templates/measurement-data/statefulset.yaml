@@ -68,19 +68,6 @@ spec:
               memory: "2048M"
             requests:
               memory: "204.8M"
-          startupProbe:
-            httpGet:
-              path: /v1/healthcheck
-              port: 8080
-              httpHeaders:
-              - name: x-Token-Username
-                value: swarm
-              - name: x-Token-Roles
-                value: '["fg-results-master", "fg-results-read"]'
-            initialDelaySeconds: 5
-            timeoutSeconds: 8
-            periodSeconds: 10
-            failureThreshold: 8
           livenessProbe:
             httpGet:
               path: /v1/healthcheck
@@ -90,6 +77,21 @@ spec:
                 value: swarm
               - name: x-Token-Roles
                 value: '["fg-results-master", "fg-results-read"]'
+            initialDelaySeconds: 80
+            timeoutSeconds: 8
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /v1/healthcheck
+              port: 8080
+              httpHeaders:
+              - name: x-Token-Username
+                value: swarm
+              - name: x-Token-Roles
+                value: '["fg-results-master", "fg-results-read"]'
+            initialDelaySeconds: 15
             timeoutSeconds: 8
             periodSeconds: 10
             successThreshold: 1

@@ -19,7 +19,6 @@ function defaultEnv() {
         MEASUREMENT_HANDLER_LOG=/measurement_handler
         RTU_BROKER=/rtu_broker
         TOPOLOGY_LOG=/topology_api
-        KEYCLOAK_LOG=/keycloak
         PROXY_LOG=/proxy
         FILE_REPLICATION_LOG=/file_replication
         ALARMING_METRICS_PROXY_LOG=/metric_proxy
@@ -37,7 +36,6 @@ function defaultEnv() {
         DISTRIBUTION_DATA=/dist
         METRIC_DATA=/metric
         VICTORIA_METRICS_DATA=/victoria-metrics
-        RTU_LOG_COLLECTOR=/rtu_log_collector
         CONFIG=/config
         KEYCLOAK_CONFIG=/keycloak
         RTU_NTP_SERVER=pool.ntp.org
@@ -63,8 +61,6 @@ function defaultEnv() {
         IAM_IAT_SLACK_SEC=120
         IAM_CLIENT_ID=fg-topologyapi
         IAM_CLIENT_SECRET=!
-        IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_ID=fg-service-authorization-proxy
-        IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_SECRET=!
         SERVER_CERT_SECRET=
         SERVER_CERT_KEY_SECRET=
         FGMS_TRUSTSTORE_SECRET=
@@ -93,8 +89,9 @@ function defaultEnv() {
         EDITION=FGMS
         ALARM_AUTO_REFRESH_INTERVAL=30
         ALARM_UNSHELVING_INTERVAL_IN_MINUTES=60
+        MAX_CONCURRENT_TOPOLOGY_REQUEST=3
+        MIN_WAIT_TIME_IN_CONCURRENT_TOPOLOGY_REQUEST=333
         SNMP_IMPLEMENTATION_VERSION=0
-        IS_CLEAR_SEVERITY_USED=true
         REPLICATION_ROOT_PATH=/opt/fms/replication
         REPLICATION_DATA_DIR=/replicated_data
         BACKUP_DIR=/backup
@@ -109,9 +106,7 @@ function defaultEnv() {
         ALERT_SCRIPT_PATH=/opt/fms/master/deployment/backup/send-alert.sh
         BACKUP_LOG_FULL_PATH=/opt/fms/master/logs/backup/backupLog.log
         MAX_BACKUP_ALLOW=2
-        PROXY_LOG_EXPIRATION_PERIOD=62
-        RTU_AUDIT_LOG_EXPIRATION_PERIOD=62
-        KEYCLOAK_LOG_EXPIRATION_PERIOD_DAYS=62
+        PROXY_LOG_EXPIRATION_PERIOD=61
         RTU_CONFIGURATION_VALIDATOR_SERVICE_ENABLED=true
         JOLOKIA_USER=admin
         JOLOKIA_PASSWORD_SECRET=!
@@ -120,7 +115,6 @@ function defaultEnv() {
         RTU_BROKER_MAX_CONNECTIONS=5000
         RTU_BROKER_EXPIRATION_TIMESTAMP_PERIOD=14400000
         RTU_BROKER_DLQ_EXPIRATION=864000000
-        REMOTE_LOG_BLACKLIST=
         ROOT_SQUASH=
         KEYCLOAK_UID_GID=1000:1000
         MEASUREMENT_FILE_UID_GID=1001:1001
@@ -146,8 +140,6 @@ function defaultEnv() {
         CONFIG_REPLICATION_UID_GID=1022:1022
         KEYCLOAK_PROXY_UID_GID=1023:1023
         VICTORIA_METRICS_UID_GID=1024:1024
-        RTU_LOG_COLLECTOR_UID_GID=1025:1025
-        SERVICE_AUTHORIZATION_PROXY_UID_GID=1026:1026
         CONDUCTOR_DB_PASSWORD_SECRET=!
         CONDUCTOR_DATA=/conductor
         CONDUCTOR_CEREBRO=/conductor-cerebro
@@ -165,10 +157,6 @@ function defaultEnv() {
         MEMORY_LIMIT_VICTORIA_METRICS_MO=1024
         VICTORIA_METRICS_RETENTION_PERIOD_MONTHS=12
         ORCHESTRATOR=swarm
-        MONGO_MEASUREMENT_DATA_MAX_SORT_RAM_BUFFER_SIZE=335544320
-        MONGO_ALARMING_DATA_MAX_SORT_RAM_BUFFER_SIZE=335544320
-        MONGO_ALARMING_METRICS_PROXY_DATA_MAX_SORT_RAM_BUFFER_SIZE=335544320
-        MONGO_RTU_API_GATEWAY_DATA_MAX_SORT_RAM_BUFFER_SIZE=335544320
     )
 }
 
@@ -188,7 +176,6 @@ function defaultSecrets() {
                         "JOLOKIA_PASSWORD_SECRET jolokia-pwd"
                         "RTU_BROKER_ADMIN_PASSWORD_SECRET rtu-broker-admin-pwd"
                         "IAM_CLIENT_SECRET iam-client-secret"
-                        "IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_SECRET iam-service-authorization-proxy-client-secret"
                         "MONGO_MEASURE_REPLICATION_TOKEN_SECRET --only-if REPLICATION_ENABLED mongo-measure-replication-token-secret 1024"
                         "MONGO_ALARM_REPLICATION_TOKEN_SECRET --only-if REPLICATION_ENABLED mongo-alarm-replication-token-secret 1024"
                         "FILE_REPLICATION_SECRET --only-if REPLICATION_ENABLED --generator secret-generator-rsync file-replication-secret"

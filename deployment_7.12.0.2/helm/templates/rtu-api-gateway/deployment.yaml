@@ -1,0 +1,98 @@
+{{ $serv_id := "rtu-api-gateway" }}
+{{ $serv_uidgid := .Values.env.RTU_API_GATEWAY_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-rtu-api-gateway") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: RTU_BROKER_ADMIN_PASSWORD_FILE
+            value: "/run/secrets/rtu_broker_admin_pwd"
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: "{{.Values.env.MONGO_USERNAME_RTU_API_GATEWAY}}"
+          - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+            value: "/run/secrets/rtu_api_gateway_db_pwd"
+          - name: MONGO_INITDB_DATABASE
+            value: "admin"
+          - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+            value: "true"
+          - name: JAVA_OPTS
+            value: "-Xms1024m -Xmx2042m"
+          volumeMounts:
+          - name: logs
+            mountPath: /var/www/logs
+          - name: rtu-broker-admin-pwd
+            mountPath: /run/secrets/rtu_broker_admin_pwd
+            subPath: secret
+            readOnly: true
+          - name: rtu-api-gateway-db-pwd
+            mountPath: /run/secrets/rtu_api_gateway_db_pwd
+            subPath: secret
+            readOnly: true
+          startupProbe:
+            exec:
+              command:
+              - sh
+              - -c 
+              - 'curl --fail --silent http://localhost:8081/actuator/health | grep "{\"status\":\"UP\""'
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 18
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c 
+              - 'curl --fail --silent http://localhost:8081/actuator/health | grep "{\"status\":\"UP\""'
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: "3072M"
+            requests:
+              memory: "307.2M"
+      volumes:
+      - name: logs
+        {{- include "fms.pod-volume.log" (merge (dict "id" $serv_id "path" .Values.env.RTU_API_GATEWAY) $) | nindent 8 }}
+      - name: rtu-broker-admin-pwd
+        secret:
+          secretName: {{.Values.env.RTU_BROKER_ADMIN_PASSWORD_SECRET}}
+          defaultMode: 0440
+      - name: rtu-api-gateway-db-pwd
+        secret:
+          secretName: {{.Values.env.MONGO_PASSWORD_RTU_API_GATEWAY_SECRET}}
+          defaultMode: 0440

@@ -1,0 +1,14 @@
+{{ $serv_id := "alarming-metrics-proxy" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$serv_id}}
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/service: {{$serv_id}}
+  ports:
+    - name: http
+      port: 7071
+      targetPort: 7071
+      protocol: TCP

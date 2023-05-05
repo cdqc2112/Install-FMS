@@ -1,0 +1,18 @@
+{{ $serv_id := "replication-victoria-metrics-srv" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/service: {{$serv_id}}
+  ports:
+    - name: rsync
+      port: 8370
+      targetPort: 8370
+      protocol: TCP
+{{- end }}

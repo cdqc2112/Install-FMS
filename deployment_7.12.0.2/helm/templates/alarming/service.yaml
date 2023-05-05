@@ -1,0 +1,14 @@
+{{ $serv_id := "alarming" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$serv_id}}
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/service: {{$serv_id}}
+  ports:
+    - name: http
+      port: 7070
+      targetPort: 7070
+      protocol: TCP

@@ -1,0 +1,4 @@
+{{ $serv_id := "replication-file-srv" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.FILE_DATA) $) }}
+{{- end }}

@@ -1,0 +1,1057 @@
+version: '3.7'
+
+services:
+  proxy:
+    environment:  
+     - WEB_APP_DNS=${TOPOLOGY_UI_DNS}
+     - "DEFAULT_SERVER_DNS={path: '${TOPOLOGY_UI_DNS}', service: 'topology-ui:8080' }"
+     - "MAP_DNS_TOPOLOGY={name: 'topology-api', path: '${TOPOLOGY_API_DNS}', service: 'topology-api:9090' }"
+     - "MAP_DNS_KEYCLOAK={name: 'keycloak', path: '${KEYCLOAK_DNS}', service: 'keycloak:8080', noauth: true, norewrite: true, options: ['rewrite ^/$$ /auth/ permanent;' ], subfolders: [ { pattern: '~ ^/auth/admin/realms/Fiber/clients/.*/installation/providers/keycloak-oidc-keycloak-json', service: 'keycloak:8080', options: 'sub_filter_types text/plain ; sub_filter ''/auth/\"'' ''/auth\"'' ;' } ] }"
+     - "MAP_DNS_MEASDATA={name: 'measurement_data', path: '${DATA_DNS}', service: 'measurement-data:8080', subfolders: [ { path: '/upload', service: 'measurement-files:9080' } ] }"
+     - "MAP_DNS_ALARM={name: 'alarming', path: '${ALARM_DNS}', service: 'alarming:7070' }"
+     - PROXY_SECRET_LUA_SESSION_FILE_PATH=/run/secrets/proxy_session
+     - "MAP_FOLDER_REMOTE_LOG={path: '/rtu_fms_log_streaming', service: 'rtu-log-collector:8888', jwtauth: true, rtuloc: true }"
+     - "MAP_FOLDER_ADMIN_ACTIVEMQ={path: '/admin/activemq', service: 'rtu-broker:8161', 'roles': '{\"fg-sys-admin\"}', 'options': 'set_by_lua_block $$headerContent { local iam = require(\"iam\")\n return iam.proxy_get_auth_header_from_file(\"${JOLOKIA_USER}\", \"/run/secrets/jolokia_pwd\") }\nproxy_set_header Authorization \"$$headerContent\";\nsub_filter ''<base href=\\''/hawtio/\\''>''  ''<base href=\\''/admin/activemq/hawtio/\\''>'';\n' }"
+     - "MAP_FOLDER_ADMIN_MEASHAND={path: '/admin/measurement-handler', service: 'rtu-broker:8161', 'roles': '{\"fg-sys-admin\"}', 'options': 'set_by_lua_block $$headerContent { local iam = require(\"iam\")\n return iam.proxy_get_auth_header_from_file(\"${JOLOKIA_USER}\", \"/run/secrets/jolokia_pwd\") }\nproxy_set_header Authorization \"$$headerContent\";\nsub_filter ''<base href=\\''/hawtio/\\''>''  ''<base href=\\''/admin/measurement-handler/hawtio/\\''>'';\n' }"
+     - "MAP_FOLDER_ADMIN_MEASHAND_JOL={path: '/admin/measurement-handler/hawtio/jolokia', service: 'measurement-handler:8161', 'roles': '{\"fg-sys-admin\"}', 'options': 'set_by_lua_block $$headerContent { local iam = require(\"iam\")\n return iam.proxy_get_auth_header_from_file(\"${JOLOKIA_USER}\", \"/run/secrets/jolokia_pwd\") }\nproxy_set_header Authorization \"$$headerContent\";\nrewrite ^ /jolokia/ break;\n' }"
+     - "MAP_FOLDER_WORKFLOW_SERVER={path: '/workflow/server', service: 'conductor-server:8080', 'roles': '{\"fg-sys-admin\"}' }"
+     - "MAP_FOLDER_WORKFLOW_UI={path: '/workflow/ui', service: 'conductor-ui:5000', 'roles': '{\"fg-sys-admin\"}' }"
+     - "MAP_FOLDER_WORKFLOW_UI_API={path: '/workflow/ui/server', service: 'conductor-server:8080', 'roles': '{\"fg-sys-admin\"}' }"
+     - "MAP_FOLDER_ADMIN_ES={path: '/admin/es', service: 'conductor-elasticsearch-cerebro:8080', 'roles': '{\"fg-es-administrator\"}' }"
+     - "MAP_FOLDER_ADMIN_VICTORIA_METRICS={path: '/admin/victoria-metrics', service: 'victoria-metrics:8428', 'roles': '{\"fg-sys-admin\"}' }"
+     - "MAP_FOLDER_SERVICE_AUTHORIZATION_PROXY={path: '/iam', service: 'service-authorization-proxy:8085', 'roles': '{\"fg-topology-master\"}' }"
+     - IAM_TYPE=${IAM_TYPE}
+     - IAM_IAT_SLACK_SEC=${IAM_IAT_SLACK_SEC}
+     - IAM_SERVER=${IAM_SERVER}
+     - IAM_USSP=${IAM_USSP}
+     - IAM_CLIENT_ID=${IAM_CLIENT_ID}
+     - IAM_ADMIN_USER=${IAM_ADMIN_USER}
+     - IAM_ADMIN_PASSWORD=${IAM_ADMIN_PASSWORD}
+     - ROOT_DNS=${ROOT_DNS}
+     - CER_ROOT=/opt/fgms/cer/
+     - DEBUG=${DEBUG}
+     - LOG_PERIOD=${PROXY_LOG_EXPIRATION_PERIOD}
+     - HTTP_PORT=1080
+     - IAM_CLIENT_SECRET_FILE=/run/secrets/iam_client_secret
+     - NGINX_UID_GID=${PROXY_EFFECTIVE_UID_GID}
+     - IAM_PROXY=http://keycloak-proxy:10000
+     - TLS_PROTOCOL=${TLS_VERSION}
+     - TLS13_CIPHERS=${PROXY_TLS13_CIPHER_SUITES}
+     - TLS12_CIPHERS=${PROXY_TLS12_CIPHER_SUITES}
+    image: "exfo/fms-proxy:git-7c43830f265c366d3ec5606a0a9d0f5030fd6406"
+    user: "${PROXY_UID_GID}"
+    secrets:
+      - { source: proxy_session, mode: 0400, uid: "${PROXY_SECRETS_UID}" }
+      - { source : rtu-version-controller-token, target: /secret/key, mode: 0400, uid: "${PROXY_SECRETS_UID}" }
+      - { source : iam_client_secret, mode: 0400, uid: "${PROXY_SECRETS_UID}" }
+      - { source : jolokia_pwd, mode: 0400, uid: "${PROXY_SECRETS_UID}" }
+      # Certificates secrets are dynamically added in swarm.sh
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 1080
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+     - ${ROOT_PATH}${LOG_DIR}${PROXY_LOG}:/var/log/nginx
+     - ${ROOT_PATH}${LOG_DIR}${RTU_UPDATES_LOGS}:/updates/logs
+     - ${ROOT_PATH}${LOG_DIR}${RTU_GENERAL_LOGS}:/general/logs
+     - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${DISTRIBUTION_DATA}:/updates/dist:ro
+    deploy:
+     resources:
+      limits:
+        memory: "1024M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+        - 'node.labels.role!=replica'
+        - '${PROXY_NODE_CONSTRAINT}'
+    networks:
+     topology-network:
+
+  keycloak:
+    image: "exfo/fms-security:git-d08b130bdd6d4ab926952488ce4c78568a1c5c8a"
+    environment:
+      - 'MASTER_USER_ADMIN=${KEYCLOAK_MASTER_ADMIN_USER_INIT}:/run/secrets/keycloak_master_pwd'
+      - |
+          JSON_MASTER_USER_ADMIN=
+            "realmRoles":["admin","uma_authorization","offline_access"],
+            "clientRoles" : { "realm-management" : [ "manage-events", "impersonation", "manage-realm", "manage-authorization", "manage-users" ],
+                              "account" : [ "view-profile", "manage-account" ] },
+            "attributes" : { "locale" : ["en"] }
+      - 'FIBER_USER_ADMIN=${KEYCLOAK_FIBER_ADMIN_USER_INIT}:/run/secrets/keycloak_pwd'
+      - |
+          JSON_FIBER_USER_ADMIN=
+            "realmRoles":["fg-topology-master","fg-results-master","fg-test-control-master","uma_authorization","offline_access","grafana-access","fg-gis-access"],
+            "requiredActions" : [ "UPDATE_PASSWORD" ],
+            "clientRoles" : { "realm-management" : [ "manage-events", "impersonation", "manage-realm", "manage-authorization", "manage-users", "realm-admin" ],
+                              "account" : [ "view-profile", "manage-account" ] },
+            "attributes" : { "locale" : ["en"] }
+      - 'FIBER_USER_TEST=${KEYCLOAK_FIBER_TEST_USER_INIT}:/run/secrets/keycloak_test_pwd'
+      - 'JSON_FIBER_USER_TEST="realmRoles":["fg-results-read","fg-topology-master"],"attributes" : { "locale" : ["en"] }'
+      - TOPOLOGY_API_DNS=${TOPOLOGY_API_DNS}
+      - KEYCLOAK_DNS=${KEYCLOAK_DNS}
+      - TOPOLOGY_UI_DNS=${TOPOLOGY_UI_DNS}
+      - DATA_DNS=${DATA_DNS}
+      - KC_DB=postgres
+      - KC_DB_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - DB_PASSWORD_FILE=/run/secrets/keycloak_db_pwd
+      - KC_DB_URL_HOST=postgresql-keycloak
+      - KC_DB_URL_PORT=5432
+      - KC_HOSTNAME=${KEYCLOAK_DNS}
+      - KC_PROXY=edge
+      - FGMS_TRUSTSTORE_PATH=/opt/fgms/cer/fgmstruststore.jks
+      - FGMS_TRUSTSTORE_PASSWD_FILE=/opt/fgms/cer/fgms_truststore_passwd
+      - IMPORT_FORCE=true
+      - EDITION=${EDITION}
+      - PROXY_ADDRESS_FORWARDING=true
+      - KEYCLOAK_SECRET_FILE=/run/secrets/iam_client_secret
+      - KEYCLOAK_SERVICE_AUTHORIZATION_PROXY_SECRET_FILE=/run/secrets/iam_service_authorization_proxy_client_secret
+      - "JAVA_EXTRA_OPTS=-Xms1024m -Xmx2042m"
+      - "KEYCLOAK_LOG_EXPIRATION_PERIOD_DAYS=${KEYCLOAK_LOG_EXPIRATION_PERIOD_DAYS}"
+    volumes:
+      - ${ROOT_PATH}${CONFIG}${KEYCLOAK_CONFIG}:/opt/fgms/keycloak/config
+      - ${ROOT_PATH}${LOG_DIR}${KEYCLOAK_LOG}:/opt/keycloak/data/log
+      - type: tmpfs
+        target: /opt/keycloak/conf
+    user: "${KEYCLOAK_UID_GID}"
+    secrets:
+      - { source : keycloak_db_pwd, mode: 0400, uid: "${KEYCLOAK_UID}" }
+      - { source : iam_client_secret, mode: 0400, uid: "${KEYCLOAK_UID}" }
+      - { source : iam_service_authorization_proxy_client_secret, mode: 0400, uid: "${KEYCLOAK_UID}" }
+      # Truststore secrets are dynamically added in swarm.sh
+    deploy:
+     resources:
+      limits:
+        memory: "3072M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+       - 'node.labels.role!=replica'
+    restart: always
+    depends_on:
+       - postgresql-keycloak
+    networks:
+      topology-network:
+
+  keycloak-proxy:
+    image: "exfo/fms-envoy:git-d08b130bdd6d4ab926952488ce4c78568a1c5c8a"
+    user: "${KEYCLOAK_PROXY_UID_GID}"
+    environment:
+      - LOG_LEVEL=info
+      - KEYCLOAK_DNS=${KEYCLOAK_DNS}
+    deploy:
+     resources:
+      limits:
+        memory: "1024M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+        - 'node.labels.role!=replica'
+    networks:
+      topology-network:
+
+  postgresql-keycloak:
+    image: "exfo/fms-postgresql-db:git-5ff37206c8f3542a69615cf4871e64a532424ad8"
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/keycloak_db_pwd
+      - POSTGRES_USER=keycloak
+      - PGDATA=/var/lib/postgresql/data
+    secrets:
+      - { source : keycloak_db_pwd, mode: 0400, uid: "70" }
+    volumes:
+     - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${SECURITY_DATA}:/var/lib/postgresql/data
+     - type: tmpfs
+       target: /dev/shm
+       tmpfs:
+         size: 512000000 # This means 512mb
+    deploy:
+     resources:
+      limits:
+        memory: "1024M"
+     mode: replicated
+     replicas: 1
+     # Switch to dnsrr as ipvs has trouble with long lived tcp connection on network break (https://github.com/moby/moby/issues/37822)
+     endpoint_mode: dnsrr
+     placement:
+      constraints:
+       - 'node.labels.role!=replica'
+      preferences:
+       - spread: node.labels.DB
+    networks:
+       topology-network:
+    restart: always
+
+  topology-ui:
+    environment:
+    - DATA_API=${DATA_DNS}/v1
+    - TOPOLOGY_UI_DNS=${TOPOLOGY_UI_DNS}
+    - TOPOLOGY_API_DNS=${TOPOLOGY_API_DNS}
+    - KEYCLOAK_DNS=${KEYCLOAK_DNS}
+    - ALARM_AUTO_REFRESH_INTERVAL=${ALARM_AUTO_REFRESH_INTERVAL}
+    - ALARM_DNS=${ALARM_DNS}
+    - EDITION=${EDITION}
+    - VERSION=7.13.0.2
+    - HTTP_PORT=8080
+    - HEALTHCHECK_PORT=8081
+    image: "exfo/optical-monitoring:git-224de3365dfb0d507d3f8bab82832768dd399db7"
+    user: "${TOPOLOGY_UI_UID_GID}"
+    volumes:
+     - ${ROOT_PATH}${CONFIG}${TOPOLOGY_UI_DATA}:/etc/ui/customConfig:ro
+    deploy:
+     resources:
+      limits:
+        memory: "1024M"
+     mode: global
+     placement:
+      constraints:
+        - 'node.labels.role!=replica'
+    networks:
+      topology-network:
+    restart: always
+
+  topology-api:
+    environment:
+     - KEYCLOAK_DNS=${KEYCLOAK_DNS}
+     - IAM_PROXY=http://keycloak-proxy:10000
+     - TOPOLOGY_API_DNS=${TOPOLOGY_API_DNS}
+     - MESSAGE_DNS=${MESSAGE_DNS}
+     - KEYCLOAK_USER=${KEYCLOAK_MASTER_ADMIN_USER_INIT}
+     - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak_master_pwd
+     - NTP_SERVER=${RTU_NTP_SERVER}
+     - UMASK=0022
+     - VALIDATION_SERVICE_URI=http://rtu-configuration-validator:8080/v1/test
+     - VALIDATION_SERVICE_ENABLED=${RTU_CONFIGURATION_VALIDATOR_SERVICE_ENABLED}
+     - "CATALINA_OPTS=-XshowSettings:vm"
+     - KEYCLOAK_SECRET_FILE=/run/secrets/iam_client_secret
+     - POSTGRES_HOST=postgresql-topology
+     - POSTGRES_PASSWORD_FILE=/run/secrets/topology_db_pwd
+     - POSTGRES_ROOT_PASSWORD_FILE=/run/secrets/topology_db_pwd
+     - FGMS_TRUSTSTORE_PATH=/opt/fgms/cer/fgmstruststore.jks
+     - FGMS_TRUSTSTORE_PASSWD_FILE=/opt/fgms/cer/fgms_truststore_passwd
+     - RTU_BROKER_ADMIN_PASSWORD_FILE=/run/secrets/rtu_broker_admin_pwd
+     - RTU_VERSION_CONTROLLER_SERVICE_URI=http://rtu-version-controller:8085/fms-rtu-version-controller
+     - "JAVA_OPTS=-Xms1024m -Xmx${MEMORY_LIMIT_TOPOLOGYAPI_MO_JAVA}m"
+    image: "exfo/fms-topology:git-927555beba711efb7b945042fb161a3a2e32cff9"
+    user: "${TOPOLOGY_API_UID_GID}"
+    secrets:
+      - { source : topology_db_pwd, mode: 0400, uid: "${TOPOLOGY_API_UID}" }
+      - { source : rtu_broker_admin_pwd, mode: 0400, uid: "${TOPOLOGY_API_UID}" }
+      - { source : iam_client_secret, mode: 0400, uid: "${TOPOLOGY_API_UID}" }
+      # Truststore secrets are dynamically add in swarm.sh
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9090/api/topology/healthcheck', '-H', 'x-Token-Username:swarm', '-H', 'x-Token-Roles:["fg-topology-read"]']
+      interval: 30s
+      timeout: 4s
+      retries: 4
+      start_period: 400s
+    volumes:
+        - ${ROOT_PATH}${CONFIG}${TOPOLOGY_DATA}:/opt/fgms/topology/customConfig:ro
+        - ${ROOT_PATH}${LOG_DIR}${TOPOLOGY_LOG}:/usr/local/tomcat/logs
+    networks:
+      topology-network:
+        aliases: 
+        - topology
+    restart: always
+    deploy:
+     resources:
+      limits:
+        memory: "${MEMORY_LIMIT_TOPOLOGYAPI_MO}M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+        - 'node.labels.role != replica'
+    depends_on:
+        - postgresql-topology
+        - servicemix
+
+  postgresql-topology:
+   image: "exfo/fms-postgresql-db:git-5ff37206c8f3542a69615cf4871e64a532424ad8"
+   environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD_FILE=/run/secrets/topology_db_pwd
+     - PGDATA=/opt/fgms/topology
+     - |
+         POSTGRES_TUNING=
+           synchronous_commit = off
+           work_mem='64MB'
+           shared_buffers='1024MB'
+           stats_temp_directory='/var/run/postgresql/'
+           jit='off'
+   restart: always
+   volumes:
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${TOPOLOGY_DATA}:/opt/fgms/topology/
+    - type: tmpfs
+      target: /dev/shm
+      tmpfs:
+        size: 4294967296 # This means 4Gib
+   secrets:
+    - { source : topology_db_pwd, mode: 0400, uid: "70" }
+   deploy:  
+    mode: replicated
+    replicas: 1
+    # Switch to dnsrr as ipvs has trouble with long lived tcp connection on network break (https://github.com/moby/moby/issues/37822)
+    endpoint_mode: dnsrr
+    placement:
+     constraints:
+      - 'node.labels.role != replica'
+     preferences:
+      - spread: node.labels.DB
+    resources:
+      limits:
+        memory: "4096M"
+   networks:
+    topology-network:
+
+  measurement-data:
+   environment:
+    - NODE_TLS_REJECT_UNAUTHORIZED=0
+    - USE_SSL=false
+    - USE_KEYCLOAK=false
+    - MONGO_HOST=measurement-data-db
+    - MONGO_DATABASE=optical-services
+    - FILE_SERVER_BASE_URI=http://measurement-files:9080/
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_MEASURE}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/measure_db_pwd
+    - SERVICE_HOST_NAME=${DATA_DNS}
+    - OTDR_EXTRACTOR_BASE_URI=http://optical-processing:5000/
+   image: "exfo/fms-measurement:git-bf4e08212ef2164149dc5f2ad58826ab6776cd5e"
+   user: "${MEASUREMENT_UID_GID}"
+   secrets:
+    - { source : measure_db_pwd, mode: 0400, uid: "${MEASUREMENT_UID}" }
+   healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8080/v1/healthcheck', '-H', 'x-Token-Username:swarm', '-H', 'x-Token-Roles:["fg-results-master", "fg-results-read"]']
+      interval: 30s
+      timeout: 8s
+      retries: 3
+      start_period: 30s
+   networks:
+    topology-network:
+     aliases:
+      - measurement
+   restart: always
+   deploy:  
+    resources:
+      limits:
+        memory: "2048M"
+    mode: replicated
+    replicas: 1
+    placement:
+     constraints:
+       - 'node.labels.role != replica'
+   depends_on:
+    - measurement-data-db
+
+  measurement-files:
+   environment:
+    - NODE_TLS_REJECT_UNAUTHORIZED=0
+    - USE_SSL=false
+    - USE_KEYCLOAK=false
+    - MONGO_DATABASE=optical-services
+    - MONGO_HOST=measurement-data-db
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_MEASURE}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/measure_db_pwd
+    - SERVICE_HOST_NAME=${DATA_DNS}
+   user: "${MEASUREMENT_FILE_UID_GID}"
+   secrets:
+    - { source : measure_db_pwd, mode: 0400, uid: "${MEASUREMENT_FILE_UID}" }
+   image: "exfo/fms-measurement-files:git-8df20875b21f5130b6b3a5601119b9b57bc71642"
+   volumes:
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${FILE_DATA}:/var/www/ClientsData
+   networks:
+    topology-network:
+     aliases:
+      - measurement-files
+   restart: always
+   deploy:  
+    resources:
+      limits:
+        memory: "2048M"
+    mode: replicated
+    replicas: 1
+    placement:
+     constraints:
+       - 'node.labels.role != replica'
+   depends_on:
+    - measurement-data-db
+
+  measurement-data-db:
+   image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+   user: 999:999
+   environment:
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_MEASURE}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/measure_db_pwd
+    - MONGO_INITDB_DATABASE=admin
+    - MAX_SORT_RAM_BUFFER_SIZE=${MONGO_MEASUREMENT_DATA_MAX_SORT_RAM_BUFFER_SIZE}
+   secrets:
+    - { source : measure_db_pwd, mode: 0400, uid: "999" }
+   volumes:
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${MEASUREMENT_DATA}:/data/db
+   restart: always
+   # needed by replication config at starting: the container does not know its own name before healthcheck is passed
+   extra_hosts:
+     - "measurement-data-db:127.0.0.1"
+   deploy: 
+    resources:
+      limits:
+        memory: "${MEMORY_LIMIT_MONGODB_MEASDATA_MO}M"
+    mode: replicated   
+    replicas: 1
+    placement:
+     constraints:
+      - 'node.labels.role != replica'
+     preferences:
+      - spread: node.labels.DB
+   networks:
+    topology-network:
+
+  rtu-broker:
+    environment:
+     - SSL_AUTH_REQUIRED=${RTU_SSL_AUTH_REQUIRED}
+     - FGMS_TRUSTSTORE_PASSWD_FILE=fgms_rtu_truststore_passwd
+     - FGMS_TRUSTSTORE_FILE=fgms_rtu_truststore
+     - RTU_CERT_DN_REGEXP=${RTU_SSL_AUTH_CERT_DN_REGEXP}
+     - MESSAGE_DNS=${MESSAGE_DNS}
+     - TLS_PROTOCOL=${TLS_VERSION}
+     - TLS13_CIPHERS=${BROKER_TLS13_CIPHER_SUITES}
+     - TLS12_CIPHERS=${BROKER_TLS12_CIPHER_SUITES}
+     - MAX_BROWSE_PAGE_SIZE=${RTU_BROKER_MAX_BROWSE_PAGE_SIZE}
+     - MAX_CONNECTIONS=${RTU_BROKER_MAX_CONNECTIONS}
+     - EXPIRATION_TIMESTAMP_PERIOD=${RTU_BROKER_EXPIRATION_TIMESTAMP_PERIOD}
+     - DLQ_EXPIRATION=${RTU_BROKER_DLQ_EXPIRATION}
+     - SERVICE_UID_GID=${RTU_BROKER_UID_GID}
+     - JOLOKIA_USER=${JOLOKIA_USER}
+     - JOLOKIA_PASSWORD_FILE=/run/secrets/jolokia_pwd
+     - RTU_BROKER_ADMIN_PASSWORD_FILE=/run/secrets/rtu_broker_admin_pwd
+     - "ACTIVEMQ_OPTS=-Xms1024m -Xmx${MEMORY_LIMIT_RTUBROKER_MO_JAVA}m"
+    image: "exfo/fms-rtu-broker:git-315db45f7ccd72c7869727ee05f037b3446e434f"
+    user: ${RTU_BROKER_UID_GID}
+    secrets:
+      - { source : jolokia_pwd, mode: 0400, uid: "${RTU_BROKER_UID}" }
+      - { source : rtu_broker_admin_pwd, mode: 0400, uid: "${RTU_BROKER_UID}" }
+    deploy:
+     resources:
+      limits:
+        memory: "${MEMORY_LIMIT_RTUBROKER_MO}M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+       - 'node.labels.role!=replica'
+       - '${RTUBROKER_NODE_CONSTRAINT}'
+      preferences:
+       - spread: node.labels.RAM 
+    networks:
+       topology-network:
+    restart: always
+    ports:
+      - mode: host # ssl with only tls
+        protocol: tcp
+        published: 61617
+        target: 61617
+    volumes:
+      - ${ROOT_PATH}${LOG_DIR}${RTU_BROKER}:/opt/activemq/data/log
+      - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${RTU_BROKER}:/opt/activemq/data/kahadb
+    # Truststore and certificates secrets are dynamically added in swarm.sh
+
+  measurement-handler:
+    environment:
+      - METRIC_PROXY_API_DNS=alarming-metrics-proxy:7071
+      - WAIT_HOSTS=rtu-broker:61616, topology-api:9090
+      - WAIT_HOSTS_TIMEOUT=180
+      - WAIT_SLEEP_INTERVAL=20
+      - RTU_BROKER_ADMIN_PASSWORD_FILE=/run/secrets/rtu_broker_admin_pwd
+      - JOLOKIA_USER=${JOLOKIA_USER}
+      - JOLOKIA_PASSWORD_FILE=/run/secrets/jolokia_pwd
+      - "LOG4J_FORMAT_MSG_NO_LOOKUPS=true"
+      - "JAVA_OPTS=-Xms1024m -Xmx${MEMORY_LIMIT_MEASHANDLER_MO_JAVA}m"
+      - FORWARD_METRIC_JSON_URI=http://victoria-metrics:8428/api/v1/import/prometheus
+      - "FILTERED_OUT_METRICS=olm_link_element_[a-z_]*|olm_section_[a-z_]*"
+    image: "exfo/fms-measurement-handler:git-1749d4de506ab56d70b6b5a098b6f9943c38a395"
+    user: "${MEASUREMENT_HANDLER_UID_GID}"
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: "${MEMORY_LIMIT_MEASHANDLER_MO}M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role != replica'
+    secrets:
+      - { source : rtu_broker_admin_pwd, mode: 0400, uid: "${MEASUREMENT_HANDLER_UID}" }
+      - { source : jolokia_pwd, mode: 0400, uid: "${MEASUREMENT_HANDLER_UID}" }
+    networks:
+      topology-network:
+    depends_on:
+      - rtu-broker
+    volumes:
+      - ${ROOT_PATH}${LOG_DIR}${MEASUREMENT_HANDLER_LOG}:/target/logs
+
+  alarming:
+   environment:
+    - MONGO_HOST=alarming-db
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_ALARMING}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/alarming_db_pwd
+    - PULL_INTERVAL=0.5
+    - GROUP_KEYS=${GROUP_KEYS}
+    - USE_KEYCLOAK=false
+    - "NODE_OPTIONS=--max_old_space_size=2048"
+    - TOPOLOGY_API_DNS=topology
+    - TOPOLOGY_API_PORT=9090
+    - SNMP_IMPLEMENTATION_VERSION=${SNMP_IMPLEMENTATION_VERSION}
+    - TOPOLOGY_UI_DNS=${TOPOLOGY_UI_DNS}
+    - IS_CLEAR_SEVERITY_USED=${IS_CLEAR_SEVERITY_USED}
+   secrets:
+    - { source : alarming_db_pwd, mode: 0400, uid: "${ALARMING_UID}" }
+   image: "exfo/fms-alarming:git-bc6a83bac22c317579521a91b837a76a5cf5554b"
+   user: "${ALARMING_UID_GID}"
+   healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:7070/v1/healthcheck', '-H', 'x-Token-Username:alarmingUser', '-H', 'x-Token-Roles:["fg-alarm-master","fg-alarm-read"]']
+      interval: 40s
+      timeout: 8s
+      retries: 3
+      start_period: 50s
+   volumes:
+       - ${ROOT_PATH}${CONFIG}${ALARM_DATA}:/etc/tracking/customConfig:ro
+       - ${ROOT_PATH}${LOG_DIR}${ALARM_LOG}:/var/www/logs
+   restart: always
+   deploy:  
+    resources:
+      limits:
+        memory: "4096M"
+    mode: replicated
+    replicas: 2
+    placement:
+     constraints:
+       - 'node.labels.role!=replica'
+   networks:
+    topology-network:
+   depends_on:
+   - alarming-db
+
+  alarming-db:
+   image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+   user: 999:999
+   environment:
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_ALARMING}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/alarming_db_pwd
+    - MONGO_INITDB_DATABASE=admin
+    - MAX_SORT_RAM_BUFFER_SIZE=${MONGO_ALARMING_DATA_MAX_SORT_RAM_BUFFER_SIZE}
+   secrets:
+    - { source : alarming_db_pwd, mode: 0400, uid: "999" }
+   volumes:
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${ALARM_DATA}:/data/db
+   restart: always
+   # needed by replication config at starting: the container does not know its own name before healthcheck is passed
+   extra_hosts:
+     - "alarming-db:127.0.0.1"
+   deploy:  
+    resources:
+      limits:
+        memory: "${MEMORY_LIMIT_MONGODB_ALARMING_MO}M"
+    mode: replicated
+    replicas: 1
+    placement:
+     constraints:
+      - 'node.labels.role!=replica'
+     preferences:
+      - spread: node.labels.DB
+   networks:
+    topology-network:
+
+
+  victoria-metrics:
+    user: "${VICTORIA_METRICS_UID_GID}"
+    image: "victoriametrics/victoria-metrics:v1.82.0"
+    command:
+     - "--retentionPeriod=${VICTORIA_METRICS_RETENTION_PERIOD_MONTHS}"
+    volumes:
+      - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${VICTORIA_METRICS_DATA}:/victoria-metrics-data
+    networks:
+      - topology-network
+    healthcheck:
+      test: "wget -q -Y off http://localhost:8428/-/healthy -O /dev/null > /dev/null 2>&1"
+      interval: 60s
+      timeout: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: "${MEMORY_LIMIT_VICTORIA_METRICS_MO}M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role!=replica'
+
+
+  alarming-metrics-proxy:
+   user: "${ALARMING_METRICS_PROXY_UID_GID}"
+   environment:
+    - MONGO_HOST=alarming-metrics-proxy-db
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_ALARMING_METRICS}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/alarming_metrics_db_pwd
+    - PULL_INTERVAL=0.5
+    - GROUP_KEYS=${GROUP_KEYS}
+    - USE_KEYCLOAK=false
+    - DEBUG_ENV=${DEBUG_ENV}
+    - TOPOLOGY_API_DNS=topology
+    - TOPOLOGY_API_PORT=9090
+   secrets:
+    - { source : alarming_metrics_db_pwd, mode: 0400, uid: "${ALARMING_METRICS_PROXY_UID}" }
+   image: "exfo/fms-metric-proxy:git-5f3c88112ebf537acc135a08c9aa1a791522748e"
+   healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:7071/v1/healthcheck', '-H', 'x-Token-Username:alarmingUser', '-H', 'x-Token-Roles:["fg-alarm-master","fg-alarm-read"]']
+      interval: 40s
+      timeout: 8s
+      retries: 3
+      start_period: 50s
+   volumes:
+    - ${ROOT_PATH}${LOG_DIR}${ALARMING_METRICS_PROXY_LOG}:/var/www/logs
+   restart: always
+   deploy:
+    resources:
+      limits:
+        memory: "2048M"
+    mode: replicated
+    replicas: 1
+    placement:
+      constraints:
+       - 'node.labels.role!=replica'
+   networks:
+    topology-network:
+   depends_on:
+   - alarming-metrics-proxy-db
+
+
+  alarming-metrics-proxy-db:
+   image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+   user: 999:999
+   environment:
+    - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_ALARMING_METRICS}
+    - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/alarming_metrics_db_pwd
+    - MAX_SORT_RAM_BUFFER_SIZE=${MONGO_ALARMING_METRICS_PROXY_DATA_MAX_SORT_RAM_BUFFER_SIZE}
+   secrets:
+    - { source : alarming_metrics_db_pwd, mode: 0400, uid: "999" }
+   volumes:
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${METRIC_DATA}:/data/db
+   restart: always
+   deploy:
+    resources:
+      limits:
+        memory: "${MEMORY_LIMIT_MONGODB_ALARMINGMETRICSPROXY_MO}M"
+    mode: replicated
+    replicas: 1
+    placement:
+     constraints:
+       - 'node.labels.role!=replica'
+     preferences:
+      - spread: node.labels.DB
+   networks:
+    topology-network:
+
+  alarming-metrics:
+    user: "${ALARMING_METRICS_UID_GID}"
+    image: "exfo/optical-trending:git-dfe9efd20e75f8229dcec41d0a016f5a11971d3c"
+    command:
+     - '--alertmanager.notification-queue-capacity=100000'
+    volumes:
+     - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${ALARMING_METRICS_DATA}:/prometheus
+     - ${ROOT_PATH}${CONFIG}${ALARMING_METRICS_DATA}:/etc/prometheus.custom:ro
+    healthcheck:
+     test: "/bin/wget -q -Y off http://localhost:9090/-/healthy -O /dev/null > /dev/null 2>&1"
+     interval: 30s
+     timeout: 8s
+     retries: 3
+    deploy:
+     resources:
+      limits:
+        memory: "${MEMORY_LIMIT_ALARMINGMETRICS_MO}M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+        - 'node.labels.role!=replica'
+     restart_policy:
+        condition: on-failure
+    networks:
+        topology-network:
+        
+
+  alertmanager:
+    image: "exfo/optical-alarming-proxy:git-1d21c7828ebdf410392039d82614fc7fdbd53d3e"
+    user: "${ALERTMANAGER_UID_GID}"
+    restart: always
+    # cluster.listen-address is a fix for https://github.com/prometheus/alertmanager/issues/1814
+    command: '--storage.path=/alertmanager --cluster.listen-address=""'
+    deploy:
+     resources:
+      limits:
+        memory: "2048M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+        - 'node.labels.role!=replica'
+    networks:
+        topology-network:
+  
+  rtu-version-controller:
+   environment:
+    - PROXY_DNS=${TOPOLOGY_UI_DNS}
+    - LOG_URL=${ROOT_DNS}/rtu_fms_log_streaming
+    - SECRET_KEY_FILE=/secret/key-read
+    - REMOTE_LOG_BLACKLIST=${REMOTE_LOG_BLACKLIST}
+   image: exfo/fms-rtu-version-controller:git-1825f812a4fce5d6cab8a621c1abada6690b4d76
+   secrets:
+    - { source : rtu-version-controller-token, target: /secret/key-read, mode: 0400, uid: "${RTU_VERSION_CONTROLLER_UID}" }
+   user: "${RTU_VERSION_CONTROLLER_UID_GID}"
+   healthcheck:
+     test: ['CMD', 'curl', '-f', 'http://localhost:8085/fms-rtu-version-controller/healthcheck']
+     interval: 30s
+     timeout: 8s
+     retries: 3
+   deploy:
+     mode: replicated
+     replicas: 1
+     placement:
+       constraints:
+         - 'node.labels.role!=replica'
+     resources:
+      limits:
+        memory: "2048M"
+   volumes:
+    - ${ROOT_PATH}${LOG_DIR}${RTU_VERSION_CONTROLLER}:/var/www/logs
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${RTU_VERSION_CONTROLLER}:/updates/context
+    - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${DISTRIBUTION_DATA}:/updates/dist:ro
+    - ${ROOT_PATH}${CONFIG}${RTU_VERSION_CONTROLLER}:/updates/customConfig:ro
+   networks:
+    topology-network:
+      aliases: 
+        - rtu-version-controller
+
+  service-authorization-proxy:
+   environment:
+    - KEYCLOAK_DNS=${KEYCLOAK_DNS}
+    - IAM_PROXY=http://keycloak-proxy:10000
+    - IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_ID=${IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_ID}
+    - KEYCLOAK_SERVICE_AUTHORIZATION_PROXY_SECRET_FILE=/run/secrets/iam_service_authorization_proxy_client_secret
+   image: exfo/fms-service-authorization-proxy:git-d1f477f9f502e786468df5f7e7764eb9e8279c20
+   user: "${SERVICE_AUTHORIZATION_PROXY_UID_GID}"
+   secrets:
+      - { source : iam_service_authorization_proxy_client_secret, mode: 0400, uid: "${SERVICE_AUTHORIZATION_PROXY_UID}" }
+   healthcheck:
+     test: ['CMD', 'curl', '-f', 'http://localhost:8085/healthcheck']
+     interval: 30s
+     timeout: 8s
+     retries: 3
+   deploy:
+     mode: replicated
+     replicas: 1
+     placement:
+       constraints:
+         - 'node.labels.role!=replica'
+     resources:
+      limits:
+        memory: "2048M"
+   networks:
+    topology-network:
+
+  rtu-log-collector:
+    image: exfo/fms-fluentbit:git-36407d3a0719d1cad70ae44e78a3d0e1d92e6a96
+    user: ${RTU_LOG_COLLECTOR_UID_GID}
+    environment:
+      - RTU_LOG_COLLECTOR_LEVEL=info
+      - RTU_LOG_COLLECTOR_FILE=fluent-bit.log
+      - RTU_LOG_COLLECTOR_HTTP_PORT=8888
+      - RTU_LOG_COLLECTOR_HEALTH_PORT=2020
+      - "AUDITLOGS_CONF_AGE=maxage ${RTU_AUDIT_LOG_EXPIRATION_PERIOD}"
+    volumes:
+      - ${ROOT_PATH}${LOG_DIR}${RTU_LOG_COLLECTOR}:/output
+    deploy:
+     mode: replicated
+     replicas: 1
+     placement:
+       constraints:
+         - 'node.labels.role!=replica'
+     resources:
+      limits:
+        memory: "1024M"
+    healthcheck:
+      test: ['CMD-SHELL', 'curl --fail http://localhost:2020 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+     topology-network:
+
+  optical-processing:
+   environment:
+    - PROXY_DNS=${TOPOLOGY_UI_DNS}
+    # log level is case sensitive and can be set with one of these values {None, Critical, Error, Warning, Information, Debug, Trace}
+    - LOG_LEVEL=Information
+   image: exfo/fms-optical-processing:git-f0a7c7982d33f2b6a3498f5c1b9200ca7d8f4779
+   user: "${OPTICAL_PROCESSING_UID_GID}"
+   healthcheck:
+     test: ['CMD', 'curl', '-f', 'http://localhost:5000/healthcheck']
+     interval: 30s
+     timeout: 8s
+     retries: 3
+   deploy:
+     resources:
+      limits:
+        memory: "1024M"
+     mode: replicated
+     replicas: 1
+     placement:
+       constraints:
+         - 'node.labels.role!=replica'
+   networks:
+    topology-network:
+      aliases:
+        - optical-processing
+
+  rtu-configuration-validator:
+   image: "exfo/fms-rtu-configuration-validator:git-09b0d3e54f5b607406cef194dae26d1577ae2dfb"
+   user: "${RTU_CONFIGURATION_VALIDATOR_UID_GID}"
+   environment:
+    - USE_KEYCLOAK=false
+    # log level is case sensitive and can be set with one of these values {fatal, error, warn, info, debug, trace}
+    - TEST_CONFIGURATION_LOG_LEVEL=warn
+   healthcheck:
+     test: ['CMD', 'curl', '-f', 'http://localhost:8080/healthcheck']
+     interval: 60s
+     timeout: 8s
+     retries: 3
+   restart: always
+   deploy:
+    resources:
+      limits:
+        memory: "2048M"
+    mode: replicated
+    replicas: 1
+    placement:
+     constraints:
+       - 'node.labels.role!=replica'
+   networks:
+        topology-network:
+
+  rtu-api-gateway:
+    image: "exfo/fms-rtu-api-gateway:git-13158364e555d15ce68367b6e51452f514c6f3b9"
+    user: "${RTU_API_GATEWAY_UID_GID}"
+    environment:
+     - RTU_BROKER_ADMIN_PASSWORD_FILE=/run/secrets/rtu_broker_admin_pwd
+     - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_RTU_API_GATEWAY}
+     - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/rtu_api_gateway_db_pwd
+     - MONGO_INITDB_DATABASE=admin
+     - "LOG4J_FORMAT_MSG_NO_LOOKUPS=true"
+     - "JAVA_OPTS=-Xms1024m -Xmx2042m"
+    secrets:
+      - { source : rtu_broker_admin_pwd, mode: 0400, uid: "${RTU_API_GATEWAY_UID}" }
+      - { source : rtu_api_gateway_db_pwd, mode: 0400, uid: "${RTU_API_GATEWAY_UID}" }
+    depends_on:
+      - rtu-broker
+      - rtu-api-gateway-db
+    volumes:
+      - ${ROOT_PATH}${LOG_DIR}${RTU_API_GATEWAY}:/var/www/logs
+    deploy:
+      resources:
+        limits:
+          memory: "3072M"
+    networks:
+      topology-network:
+
+  rtu-api-gateway-db:
+    image: "exfo/fms-mongo:git-922a260ce5ddfd31fcdbc2ac92fcc4b5bbdb903e"
+    user: 999:999
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME_RTU_API_GATEWAY}
+     - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/rtu_api_gateway_db_pwd
+     - MONGO_INITDB_DATABASE=admin
+     - MAX_SORT_RAM_BUFFER_SIZE=${MONGO_RTU_API_GATEWAY_DATA_MAX_SORT_RAM_BUFFER_SIZE}
+    secrets:
+     - { source : rtu_api_gateway_db_pwd, mode: 0400, uid: "999" }
+    volumes:
+     - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${RTU_API_GATEWAY}:/data/db
+    restart: always
+    deploy:
+     resources:
+        limits:
+          memory: "${MEMORY_LIMIT_MONGODB_RTUAPIGATEWAY_MO}M"
+     mode: replicated
+     replicas: 1
+     placement:
+      constraints:
+       - 'node.labels.role!=replica'
+      preferences:
+       - spread: node.labels.DB
+    networks:
+     topology-network:
+
+
+  conductor-server:
+    image: "exfo/fms-conductor-server:git-1bab08dfe10bb9275c869e6c46da3e9fa86a02ab"
+    environment:
+      - DB_URL=postgresql-conductor:5432/conductor
+      - DB_USERNAME=postgres
+      - DB_PASSWORD_FILE=/run/secrets/conductor_db_pwd
+      - DB_MAX_POOLSIZE=10
+      - DB_MIN_POOLSIZE=2
+      - INDEXING_ENABLED=true
+      - ELASTICSEARCH_URL=http://conductor-elasticsearch:9200
+      - CONFIG_FILE=config-local.properties
+      - SYSTEM_TASK_WORKER_THREAD_COUNT=100
+      - SYSTEM_TASK_WORKER_POLL_INTERVAL=100
+      - ADDITIONAL_PARAMETERS=
+      - "LOG4J_FORMAT_MSG_NO_LOOKUPS=true"
+      - "JAVA_OPTS=-Xms1024m -Xmx2042m"
+    secrets:
+      - { source: conductor_db_pwd, mode: 0400, uid: "${CONDUCTOR_SECRETS_UID}" }
+    depends_on:
+      - postgresql-conductor
+      - conductor-elasticsearch
+    networks:
+      - topology-network
+    user: ${CONDUCTOR_SERVER_UID_GID}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: "3072M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role!=replica'
+
+  conductor-ui:
+    image: "exfo/fms-conductor-ui:git-1bab08dfe10bb9275c869e6c46da3e9fa86a02ab"
+    environment:
+      - WF_SERVER=conductor-server:8080
+    depends_on:
+      - conductor-server
+    networks:
+      - topology-network
+    user: ${CONDUCTOR_UI_UID_GID}
+    deploy:
+      resources:
+        limits:
+          memory: "1024M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role!=replica'
+
+  postgresql-conductor:
+    image: "exfo/fms-postgresql-db:git-5ff37206c8f3542a69615cf4871e64a532424ad8"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/conductor_db_pwd
+      - POSTGRES_DB=conductor
+      - |
+          POSTGRES_TUNING=
+            synchronous_commit = off
+            work_mem='64MB'
+            shared_buffers='1024MB'
+            stats_temp_directory='/var/run/postgresql/'
+    secrets:
+      - { source : conductor_db_pwd, mode: 0400, uid: "70" }
+    restart: always
+    volumes:
+      - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${CONDUCTOR_DATA}:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: 4294967296 # This means 4Gib
+    deploy:
+      resources:
+        limits:
+          memory: "4096M"
+    networks:
+      - topology-network
+
+  conductor-elasticsearch:
+    image: "exfo/fms-elasticsearch:git-a7d908e4dd70d5907b0c0f5420c998835bf21460"
+    environment:
+      - transport.host=0.0.0.0
+      - node.master=true
+      - node.attr.role=primary
+      - node.name=conductor-elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_INDEX_SETTINGS_REPLICA="auto_expand_replicas":"0-all"'
+      - 'ES_INDEX_TARGET_REPLICA=conductor*,task*'
+      - "LOG4J_FORMAT_MSG_NO_LOOKUPS=true"
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx2042m"
+    networks:
+      - topology-network
+    user: ${CONDUCTOR_ELASTICSEARCH_UID_GID}
+    volumes:
+      - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${CONDUCTOR_ELASTICSEARCH}:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: "3072M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role!=replica'
+
+  conductor-elasticsearch-cerebro:
+    image: exfo/fms-elasticsearch-cerebro:git-a7d908e4dd70d5907b0c0f5420c998835bf21460
+    environment:
+      - CEREBRO_PORT=8080
+    depends_on:
+      - conductor-elasticsearch
+    networks:
+      - topology-network
+    user: ${CONDUCTOR_CEREBRO_UID_GID}
+    entrypoint: ["/bin/sh","-c"]
+    command: 
+    - |
+        mkdir -p "/opt/cerebro/data"
+        exec /opt/cerebro/bin/cerebro -Ddata.path=/opt/cerebro/data/cerebro.db
+    volumes:
+      - ${ROOT_PATH}${PERSISTENT_DATA_DIR}${CONDUCTOR_CEREBRO}:/opt/cerebro/data
+      - ${ROOT_PATH}${LOG_DIR}${CONDUCTOR_CEREBRO}:/opt/cerebro/logs
+    deploy:
+      resources:
+        limits:
+          memory: "1024M"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - 'node.labels.role!=replica'
+
+networks:
+  topology-network:
+    driver_opts:
+      encrypted: "true"
+
+secrets:
+  proxy_session:           { name: "${PROXY_SESSION_SECRET}",  external: true }
+  topology_db_pwd:         { name: "${TOPOLOGY_DB_PASSWORD_SECRET}",  external: true }
+  keycloak_db_pwd:         { name: "${KEYCLOAK_DB_PASSWORD_SECRET}",  external: true }
+  measure_db_pwd:          { name: "${MONGO_PASSWORD_MEASURE_SECRET}", external: true }
+  alarming_db_pwd:         { name: "${MONGO_PASSWORD_ALARMING_SECRET}", external: true }
+  rtu_api_gateway_db_pwd:  { name: "${MONGO_PASSWORD_RTU_API_GATEWAY_SECRET}", external: true }
+  alarming_metrics_db_pwd: { name: "${MONGO_PASSWORD_ALARMING_METRICS_SECRET}", external: true }
+  conductor_db_pwd:        { name: "${CONDUCTOR_DB_PASSWORD_SECRET}", external: true }
+  rtu-version-controller-token:        { name: "${RTU_VERSION_CONTROLLER_TOKEN_SECRET}", external: true }
+  jolokia_pwd:             { name: "${JOLOKIA_PASSWORD_SECRET}", external: true }
+  rtu_broker_admin_pwd:    { name: "${RTU_BROKER_ADMIN_PASSWORD_SECRET}", external: true }
+  iam_client_secret:       { name: "${IAM_CLIENT_SECRET}", external: true }
+  iam_service_authorization_proxy_client_secret:       { name: "${IAM_SERVICE_AUTHORIZATION_PROXY_CLIENT_SECRET}", external: true }

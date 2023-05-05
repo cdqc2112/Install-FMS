@@ -1,0 +1,64 @@
+{{ $serv_id := "conductor-ui" }}
+{{ $serv_uidgid := .Values.env.CONDUCTOR_UI_UID_GID }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "primary"
+        endpoints: "true"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-conductor-ui") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: WF_SERVER
+            value: "conductor-server:8080"
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 13
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: "1024M"
+            requests:
+              memory: "102.4M"

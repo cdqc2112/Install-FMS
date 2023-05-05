@@ -1,0 +1,2 @@
+{{ $serv_id := "measurement-files" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.FILE_DATA) $) }}

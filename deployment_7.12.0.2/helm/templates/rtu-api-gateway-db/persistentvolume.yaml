@@ -1,0 +1,2 @@
+{{ $serv_id := "rtu-api-gateway-db" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.RTU_API_GATEWAY) $) }}

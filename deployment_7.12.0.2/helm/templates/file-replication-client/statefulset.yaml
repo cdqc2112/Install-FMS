@@ -1,0 +1,101 @@
+{{ $serv_id := "file-replication-client" }}
+{{ $serv_uidgid := "0:0" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  serviceName: {{ include "fms.fullname" . }}-{{$serv_id}}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "replica"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-file-replication") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: FILE_REPLICATION_PERIODICITY
+            value: "{{ .Values.env.FILE_REPLICATION_PERIODICITY }}"
+          - name: FILE_REPLICATION_RETRY
+            value: "{{ .Values.env.FILE_REPLICATION_RETRY }}"
+          - name: REPLICATE_FOLDER_FILE
+            value: "rsync://usr@replication-file-srv:8370/source/{{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.FILE_DATA }}/ {{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.FILE_DATA }}"
+          - name: REPLICATE_FOLDER_RTU_VERSION_CONTROLLER
+            value: "rsync://usr@replication-rtu-srv:8370/source/{{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.RTU_VERSION_CONTROLLER }}/ {{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.RTU_VERSION_CONTROLLER }}"
+          - name: REPLICATE_FOLDER_DEPLOY
+            value: "rsync://usr@replication-cfg-srv:8370/source/deployment/ /deployment"
+          - name: REPLICATE_FOLDER_CONFIG
+            value: "rsync://usr@replication-cfg-srv:8370/source/{{ .Values.env.CONFIG }}/ {{ .Values.env.CONFIG}}"
+          - name: REPLICATE_FOLDER_DISTRIBUTION_DATA
+            value: "rsync://usr@replication-cfg-srv:8370/source/{{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.DISTRIBUTION_DATA }}/ {{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.DISTRIBUTION_DATA }}"
+          - name: REPLICATE_FOLDER_VM
+            value: "rsync://usr@replication-victoria-metrics-srv:8370/source/{{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.VICTORIA_METRICS_DATA }} {{ .Values.env.PERSISTENT_DATA_DIR }}{{ .Values.env.VICTORIA_METRICS_DATA }} --snapshot http://victoria-metrics:8428/snapshot --follow-symlinks"
+          startupProbe:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - '[ -f /var/log/ok ] && [ $(($(date +%s)-$(date --utc --reference=/var/log/ok +%s))) -lt 86400 ]'
+            initialDelaySeconds: 5
+            timeoutSeconds: 8
+            # Initial sync can be quite long
+            failureThreshold: 960
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - '[ -f /var/log/ok ] && [ $(($(date +%s)-$(date --utc --reference=/var/log/ok +%s))) -lt 86400 ]'
+            timeoutSeconds: 8
+            periodSeconds: 60
+            failureThreshold: 10
+          volumeMounts:
+          - name: data
+            mountPath: "/var/replication"
+          - name: logs
+            mountPath: "/var/log"
+          - name: rsyncd-auth
+            mountPath: /secrets/rsyncd.secrets
+            subPath: secret
+            readOnly: true
+          resources:
+            limits:
+              memory: "1024M"
+            requests:
+              memory: "100M"
+      volumes:
+      - name: logs
+        {{- include "fms.pod-volume.log" (merge (dict "id" $serv_id "path" .Values.env.FILE_REPLICATION_LOG "replica" true) $) | nindent 8 }}
+      - name: rsyncd-auth
+        secret:
+          secretName: {{.Values.env.FILE_REPLICATION_SECRET}}
+          defaultMode: 0440
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    {{- include "fms.volumeclaim.data" (merge (dict "id" $serv_id) $) | nindent 4 }}
+{{- end }}

@@ -1,0 +1,14 @@
+{{ $serv_id := "victoria-metrics" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$serv_id}}
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/service: {{$serv_id}}
+  ports:
+    - name: http
+      port: 8428
+      targetPort: 8428
+      protocol: TCP

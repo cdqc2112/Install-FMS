@@ -1,0 +1,84 @@
+{{ $serv_id := "keycloak-postgresql-replica" }}
+{{ $serv_uidgid := "70:70" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "fms.fullname" . }}-{{$serv_id}}
+  labels:
+    {{- include "fms.labels" . | nindent 4 }}
+    app.kubernetes.io/service: {{$serv_id}}
+spec:
+  serviceName: {{ include "fms.fullname" . }}-{{$serv_id}}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/service: {{$serv_id}}
+  template:
+    metadata:
+      labels:
+        {{- include "fms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/service: {{$serv_id}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fms.serviceAccountName" . }}
+      securityContext:
+        runAsUser: {{ (split ":" $serv_uidgid)._0 }}
+        runAsGroup: {{ (split ":" $serv_uidgid)._1 }}
+        fsGroup: {{ (split ":" $serv_uidgid)._1 }}
+      nodeSelector:
+        role: "replica"
+      containers:
+        - name: {{$serv_id}}
+          {{ include "fms.docker-image" (merge (dict "image_id" "fms-postgresql-db") $ ) | nindent 10 }}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: POSTGRES_PASSWORD_FILE
+            value: /run/secrets/keycloak_db_pwd
+          - name: POSTGRES_USER
+            value: keycloak
+          - name: PGDATA
+            value: /var/lib/postgresql/data
+          - name: REPLICATE_FROM
+            value: keycloak-postgresql
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+          - name: keycloak-db-pwd
+            mountPath: /run/secrets/keycloak_db_pwd
+            subPath: secret
+            readOnly: true
+          startupProbe:
+            exec:
+              command: [ "bash", "-c", "netstat -ltn | grep -c :5432 && pg_isready" ]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 8
+            # Allowed startup time
+            failureThreshold: 130
+          livenessProbe:
+            exec:
+              command: [ "bash", "-c", "netstat -ltn | grep -c :5432 && pg_isready" ]
+            timeoutSeconds: 8
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: "4096M"
+            requests:
+              memory: "400M"
+      volumes:
+      # Remark: should we switch to persistentVolumeClaim and externalize that ?
+      - name: keycloak-db-pwd
+        secret:
+          secretName: {{.Values.env.KEYCLOAK_DB_PASSWORD_SECRET}}
+          defaultMode: 0440
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    {{- include "fms.volumeclaim.data" (merge (dict "id" $serv_id) $) | nindent 4 }}
+{{- end }}

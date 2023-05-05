@@ -1,0 +1,2 @@
+{{ $serv_id := "keycloak-postgresql" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.SECURITY_DATA) $) }}

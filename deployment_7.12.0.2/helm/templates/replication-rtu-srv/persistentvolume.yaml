@@ -1,0 +1,4 @@
+{{ $serv_id := "replication-rtu-srv" }}
+{{- if eq .Values.env.REPLICATION_ENABLED "true" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.RTU_VERSION_CONTROLLER) $) }}
+{{- end }}

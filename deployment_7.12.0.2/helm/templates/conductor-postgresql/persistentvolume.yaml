@@ -1,0 +1,2 @@
+{{ $serv_id := "conductor-postgresql" }}
+{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.CONDUCTOR_DATA) $)}}

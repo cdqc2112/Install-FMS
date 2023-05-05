@@ -270,10 +270,10 @@ else
     read -p $'Paste the string from manager to join the swarm: ' JOIN
 
     $JOIN
-
-    echo "Set the label for replica node from manager node"
-    echo "docker node update --label-add role=replica <nodeidOfReplicaServer>"
-
+    if test -f "$WORKINGDIR/.replica";then 
+        echo "Set the label for replica node from manager node"
+        echo "docker node update --label-add role=replica <nodeidOfReplicaServer>"
+    fi
     touch $WORKINGDIR/.swarm
     echo "$(date): Swarm joined" >> $LOGFILE
 fi

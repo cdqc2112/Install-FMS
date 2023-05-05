@@ -1,4 +1,4 @@
-# Install_7.13.0.2
+# Install-FMS
 
 Installation script for FMS 7.13.0.2, online and offline on Ubuntu 20.04, 22.04 or CentOS 7
 

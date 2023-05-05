@@ -117,7 +117,7 @@ else
         mkdir -p /opt/fms/solution
         echo "A NFS share is required to hold the FMS application files"
         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-        echo $SHARE     /opt/fms/solution  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        echo $SHARE /opt/fms/solution nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0 | tee /etc/fstab -a
         mount -av
         mkdir -p /opt/fms/solution/cer
         touch $WORKINGDIR/.volume
@@ -399,7 +399,11 @@ if test -f "$WORKINGDIR/.multinode";then
         docker swarm join-token worker
         echo
         echo "When this is done, you can continue here and start the FMS"
+        docker node ls
         echo
+        read -p 'Enter the node ID of the worker node: ' WNODEID
+        echo
+        docker node update --label-add role=primary $WNODEID
     fi
     # Replica
     echo
@@ -409,9 +413,10 @@ if test -f "$WORKINGDIR/.multinode";then
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         docker node ls
         echo
-        read -p 'Enter the node ID of the replica server: ' RNODEID
+        read -p 'Enter the node ID of the replica node: ' RNODEID
         echo
         docker node update --label-add role=replica $RNODEID
+        docker node update --label-add role=primary $RNODEID
         echo
         sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
         sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env

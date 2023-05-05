@@ -1,2 +1,0 @@
-{{ $serv_id := "topology-postgresql" }}
-{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.TOPOLOGY_DATA) $)}}

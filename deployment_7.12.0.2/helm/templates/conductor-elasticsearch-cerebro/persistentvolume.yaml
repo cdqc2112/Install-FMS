@@ -1,2 +1,0 @@
-{{ $serv_id := "conductor-elasticsearch-cerebro" }}
-{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.CONDUCTOR_CEREBRO) $)}}

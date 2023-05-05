@@ -1,2 +1,0 @@
-{{ $serv_id := "alarming-db" }}
-{{ include "fms.volume.data" (merge (dict "id" $serv_id "path" .Values.env.ALARM_DATA) $) }}

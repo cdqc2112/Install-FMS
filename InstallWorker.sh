@@ -24,9 +24,9 @@ else
 fi
 
 echo "Script to install Docker and setup LVM on workers and replica server"
-echo "It requires at least 60GB on /var for Docker and a volume for solution and backups on the replica server"
-echo "Master node must be ready before running this script"
-echo
+# echo "It requires at least 60GB on /var for Docker and a volume for solution and backups on the replica server"
+# echo "Master node must be ready before running this script"
+# echo
 echo
 read -r -p 'Is this an offline installation? [y/N] ' response
 

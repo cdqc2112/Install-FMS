@@ -266,13 +266,13 @@ else
     docker login
 
     echo "Joining swarm"
-
+    echo 'Run this command on manager "docker swarm join-token worker"'
     read -p $'Paste the string from manager to join the swarm: ' JOIN
 
     $JOIN
     if test -f "$WORKINGDIR/.replica";then 
-        echo "Set the label for replica node from manager node"
-        echo "docker node update --label-add role=replica <nodeidOfReplicaServer>"
+        echo "Set the label for replica"
+        echo 'Run this command on manager "docker node update --label-add role=replica <nodeidOfReplicaServer>"'
     fi
     touch $WORKINGDIR/.swarm
     echo "$(date): Swarm joined" >> $LOGFILE

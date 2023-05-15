@@ -207,7 +207,7 @@ else
             echo
             echo 'Copy the version string above'
             echo
-            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce=$VERSION_STRING \
             docker-ce-cli=$VERSION_STRING \
@@ -222,7 +222,7 @@ else
             echo
             echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'
             echo
-            read -e -p 'Recommended version is 20.x.x. Paste it here: ' -i "20.10.24" VERSION_STRING
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "20.10.24" VERSION_STRING
             $FMS_INSTALLER -y install \
             docker-ce-$VERSION_STRING \
             docker-ce-cli-$VERSION_STRING \

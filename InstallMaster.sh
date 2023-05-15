@@ -183,6 +183,8 @@ else
               docker-engine \
               docker.io \
               containerd \
+              podman \
+              buildah \
               runc
     echo "$(date): Previous Docker version removed" >> $LOGFILE
     # Install Docker Ubuntu
@@ -229,9 +231,10 @@ else
             docker-compose-plugin
         else
             $FMS_INSTALLER install -y yum-utils
-            $FMS_INSTALLER-config-manager \
-                --add-repo \
-                https://download.docker.com/linux/centos/docker-ce.repo
+            #RHEL
+            #$FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+            #CentOS
+            $FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
             $FMS_INSTALLER list docker-ce --showduplicates | sort -r
             echo
             echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'

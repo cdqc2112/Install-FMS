@@ -160,16 +160,18 @@ else
         # Uninstall previous Docker version
         # $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
         $FMS_INSTALLER remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine \
-                  docker.io \
-                  containerd \
-                  runc
+                docker-client \
+                docker-client-latest \
+                docker-common \
+                docker-latest \
+                docker-latest-logrotate \
+                docker-logrotate \
+                docker-engine \
+                docker.io \
+                containerd \
+                podman \
+                buildah \
+                runc
         echo "$(date): Previous Docker version removed" >> $LOGFILE
     # Install Docker Ubuntu
     # offline
@@ -215,9 +217,10 @@ else
             docker-compose-plugin
         else
             $FMS_INSTALLER install -y yum-utils
-            $FMS_INSTALLER-config-manager \
-                --add-repo \
-                https://download.docker.com/linux/centos/docker-ce.repo
+            #RHEL
+            #$FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+            #CentOS
+            $FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
             $FMS_INSTALLER list docker-ce --showduplicates | sort -r
             echo
             echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'
@@ -262,7 +265,6 @@ if test -f "$WORKINGDIR/.swarm";then
 else
 
     # Login to Dockerhub
-    clear
     docker login
 
     echo "Joining swarm"

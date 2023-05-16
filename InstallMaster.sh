@@ -84,6 +84,7 @@ else
         touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
         echo -e "A separated volume is required and will be erased"
+        $FMS_INSTALLER install -y lvm2
         lsblk
         read -rep "Confirm the disk to be used (will be partitioned): " -i "sdb" disk
         parted /dev/$disk mklabel msdos

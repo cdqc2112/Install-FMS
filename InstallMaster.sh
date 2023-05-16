@@ -110,6 +110,7 @@ else
         lsblk
         touch $WORKINGDIR/.volume
         echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
+        read -n 1 -r -s -p $'LVM setup done. Press enter to continue...\n'
     else
         Install NFS client
         $FMS_INSTALLER install -y nfs-common

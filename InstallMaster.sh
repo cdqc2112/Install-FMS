@@ -62,6 +62,8 @@ echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
 # echo "The required capacity and bandwidth for the disk depends on the FMS usage, please refer to the sizing guide for actual values."
 # echo
 # echo "The disk must not initially be partitionned, as the installation process includes a specific partitioning process using LVM."
+# Install tools
+# offline
 echo
 echo
 read -r -p 'Is this an offline installation? [y/N] ' response
@@ -71,6 +73,24 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     echo "Copy images.tgz file to $WORKINGDIR"
     echo
     touch $WORKINGDIR/.offline
+fi
+
+if test -f "$WORKINGDIR/.offline";then
+    cd $WORKINGDIR/packages
+    if [ "$FMS_INSTALLER" = "apt" ]; then
+        dpkg -i *.deb
+    else
+        rpm -iUvh *.rpm
+    cd $WORKINGDIR
+    fi
+else
+# online
+    $FMS_INSTALLER install -y \
+            dos2unix \
+            bash-completion \
+            rsync \
+            openssl \
+            lvm2
 fi
 
 if test -f "$WORKINGDIR/.volume";then
@@ -84,7 +104,6 @@ else
         touch $WORKINGDIR/.singlenode
         echo "This will create a single LVM to hold the FMS application files and backups"
         echo -e "A separated volume is required and will be erased"
-        $FMS_INSTALLER install -y lvm2
         lsblk
         read -rep "Confirm the disk to be used (will be partitioned): " -i "sdb" disk
         parted /dev/$disk mklabel msdos
@@ -131,24 +150,6 @@ fi
 if test -f "$WORKINGDIR/.soft";then
     read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'
 else
-    # Install tools
-    # offline
-    if test -f "$WORKINGDIR/.offline";then
-        cd $WORKINGDIR/packages
-        if [ "$FMS_INSTALLER" = "apt" ]; then
-            dpkg -i *.deb
-        else
-            rpm -iUvh *.rpm
-        cd $WORKINGDIR
-        fi
-    else
-    # online
-        $FMS_INSTALLER install -y \
-                dos2unix \
-                bash-completion \
-                rsync \
-                openssl
-    fi
     # Firewall
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp

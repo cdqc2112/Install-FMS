@@ -488,5 +488,6 @@ if test -f "$WORKINGDIR/.singlenode";then
 fi
 #Display login for admin user
 PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
-echo "You can login to https://${DOMAIN} with username: admin and password: ${PASS}"
+echo
+echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 exit

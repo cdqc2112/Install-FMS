@@ -96,6 +96,8 @@ fi
 if test -f "$WORKINGDIR/.volume";then
     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
 else
+    echo
+    echo
     echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
     echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
     echo 

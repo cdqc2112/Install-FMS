@@ -333,8 +333,11 @@ else
     
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
                 clear
-                echo "rootCA.crt will be created in /opt/fms/solution/cer that will need to be installed in browser"
-                read -n 1 -r -s -p $'or imported into Trusted Root Certification Authorities Press enter to continue...\n'
+                echo
+                echo "The rootCA.crt will be created in /opt/fms/solution/cer. It has to be installed in browser"
+                echo "or imported into Trusted Root Certification Authorities." 
+                echo "It should also be installed on the RTUs"
+                read -n 1 -r -s -p $'Press enter to continue...\n'
                 echo
                 read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
                 read -e -p 'Enter the state or province: ' -i "State" STATE
@@ -483,4 +486,7 @@ if test -f "$WORKINGDIR/.singlenode";then
     printf '#!/bin/bash\ncd /opt/fms/solution/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
     chmod +x /etc/cron.daily/fms_backup
 fi
+#Display login for admin user
+PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
+echo "You can login to https://${DOMAIN} with username: admin and password: ${PASS}"
 exit

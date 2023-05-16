@@ -70,7 +70,7 @@ read -r -p 'Is this an offline installation? [y/N] ' response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     echo
-    echo "Copy images.tgz file to $WORKINGDIR"
+    read -n 1 -r -s -p $'Copy images.tgz file to $WORKINGDIR. Press enter to continue...\n'
     echo
     touch $WORKINGDIR/.offline
 fi

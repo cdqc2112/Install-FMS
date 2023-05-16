@@ -79,4 +79,10 @@ PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution
 echo
 echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 echo
+echo "" >> install.log 
+cat /etc/os-release >> install.log
+echo "" >> install.log
+docker info >> install.log
+echo "" >> install.log
+free -h >> install.log
 exit

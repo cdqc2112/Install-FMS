@@ -289,7 +289,7 @@ if test -f "$WORKINGDIR/.offline";then
 fi
 #Backup
 if test -f "$WORKINGDIR/.replica";then
-    printf '#!/bin/bash\ncd /opt/fms/solution/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
+    printf '#!/bin/bash\ncd /opt/fms/master/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
     chmod +x /etc/cron.daily/fms_backup
 fi
 exit

@@ -149,20 +149,21 @@ else
     fi
     # Firewall
     if [ "$FMS_INSTALLER" = "apt" ]; then
-        ufw allow 2377
+        ufw allow 2377/tcp
         ufw allow 7946
-        ufw allow 4789
+        ufw allow 4789/udp
         ufw allow 443
-        ufw allow 22
         ufw allow 61617
-        ufw allow 500
-        ufw allow 4500
+        ufw allow 500/udp
+        ufw allow 4500/udp
         ufw allow nfs
     else
         firewall-cmd --zone=public --permanent --add-port=2377/tcp
         firewall-cmd --zone=public --permanent --add-port=7946/tcp
         firewall-cmd --zone=public --permanent --add-port=7946/udp
         firewall-cmd --zone=public --permanent --add-port=4789/udp
+        firewall-cmd --zone=public --permanent --add-port=443/tcp
+        firewall-cmd --zone=public --permanent --add-port=61617/tcp
         firewall-cmd --zone=public --permanent --add-port=500/udp
         firewall-cmd --zone=public --permanent --add-port=4500/udp
         firewall-cmd --zone=public --permanent --add-service="ipsec"

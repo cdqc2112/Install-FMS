@@ -78,5 +78,5 @@ docker service ls
 PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
 echo
 echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
-exit
 echo
+exit

@@ -11,6 +11,8 @@ Included addons:
   trending-supervision.addon,
   gis.addon
 
+Missing offline packages can downloaded from https://pkgs.org/
+
 • Installation
 
 Run setup.sh to install FMS on master node and/or setup worker/replica node

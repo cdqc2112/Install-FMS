@@ -14,9 +14,6 @@ LOGFILE=$WORKINGDIR/install.log
 export LOGFILE
 export WORKINGDIR
 
-RED=`tput setab 1 setaf 7`
-NC=`tput sgr0`
-
 touch $LOGFILE
 source /etc/os-release
 
@@ -34,7 +31,6 @@ function installPackage() {
     fi
 }
 
-# echo "Script to install Docker and setup FMS on ${RED}Ubuntu${NC} or ${RED}CentOS${NC}"
 echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
 # echo
 # echo

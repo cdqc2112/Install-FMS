@@ -72,6 +72,8 @@ done
 # Restore screen
 tput rmcup
 #Display login for admin user
+DOMAIN=$(ls -tr|grep *.dom)
+DOMAIN="${DOMAIN::-4}"
 docker service ls
 PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
 echo

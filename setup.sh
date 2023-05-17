@@ -13,6 +13,8 @@ while [[ $REPLY != 0 ]]; do
   echo -n ${BG_BLUE}${FG_WHITE}
   clear
   cat <<- _EOF_
+    
+    
     Script to install Docker and setup FMS on Ubuntu or CentOS
 
     Docker engine data
@@ -49,7 +51,7 @@ while [[ $REPLY != 0 ]]; do
 
 _EOF_
 
-read -p "Enter selection [0-2] > " selection
+read -p "Enter selection [0-5] > " selection
       
 # Clear area beneath menu
 tput cup 10 0
@@ -88,10 +90,4 @@ PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution
 echo
 echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 echo
-echo "" >> install.log 
-cat /etc/os-release >> install.log
-echo "" >> install.log
-docker info >> install.log
-echo "" >> install.log
-free -h >> install.log
 exit

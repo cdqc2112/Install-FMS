@@ -47,57 +47,64 @@ while true; do
  break
 done
 
-read -r -p 'Do you have the certificate? [y/N] ' response
-
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
-    echo
-    echo
-    touch $WORKINGDIR/.certs
+if [ -f "$WORKINGDIR/.certs" ];then
+    read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
 else
-
-read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
-
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
+    read -r -p 'Do you have the certificate? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
+            echo "CERT"
+            touch $WORKINGDIR/.certs
+    else
+        read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            echo "CSR"
+            touch $WORKINGDIR/.certs
+        else
+            read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
+            if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+                echo "SSC"
+                touch $WORKINGDIR/.certs
+            fi
+        fi
+    fi
 fi
 
-read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
-    
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
-fi
-
-if [ ! -f "$WORKINGDIR/.singlenode"];then
+if [ ! -f "$WORKINGDIR/.singlenode" ];then
 
     read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
 
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
+        touch $WORKINGDIR/.worker
     fi
 
     read -r -p 'Will there be replica node to set-up? [y/N] ' response
 
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
+        touch $WORKINGDIR/.replica
     fi
 fi
 
 read -r -p 'Are you using GIS addon? [y/N] ' response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
+    touch $WORKINGDIR/.gis
 fi
 
 #Offline Installation
-while true; do
-    if [ ! -f "$WORKINGDIR/images.tgz"];
-    then
-        echo
-        read -n 1 -r -s -p $'Required images.tgz file is missing. Copy the file in $WORKINGDIR and press enter to continue...\n'
-        echo
-    fi
+if [ -f "$WORKINGDIR/.offline" ];then
+    while true; do
+        if [ ! -f "$WORKINGDIR/images.tgz" ];
+        then
+            echo
+            read -n 1 -r -s -p $"Required images.tgz file is missing. Copy the file in $WORKINGDIR and press enter to continue...\n"
+            echo
+            continue
+        fi
+    break
 done
+fi
+
 #Install packages
 
 
@@ -109,3 +116,4 @@ done
 
 #Certificates
 
+exit

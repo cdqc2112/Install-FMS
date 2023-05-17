@@ -90,7 +90,6 @@ read -r -p 'Are you using GIS addon? [y/N] ' response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.gis
 fi
-
 #Offline Installation
 if [ -f "$WORKINGDIR/.offline" ];then
     while true; do
@@ -123,7 +122,35 @@ else
             openssl \
             lvm2
 fi
-
+#Firewall
+if [ -f "$WORKINGDIR/.firewall" ];then
+    read -n 1 -r -s -p $'Firewall done. Press enter to continue...\n'
+    if [ "$FMS_INSTALLER" = "apt" ]; then
+        ufw allow 2377/tcp
+        ufw allow 7946
+        ufw allow 4789/udp
+        ufw allow 443
+        ufw allow 61617
+        ufw allow 500/udp
+        ufw allow 4500/udp
+        ufw allow nfs
+    else
+        firewall-cmd --zone=public --permanent --add-port=2377/tcp
+        firewall-cmd --zone=public --permanent --add-port=7946/tcp
+        firewall-cmd --zone=public --permanent --add-port=7946/udp
+        firewall-cmd --zone=public --permanent --add-port=4789/udp
+        firewall-cmd --zone=public --permanent --add-port=443/tcp
+        firewall-cmd --zone=public --permanent --add-port=61617/tcp
+        firewall-cmd --zone=public --permanent --add-port=500/udp
+        firewall-cmd --zone=public --permanent --add-port=4500/udp
+        firewall-cmd --zone=public --permanent --add-service="ipsec"
+        firewall-cmd --zone=public --permanent --add-service=nfs
+        firewall-cmd --zone=public --permanent --add-service=rpc-bind
+        firewall-cmd --zone=public --permanent --add-service=mountd
+        firewall-cmd --reload
+    fi
+    touch $WORKINGDIR/.firewall
+fi
 #LVM for single node
 
 #Mount NFS

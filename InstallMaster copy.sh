@@ -108,6 +108,47 @@ else
         fi
     fi
 fi
+# Docker swarm init and node labels
+if test -f "$WORKINGDIR/.swarm";then
+    read -n 1 -r -s -p $'Docker swarm init and node labels already done. Press enter to continue...\n'
+else
+    # Login to Dockerhub
+    docker login
+    echo "Starting swarm"
+    docker swarm init
+    # Set node labels
+    NODEID=$(docker node ls --format "{{.ID}}")
+    docker node update --label-add endpoints=true $NODEID
+    docker node update --label-add role=primary $NODEID
+    touch $WORKINGDIR/.swarm
+    echo "$(date): Node labels added and swarm started" >> $LOGFILE
+fi
+# Copy files to /opt/fms/solution
+if test -f "$WORKINGDIR/.files";then
+    read -n 1 -r -s -p $'Files already copied. Press enter to continue...\n'
+else
+    dos2unix deployment/docker-compose.yml
+    dos2unix deployment/docker-compose-replication.yml
+    dos2unix deployment/includes/*.sh
+    dos2unix deployment/example.env
+    dos2unix deployment/swarm.sh
+    dos2unix deployment/backup/*.sh
+    chmod +x deployment/swarm.sh deployment/backup/*.sh deployment/includes/*.sh
+    cp -r deployment/ /opt/fms/solution
+    cp *.crt *.key /opt/fms/solution/cer
+    echo "$(date): Installation files copied to /opt/fms/solution" >> $LOGFILE
+    # Adjust environment variables in .env file
+    cp /opt/fms/solution/deployment/example.env /opt/fms/solution/deployment/.env
+    sed -i 's/fms.<customer_domain>/'${DOMAIN}'/g' /opt/fms/solution/deployment/.env
+    echo "$(date): DNS set in .env file" >> $LOGFILE
+    sed -i 's/SNMP_IMPLEMENTATION_VERSION=0/SNMP_IMPLEMENTATION_VERSION=1/g' /opt/fms/solution/deployment/.env 
+    # Create secrets
+    docker secret create SERVER_CERT_SECRET /opt/fms/solution/cer/${DOMAIN}.crt
+    docker secret create SERVER_CERT_KEY_SECRET /opt/fms/solution/cer/${DOMAIN}.key
+    sed -i 's/SERVER_CERT_SECRET=/SERVER_CERT_SECRET=SERVER_CERT_SECRET/g' /opt/fms/solution/deployment/.env
+    sed -i 's/SERVER_CERT_KEY_SECRET=/SERVER_CERT_KEY_SECRET=SERVER_CERT_KEY_SECRET/g' /opt/fms/solution/deployment/.env
+    touch $WORKINGDIR/.files
+fi
 #Worker
 if [ ! -f "$WORKINGDIR/.singlenode" ];then
 

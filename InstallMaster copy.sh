@@ -29,12 +29,12 @@ read -r -p 'Is this an offline installation? [y/N] ' response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.offline
 fi
-
+#Single or multi node
 read -r -p 'Is this a single node with local volume storage? [y/N] ' response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.singlenode
 fi
-
+#URL
 while true; do
     echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
     read DOMAIN
@@ -46,7 +46,7 @@ while true; do
     fi
  break
 done
-
+#Certificate
 if [ -f "$WORKINGDIR/.certs" ];then
     read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
 else
@@ -69,7 +69,7 @@ else
         fi
     fi
 fi
-
+#Worker
 if [ ! -f "$WORKINGDIR/.singlenode" ];then
 
     read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
@@ -84,7 +84,7 @@ if [ ! -f "$WORKINGDIR/.singlenode" ];then
         touch $WORKINGDIR/.replica
     fi
 fi
-
+#GIS
 read -r -p 'Are you using GIS addon? [y/N] ' response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
@@ -104,9 +104,25 @@ if [ -f "$WORKINGDIR/.offline" ];then
     break
 done
 fi
-
 #Install packages
-
+#offline
+if [ -f "$WORKINGDIR/.offline" ];then
+    cd $WORKINGDIR/packages
+    if [ "$FMS_INSTALLER" = "apt" ]; then
+        dpkg -i *.deb
+    else
+        rpm -iUvh *.rpm
+    cd $WORKINGDIR
+    fi
+else
+# online
+    $FMS_INSTALLER install -y \
+            dos2unix \
+            bash-completion \
+            rsync \
+            openssl \
+            lvm2
+fi
 
 #LVM for single node
 

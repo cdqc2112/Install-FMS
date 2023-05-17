@@ -60,17 +60,49 @@ else
     read -r -p 'Do you have the certificate? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
             echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
-            echo "CERT"
+            echo
+            echo
             touch $WORKINGDIR/.certs
     else
         read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-            echo "CSR"
+            echo "Creation of a private key and a certificate request (csr) to submit to Certificate Authority (CA) to generate the certificate"
+            read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
+            read -e -p 'Enter the state or province: ' -i "State" STATE
+            read -e -p 'Enter the locality: ' -i "City" CITY
+            export DOMAIN
+            export COUNTRY
+            export STATE
+            export CITY
+            ./csr.sh            
+            echo
+            echo "Copy this csr and submit to Certificate Authotity (ex.: Godaddy, Verisign, Let's Encrypt, ...)"
+            echo
+            cat ${DOMAIN}.csr
+            echo
+            echo "Wait until you get the certificate to continue"
+            echo
+            echo "Copy certificate ${DOMAIN}.crt when received from CA to folder $WORKINGDIR"
             touch $WORKINGDIR/.certs
         else
             read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-                echo "SSC"
+                clear
+                echo
+                echo "The rootCA.crt will be created in /opt/fms/solution/cer. It has to be installed in browser"
+                echo "or imported into Trusted Root Certification Authorities." 
+                echo "It should also be installed on the RTUs"
+                read -n 1 -r -s -p $'Press enter to continue...\n'
+                echo
+                read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
+                read -e -p 'Enter the state or province: ' -i "State" STATE
+                read -e -p 'Enter the locality: ' -i "City" CITY
+                export DOMAIN
+                export COUNTRY
+                export STATE
+                export CITY
+                ./selfSignedCert.sh
+                echo "$(date): Certificate ${DOMAIN}.crt created" >> $LOGFILE
                 touch $WORKINGDIR/.certs
             fi
         fi

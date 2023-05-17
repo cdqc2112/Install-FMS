@@ -42,6 +42,7 @@ while [[ $REPLY != 0 ]]; do
 
     1. Install FMS on Master node
     2. Setup Worker/Replica node
+    3. Start FMS
     0. Quit
 
 _EOF_
@@ -60,6 +61,8 @@ case $selection in
       ;;
   2)  ./InstallWorker.sh
       ;;
+  3)  ./start-fms.sh
+      ;;    
   0)  break
       ;;
   *)  echo "Invalid entry."

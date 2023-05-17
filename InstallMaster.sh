@@ -27,31 +27,32 @@ echo
 # Installation options
 if [ -f "$WORKINGDIR/.offline" ];then
     echo "Offline installation"
-else [ -f "$WORKINGDIR/.online" ];then 
+elif [ -f "$WORKINGDIR/.online" ];then 
     echo "Online installation"
-else read -r -p 'Is this an offline installation? [y/N] ' response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        touch $WORKINGDIR/.offline
-    else
-        touch $WORKINGDIR/.online 
-    fi
+else
+    read -r -p 'Is this an offline installation? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.offline
+        else
+            touch $WORKINGDIR/.online 
+        fi
 fi
 # Single or multi node
-clear
 echo "Storage volume"
 echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
 echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
 echo
 if [ -f "$WORKINGDIR/.singlenode" ];then
     echo "Single node"
-else [ -f "$WORKINGDIR/.multinode" ];then 
+elif [ -f "$WORKINGDIR/.multinode" ];then 
     echo "Multi node"
-else read -r -p 'Is this a single node with local volume storage? [y/N] ' response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        touch $WORKINGDIR/.singlenode
-    else
-        touch $WORKINGDIR/.multinode 
-    fi
+else
+    read -r -p 'Is this a single node with local volume storage? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.singlenode
+        else
+            touch $WORKINGDIR/.multinode 
+        fi
 fi
 # URL
 if [ -f "$WORKINGDIR/.url" ];then
@@ -149,7 +150,7 @@ if [ -f "$WORKINGDIR/.offline" ];then
         if [ ! -f "$WORKINGDIR/images.tgz" ];
         then
             echo
-            read -n 1 -r -s -p $"Required images.tgz file is missing. Copy the file in $WORKINGDIR and press enter to continue...\n"
+            read -n 1 -r -s -p $'Required images.tgz file is missing. Copy the file in ${WORKINGDIR} and press enter to continue...\n'
             echo
             continue
         fi

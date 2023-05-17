@@ -44,7 +44,7 @@ while [[ $REPLY != 0 ]]; do
     2. Setup Worker/Replica node
     3. Start FMS
     4. Test ports
-    5. Test NSF share
+    5. Test NFS share
     0. Quit
 
 _EOF_

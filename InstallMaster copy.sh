@@ -35,17 +35,24 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     touch $WORKINGDIR/.singlenode
 fi
 #URL
-while true; do
-    echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
-    read DOMAIN
-    touch $WORKINGDIR/$DOMAIN.dom
-    if [ -z $DOMAIN ]; then
-        echo "Error: No FQDN provided"
-        echo "Usage: Provide a valid FQDN"
-        continue
-    fi
- break
-done
+if [ -f "$WORKINGDIR/.url" ];then
+    read -n 1 -r -s -p $'URL done. Press enter to continue...\n'
+    DOMAIN=$(ls -tr|grep *.dom)
+    DOMAIN="${DOMAIN::-4}"
+else
+    while true; do
+        echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
+        read DOMAIN
+        touch $WORKINGDIR/$DOMAIN.dom
+        if [ -z $DOMAIN ]; then
+            echo "Error: No FQDN provided"
+            echo "Usage: Provide a valid FQDN"
+            continue
+        fi
+    break
+    touch $WORKINGDIR/.url
+    done
+fi
 #Certificate
 if [ -f "$WORKINGDIR/.certs" ];then
     read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'

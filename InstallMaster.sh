@@ -282,8 +282,8 @@ else
     echo "$(date): Previous Docker version removed" >> $LOGFILE
     # Install Docker Ubuntu
     # offline
-    if test -f "$WORKINGDIR/.offline";then
-        if [ "$FMS_INSTALLER" = "apt" ]; then
+    if [ -f "$WORKINGDIR/.offline" ];then
+        if [ "$FMS_INSTALLER" = "apt" ];then
             cd $WORKINGDIR/docker/
             dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
             ./docker-ce_20.10.24~3-0~ubuntu-jammy_amd64.deb \
@@ -344,8 +344,6 @@ else
     systemctl start docker
     usermod -aG docker $USER
     docker version
-    read -n 1 -r -s -p $'Press enter to continue...\n'
-    clear
     # vm max count
     sysctl -w vm.max_map_count=262144
     echo 'vm.max_map_count=262144' | sudo tee --append /etc/sysctl.d/95-fms.conf > /dev/null
@@ -365,7 +363,7 @@ EOF
     echo "$(date): Docker installed" >> $LOGFILE
 fi
 # Docker swarm init and node labels
-if [  -f "$WORKINGDIR/.swarm" ];then
+if [ -f "$WORKINGDIR/.swarm" ];then
     echo "Docker swarm init and node labels already done"
 else
     # Login to Dockerhub
@@ -380,7 +378,7 @@ else
     echo "$(date): Node labels added and swarm started" >> $LOGFILE
 fi
 # Copy files to /opt/fms/solution
-if [  -f "$WORKINGDIR/.files ]";then
+if [ -f "$WORKINGDIR/.files" ];then
     echo "Files already copied"
 else
     dos2unix deployment/docker-compose.yml
@@ -406,7 +404,7 @@ else
     touch $WORKINGDIR/.files
 fi
 # Workers
-if [ -f "$WORKINGDIR/.worker ]";then
+if [ -f "$WORKINGDIR/.worker" ];then
     echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
     echo
     docker swarm join-token worker
@@ -419,7 +417,7 @@ if [ -f "$WORKINGDIR/.worker ]";then
     docker node update --label-add role=primary $WNODEID
 fi
 # Replica
-if [ -f "$WORKINGDIR/.replica ]";then
+if [ -f "$WORKINGDIR/.replica" ];then
     echo
     echo 'Replica node must have joined the swarm before proceeding'
     echo
@@ -436,7 +434,7 @@ else
     sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
     sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
 fi
-if [ -f "$WORKINGDIR/.replica ]";then
+if [ -f "$WORKINGDIR/.replica" ];then
     touch $WORKINGDIR/global.json
     cat > $WORKINGDIR/global.json <<EOF
     {
@@ -447,4 +445,5 @@ if [ -f "$WORKINGDIR/.replica ]";then
 EOF
 else
     rm -rf /opt/fms/solution/deployment/gis.addon
+fi
 exit

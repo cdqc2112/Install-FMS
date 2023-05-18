@@ -283,7 +283,7 @@ else
     # Install Docker Ubuntu
     # offline
     if [ -f "$WORKINGDIR/.offline" ];then
-        if [ "$FMS_INSTALLER" = "apt" ];then
+        if [ "$FMS_INSTALLER" = "apt" ]; then
             cd $WORKINGDIR/docker/
             dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
             ./docker-ce_20.10.24~3-0~ubuntu-jammy_amd64.deb \
@@ -434,7 +434,7 @@ else
     sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
     sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
 fi
-if [ -f "$WORKINGDIR/.replica" ];then
+if [ -f "$WORKINGDIR/.gis" ];then
     touch $WORKINGDIR/global.json
     cat > $WORKINGDIR/global.json <<EOF
     {

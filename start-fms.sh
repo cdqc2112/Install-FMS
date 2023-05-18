@@ -11,7 +11,7 @@ else
     chown -R root /opt/fms/solution/config
     chmod -R ugo+rX,go-w /opt/fms/solution/config
 fi
-read -r -p 'Are you ready to start the FMS? [y/N[ ' response
+read -r -p 'Are you ready to start the FMS? [y/N] ' response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     if [ -f "$WORKINGDIR/.offline" ];then
         cd $WORKINGDIR/

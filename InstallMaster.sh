@@ -148,9 +148,13 @@ if [ ! -f "$WORKINGDIR/.singlenode" ];then
     fi
 fi
 # GIS
-read -r -p 'Are you using GIS addon? [y/N] ' response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    touch $WORKINGDIR/.gis
+if [ ! -f "$WORKINGDIR/.gis" ];then
+    echo "GIS done"
+else
+    read -r -p 'Are you using GIS addon? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.gis
+    fi
 fi
 # Offline Installation
 if [ -f "$WORKINGDIR/.offline" ];then
@@ -433,7 +437,7 @@ else
 fi
 # Workers
 if [ -f "$WORKINGDIR/.worker" ];then
-    echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
+    echo "Run setup script on worker nodes and use this token below to join them to this swarm"
     echo
     docker swarm join-token worker
     echo

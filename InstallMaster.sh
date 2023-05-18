@@ -37,6 +37,13 @@ else
             touch $WORKINGDIR/.online 
         fi
 fi
+#NTP
+if [ -f "$WORKINGDIR/.ntp" ];then
+    echo "NTP"
+else
+    echo read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
+    touch $WORKINGDIR/.ntp
+fi
 # Single or multi node
 echo "Storage volume"
 echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
@@ -401,6 +408,7 @@ else
     docker secret create SERVER_CERT_KEY_SECRET /opt/fms/solution/cer/${DOMAIN}.key
     sed -i 's/SERVER_CERT_SECRET=/SERVER_CERT_SECRET=SERVER_CERT_SECRET/g' /opt/fms/solution/deployment/.env
     sed -i 's/SERVER_CERT_KEY_SECRET=/SERVER_CERT_KEY_SECRET=SERVER_CERT_KEY_SECRET/g' /opt/fms/solution/deployment/.env
+    sed -i 's/RTU_NTP_SERVER=pool.ntp.org/'${NTP}'/g' /opt/fms/solution/deployment/.env
     touch $WORKINGDIR/.files
 fi
 # Workers

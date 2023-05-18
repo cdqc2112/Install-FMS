@@ -1,11 +1,19 @@
 #! /bin/bash
-
-read -r -p 'Are you ready to start the FMS? [y/N] ' response
-
+# Starting FMS
+if [ -f "$WORKINGDIR/.secrets" ];then
+    echo "Secrets already done."
+else
+    touch $WORKINGDIR/.secrets
+    cd /opt/fms/solution/deployment/
+    ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
+    mv $WORKINGDIR/global.json /opt/fms/solution/config/topology_ui
+    chmod -R 755 /opt/fms/solution/config/
+    chown -R root /opt/fms/solution/config
+    chmod -R ugo+rX,go-w /opt/fms/solution/config
+fi
+read -r -p 'Are you ready to start the FMS? [y/N[ ' response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-
-f [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    if test -f "$WORKINGDIR/.offline";then
+    if [ -f "$WORKINGDIR/.offline" ];then
         cd $WORKINGDIR/
         tar -xvf images.tgz
         cd $WORKINGDIR/images/
@@ -14,7 +22,7 @@ f [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         rm -rf images.tgz
     fi
     cd /opt/fms/solution/deployment/
-    if test -f ".env_used";then
+    if [ -f ".env_used" ];then
         ./swarm.sh
     else
         ./swarm.sh --list-usefull-env >> .env_used
@@ -25,7 +33,7 @@ f [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
     fi
 fi
 #Backup
-if test -f "$WORKINGDIR/.singlenode";then
+if [ -f "$WORKINGDIR/.singlenode" ];then
     printf '#!/bin/bash\ncd /opt/fms/solution/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
     chmod +x /etc/cron.daily/fms_backup
 fi

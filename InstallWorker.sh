@@ -42,7 +42,7 @@ read -r -p 'Is this a replica node [y/N] ' response
     fi
 # Install NFS client
 if [ -f "$WORKINGDIR/.nfs" ]; then
-    read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
+    echo "NFS done"
 else
     if [  -f "$WORKINGDIR/.offline" ];then
         cd $WORKINGDIR/nfs

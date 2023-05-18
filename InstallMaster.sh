@@ -252,10 +252,18 @@ else
         read -n 1 -r -s -p $'LVM setup done. Press enter to continue...\n'
         echo "$(date): LVM created" >> $LOGFILE
     else
-        # Mount NFS
-        Install NFS client
-        $FMS_INSTALLER install -y nfs-common
-        $FMS_INSTALLER install -y nfs-utils
+        # Install NFS client
+        if [  -f "$WORKINGDIR/.offline" ];then
+            cd $WORKINGDIR/nfs
+            if [ "$FMS_INSTALLER" = "apt" ]; then
+                dpkg -i *.deb
+            else
+                rpm -iUvh *.rpm
+            cd $WORKINGDIR
+        else
+            $FMS_INSTALLER install -y nfs-common
+            $FMS_INSTALLER install -y nfs-utils
+        fi
         mkdir -p /opt/fms/solution
         echo "A NFS share is required to hold the FMS application files"
         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE

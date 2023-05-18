@@ -41,7 +41,7 @@ fi
 if [ -f "$WORKINGDIR/.ntp" ];then
     echo "NTP"
 else
-    echo read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
+    read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
     touch $WORKINGDIR/.ntp
 fi
 # Single or multi node
@@ -187,7 +187,8 @@ echo "$(date): Packages installed" >> $LOGFILE
 fi
 # Firewall
 if [ -f "$WORKINGDIR/.firewall" ];then
-    echo "Firewall done"
+    echo "Firewall done"i
+else
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp
         ufw allow 7946/tcp

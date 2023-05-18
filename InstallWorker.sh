@@ -125,6 +125,7 @@ else
     # Firewall
 if [ -f "$WORKINGDIR/.firewall" ];then
     echo "Firewall done"
+else
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp
         ufw allow 7946/tcp

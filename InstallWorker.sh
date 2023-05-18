@@ -149,8 +149,11 @@ if [ -f "$WORKINGDIR/.firewall" ];then
         firewall-cmd --zone=public --permanent --add-service=mountd
         firewall-cmd --reload
     fi
-    # Uninstall previous Docker version
-    # $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
+        touch $WORKINGDIR/.firewall
+        echo "$(date): Firewall done" >> $LOGFILE
+fi
+# Uninstall previous Docker version
+# $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
 if [ -f "$WORKINGDIR/.docker" ];then
     echo "Docker installed"
 else

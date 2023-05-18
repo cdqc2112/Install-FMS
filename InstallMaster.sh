@@ -137,6 +137,7 @@ else
 fi
 # Worker
 if [ ! -f "$WORKINGDIR/.singlenode" ];then
+    clear
     read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.worker
@@ -416,7 +417,7 @@ else
     sed -i 's/fms.<customer_domain>/'${DOMAIN}'/g' /opt/fms/solution/deployment/.env
     echo "$(date): DNS set in .env file" >> $LOGFILE
     sed -i 's/SNMP_IMPLEMENTATION_VERSION=0/SNMP_IMPLEMENTATION_VERSION=1/g' /opt/fms/solution/deployment/.env
-    sed -i 's/RTU_NTP_SERVER=pool.ntp.org/'${NTP}'/g' /opt/fms/solution/deployment/.env
+    sed -i 's/RTU_NTP_SERVER=pool.ntp.org/RTU_NTP_SERVER=${NTP}/g' /opt/fms/solution/deployment/.env
     # Create secrets
     docker secret create SERVER_CERT_SECRET /opt/fms/solution/cer/${DOMAIN}.crt
     docker secret create SERVER_CERT_KEY_SECRET /opt/fms/solution/cer/${DOMAIN}.key

@@ -6,7 +6,9 @@ else
     touch $WORKINGDIR/.secrets
     cd /opt/fms/solution/deployment/
     ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
-    mv $WORKINGDIR/global.json /opt/fms/solution/config/topology_ui
+    if [ -f "$WORKINGDIR/global.json" ];then
+        mv $WORKINGDIR/global.json /opt/fms/solution/config/topology_ui
+    fi
     chmod -R 755 /opt/fms/solution/config/
     chown -R root /opt/fms/solution/config
     chmod -R ugo+rX,go-w /opt/fms/solution/config
@@ -42,4 +44,3 @@ PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution
 echo
 echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 echo ""
-fi

@@ -90,4 +90,13 @@ PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution
 echo
 echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 echo
+if [ ! -f "info.txt" ];then
+    touch info.txt
+    echo "" >> info.txt
+    cat /etc/os-release >> info.txt
+    echo "" >> info.txt
+    docker info >> info.txt
+    echo "" >> info.txt
+    free -h >> info.txt
+fi
 exit

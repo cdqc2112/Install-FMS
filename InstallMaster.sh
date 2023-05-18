@@ -198,18 +198,20 @@ if [ -f "$WORKINGDIR/.firewall" ];then
         ufw allow 4500/udp
         ufw allow nfs
     else
-        firewall-cmd --zone=public --permanent --add-port=2377/tcp
-        firewall-cmd --zone=public --permanent --add-port=7946/tcp
-        firewall-cmd --zone=public --permanent --add-port=7946/udp
-        firewall-cmd --zone=public --permanent --add-port=4789/udp
-        firewall-cmd --zone=public --permanent --add-port=443/tcp
-        firewall-cmd --zone=public --permanent --add-port=61617/tcp
-        firewall-cmd --zone=public --permanent --add-port=500/udp
-        firewall-cmd --zone=public --permanent --add-port=4500/udp
-        firewall-cmd --zone=public --permanent --add-service="ipsec"
-        firewall-cmd --zone=public --permanent --add-service=nfs
-        firewall-cmd --zone=public --permanent --add-service=rpc-bind
-        firewall-cmd --zone=public --permanent --add-service=mountd
+        firewall-cmd --permanent --add-port=2377/tcp
+        firewall-cmd --permanent --add-port=7946/tcp
+        firewall-cmd --permanent --add-port=7946/udp
+        firewall-cmd --permanent --add-port=4789/udp
+        firewall-cmd --permanent --add-port=443/tcp
+        firewall-cmd --permanent --add-port=61617/tcp
+        firewall-cmd --permanent --add-port=500/udp
+        firewall-cmd --permanent --add-port=4500/udp
+        firewall-cmd --permanent --add-protocol 50
+        firewall-cmd --permanent --add-protocol 51
+        firewall-cmd --permanent --add-service="ipsec"
+        firewall-cmd --permanent --add-service=nfs
+        firewall-cmd --permanent --add-service=rpc-bind
+        firewall-cmd --permanent --add-service=mountd
         firewall-cmd --reload
     fi
     touch $WORKINGDIR/.firewall

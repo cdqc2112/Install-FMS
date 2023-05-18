@@ -262,7 +262,8 @@ else
                 dpkg -i *.deb
             else
                 rpm -iUvh *.rpm
-            cd $WORKINGDIR
+                cd $WORKINGDIR
+            fi
         else
             $FMS_INSTALLER install -y nfs-common
             $FMS_INSTALLER install -y nfs-utils

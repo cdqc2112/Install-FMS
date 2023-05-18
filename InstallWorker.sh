@@ -1,5 +1,4 @@
 #! /bin/bash
-# InstallWorker - 1.8
 
 if [ "$UID" != 0 ]; then
     echo "Run as root"
@@ -24,33 +23,28 @@ else
 fi
 
 echo "Script to install Docker and setup LVM on workers and replica server"
-# echo "It requires at least 60GB on /var for Docker and a volume for solution and backups on the replica server"
-# echo "Master node must be ready before running this script"
-# echo
 echo
-read -r -p 'Is this an offline installation? [y/N] ' response
-
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    echo
-    echo "Copy images.tgz file to $WORKINGDIR"
-    echo
-    touch $WORKINGDIR/.offline
-fi
-
+# Installation options
+if [ -f "$WORKINGDIR/.offline" ];then
+    echo "Offline installation"
+elif [ -f "$WORKINGDIR/.online" ];then 
+    echo "Online installation"
+else
+    read -r -p 'Is this an offline installation? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.offline
+        else
+            touch $WORKINGDIR/.online 
+        fi
 read -r -p 'Is this a replica node [y/N] ' response
-
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
          touch $WORKINGDIR/.replica
     fi
-
 # Install NFS client
-
-if test -f "$WORKINGDIR/.nfs"; then
-
+if [ -f "$WORKINGDIR/.nfs" ]; then
     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
 else
-
-    if test -f "$WORKINGDIR/.offline";then
+    if [  -f "$WORKINGDIR/.offline" ];then
         cd $WORKINGDIR/nfs
         if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
@@ -62,62 +56,57 @@ else
         $FMS_INSTALLER install -y nfs-common
         $FMS_INSTALLER install -y nfs-utils
     fi
-    if test -f "$WORKINGDIR/.replica"; then
+    if [ -f "$WORKINGDIR/.replica" ]; then
         DEP_DIR="/opt/fms/master"
         mkdir -p $DEP_DIR
     else
         DEP_DIR="/opt/fms/solution"
         mkdir -p $DEP_DIR
     fi
-    
     read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-
-    if test -f "$WORKINGDIR/.replica"; then
+    if [ -f "$WORKINGDIR/.replica" ]; then
         echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
     else
         echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
     fi
-
     mount -av
-
     echo "$(date): NFS client installed and /opt/fms/master mounted" >> $LOGFILE
     touch $WORKINGDIR/.nfs
-
 fi
-
 if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
-
     read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on /opt/fms/master"\n'
-    
     exit
-
 fi
-
 clear
-
 # Backup and replica volumes
-
-if test -f "$WORKINGDIR/.rep"; then
-
+if [ -f "$WORKINGDIR/.rep" ]; then
     read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
-
 else
-
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        
         /opt/fms/master/deployment/backup/./setup.sh
         echo "$(date): Backup and replica volume created" >> $LOGFILE
-        touch $WORKINGDIR/.rep   
-
+        touch $WORKINGDIR/.rep
     fi
 fi
-
-if test -f "$WORKINGDIR/.soft";then
+# Offline Installation
+if [ -f "$WORKINGDIR/.offline" ];then
+    while true; do
+        if [ ! -f "$WORKINGDIR/images.tgz" ];
+        then
+            echo
+            read -n 1 -r -s -p $'Required images.tgz file is missing. Copy the file in ${WORKINGDIR} and press enter to continue...\n'
+            echo
+            continue
+        fi
+    break
+done
+fi
+if [ -f "$WORKINGDIR/.soft" ]; then
     read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'
 else
     # Install tools
     # offline
-    if test -f "$WORKINGDIR/.offline";then
+    if [ -f "$WORKINGDIR/.offline ]";then
         cd $WORKINGDIR/packages
         if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
@@ -134,6 +123,8 @@ else
                 openssl
     fi
     # Firewall
+if [ -f "$WORKINGDIR/.firewall" ];then
+    echo "Firewall done"
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp
         ufw allow 7946
@@ -160,6 +151,9 @@ else
     fi
     # Uninstall previous Docker version
     # $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
+if [ -f "$WORKINGDIR/.docker" ];then
+    echo "Docker installed"
+else
     $FMS_INSTALLER remove docker \
             docker-client \
             docker-client-latest \
@@ -176,7 +170,7 @@ else
     echo "$(date): Previous Docker version removed" >> $LOGFILE
     # Install Docker Ubuntu
     # offline
-    if test -f "$WORKINGDIR/.offline";then
+    if [ -f "$WORKINGDIR/.offline" ];then
         if [ "$FMS_INSTALLER" = "apt" ]; then
             cd $WORKINGDIR/docker/
             dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
@@ -238,8 +232,6 @@ else
     systemctl start docker
     usermod -aG docker $USER
     docker version
-    read -n 1 -r -s -p $'Press enter to continue...\n'
-    clear
     # vm max count
     sysctl -w vm.max_map_count=262144
     echo 'vm.max_map_count=262144' | sudo tee --append /etc/sysctl.d/95-fms.conf > /dev/null
@@ -255,23 +247,18 @@ cat > /etc/docker/daemon.json <<EOF
 }
 EOF
     service docker restart
-    touch $WORKINGDIR/.soft
+    touch $WORKINGDIR/.docker
     echo "$(date): Docker installed" >> $LOGFILE
 fi
-
 # Docker swarm join
-
-if test -f "$WORKINGDIR/.swarm";then
+if [ -f "$WORKINGDIR/.swarm" ];then
     read -n 1 -r -s -p $'Docker swarm join already done. Press enter to continue...\n'
 else
-
     # Login to Dockerhub
     docker login
-
     echo "Joining swarm"
     echo 'Run this command on manager "docker swarm join-token worker"'
     read -p $'Paste the string from manager to join the swarm: ' JOIN
-
     $JOIN
     if test -f "$WORKINGDIR/.replica";then 
         echo "Set the label for replica"
@@ -280,7 +267,7 @@ else
     touch $WORKINGDIR/.swarm
     echo "$(date): Swarm joined" >> $LOGFILE
 fi
-if test -f "$WORKINGDIR/.offline";then
+if [ -f "$WORKINGDIR/.offline" ];then
     cd $WORKINGDIR/
     tar -xvf images.tgz
     cd $WORKINGDIR/images/
@@ -289,7 +276,7 @@ if test -f "$WORKINGDIR/.offline";then
     rm -rf images.tgz
 fi
 #Backup
-if test -f "$WORKINGDIR/.replica";then
+if [ -f "$WORKINGDIR/.replica" ];then
     printf '#!/bin/bash\ncd /opt/fms/master/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
     chmod +x /etc/cron.daily/fms_backup
 fi

@@ -167,6 +167,7 @@ if [ -f "$WORKINGDIR/.offline" ];then
         rpm -iUvh *.rpm
     cd $WORKINGDIR
     fi
+echo "$(date): Packages installed" >> $LOGFILE
 else
 # Online
     $FMS_INSTALLER install -y \
@@ -175,6 +176,7 @@ else
             rsync \
             openssl \
             lvm2
+echo "$(date): Packages installed" >> $LOGFILE
 fi
 # Firewall
 if [ -f "$WORKINGDIR/.firewall" ];then
@@ -204,6 +206,7 @@ if [ -f "$WORKINGDIR/.firewall" ];then
         firewall-cmd --reload
     fi
     touch $WORKINGDIR/.firewall
+    echo "$(date): Firewall done" >> $LOGFILE
 fi
 # LVM for single node
 if [ -f "$WORKINGDIR/.volume" ];then
@@ -240,6 +243,7 @@ else
         touch $WORKINGDIR/.volume
         echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
         read -n 1 -r -s -p $'LVM setup done. Press enter to continue...\n'
+        echo "$(date): LVM created" >> $LOGFILE
     else
         # Mount NFS
         Install NFS client
@@ -253,12 +257,116 @@ else
         mkdir -p /opt/fms/solution/cer
         touch $WORKINGDIR/.volume
         echo "$(date): NFS client installed" >> $LOGFILE
+        echo "$(date): NFS mounted" >> $LOGFILE
     fi
 fi
 # Install Docker
+# Uninstall previous Docker version
+# $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
+if [ -f "$WORKINGDIR/.docker" ];then
+    echo "Docker installed"
+else
+    $FMS_INSTALLER remove docker \
+              docker-client \
+              docker-client-latest \
+              docker-common \
+              docker-latest \
+              docker-latest-logrotate \
+              docker-logrotate \
+              docker-engine \
+              docker.io \
+              containerd \
+              podman \
+              buildah \
+              runc
+    echo "$(date): Previous Docker version removed" >> $LOGFILE
+    # Install Docker Ubuntu
+    # offline
+    if test -f "$WORKINGDIR/.offline";then
+        if [ "$FMS_INSTALLER" = "apt" ]; then
+            cd $WORKINGDIR/docker/
+            dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
+            ./docker-ce_20.10.24~3-0~ubuntu-jammy_amd64.deb \
+            ./docker-ce-cli_20.10.24~3-0~ubuntu-jammy_amd64.deb \
+            ./docker-buildx-plugin_0.10.4-1~ubuntu.22.04~jammy_amd64.deb \
+            ./docker-compose-plugin_2.17.2-1~ubuntu.22.04~jammy_amd64.deb
+            cd $WORKINGDIR
+        else
+            cd $WORKINGDIR/docker/
+            $FMS_INSTALLER install -y *.rpm
+            cd $WORKINGDIR
+        fi
+    else
+    # online
+        $FMS_INSTALLER -y update
+        $FMS_INSTALLER -y install \
+            ca-certificates \
+            curl \
+            gnupg
+        mkdir -m 0755 -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo \
+          "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+          "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        $FMS_INSTALLER -y update
+        # Show Docker versions
+        if [ "$FMS_INSTALLER" = "apt" ]; then
+            $FMS_INSTALLER-cache madison docker-ce | awk '{ print $3 }'
+            echo
+            echo 'Copy the version string above'
+            echo
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "5:20.10.24~3-0~ubuntu-jammy" VERSION_STRING
+            $FMS_INSTALLER -y install \
+            docker-ce=$VERSION_STRING \
+            docker-ce-cli=$VERSION_STRING \
+            containerd.io docker-buildx-plugin \
+            docker-compose-plugin
+        else
+            $FMS_INSTALLER install -y yum-utils
+            #RHEL
+            #$FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+            #CentOS
+            $FMS_INSTALLER-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            $FMS_INSTALLER list docker-ce --showduplicates | sort -r
+            echo
+            echo 'Copy the version string above (2nd column) starting at the first colon (:), up to the first hyphen'
+            echo
+            read -e -p 'Recommended version is 20.10.x. Paste it here: ' -i "20.10.24" VERSION_STRING
+            $FMS_INSTALLER -y install \
+            docker-ce-$VERSION_STRING \
+            docker-ce-cli-$VERSION_STRING \
+            containerd.io \
+            docker-compose-plugin
+        fi
+    fi
+    systemctl enable docker
+    systemctl start docker
+    usermod -aG docker $USER
+    docker version
+    read -n 1 -r -s -p $'Press enter to continue...\n'
+    clear
+    # vm max count
+    sysctl -w vm.max_map_count=262144
+    echo 'vm.max_map_count=262144' | sudo tee --append /etc/sysctl.d/95-fms.conf > /dev/null
+    sed -i 's/After=network-online.target\ docker.socket\ firewalld.service\ containerd.service/After=network-online.target\ docker.socket\ firewalld.service\ containerd.service\ local-fs.target\ remote-fs.target/g' /lib/systemd/system/docker.service
+    systemctl daemon-reload
+    cat > /etc/docker/daemon.json <<EOF
+    {
+        "log-driver":"json-file",
+        "log-opts":{
+            "max-size": "10M",
+            "max-file": "10"
+        }
+    }
+EOF
+    service docker restart
+    touch $WORKINGDIR/.docker
+    echo "$(date): Docker installed" >> $LOGFILE
+fi
 # Docker swarm init and node labels
-if test -f "$WORKINGDIR/.swarm";then
-    read -n 1 -r -s -p $'Docker swarm init and node labels already done. Press enter to continue...\n'
+if [  -f "$WORKINGDIR/.swarm" ];then
+    echo "Docker swarm init and node labels already done"
 else
     # Login to Dockerhub
     docker login
@@ -272,8 +380,8 @@ else
     echo "$(date): Node labels added and swarm started" >> $LOGFILE
 fi
 # Copy files to /opt/fms/solution
-if test -f "$WORKINGDIR/.files";then
-    read -n 1 -r -s -p $'Files already copied. Press enter to continue...\n'
+if [  -f "$WORKINGDIR/.files ]";then
+    echo "Files already copied"
 else
     dos2unix deployment/docker-compose.yml
     dos2unix deployment/docker-compose-replication.yml
@@ -297,4 +405,46 @@ else
     sed -i 's/SERVER_CERT_KEY_SECRET=/SERVER_CERT_KEY_SECRET=SERVER_CERT_KEY_SECRET/g' /opt/fms/solution/deployment/.env
     touch $WORKINGDIR/.files
 fi
+# Workers
+if [ -f "$WORKINGDIR/.worker ]";then
+    echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
+    echo
+    docker swarm join-token worker
+    echo
+    echo "When this is done, you can continue here and start the FMS"
+    docker node ls
+    echo
+    read -p 'Enter the node ID of the worker node: ' WNODEID
+    echo
+    docker node update --label-add role=primary $WNODEID
+fi
+# Replica
+if [ -f "$WORKINGDIR/.replica ]";then
+    echo
+    echo 'Replica node must have joined the swarm before proceeding'
+    echo
+    docker node ls
+    echo
+    read -p 'Enter the node ID of the replica node: ' RNODEID
+    echo
+    docker node update --label-add role=replica $RNODEID
+    docker node update --label-add role=primary $RNODEID
+    echo
+    sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
+    sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env
+else
+    sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
+    sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
+fi
+if [ -f "$WORKINGDIR/.replica ]";then
+    touch $WORKINGDIR/global.json
+    cat > $WORKINGDIR/global.json <<EOF
+    {
+    "isCentralizedMode": true,
+    "delayForSaveGraphMl": 500,
+    "isGisEnabled": true
+    }
+EOF
+else
+    rm -rf /opt/fms/solution/deployment/gis.addon
 exit

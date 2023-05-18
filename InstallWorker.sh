@@ -101,12 +101,12 @@ if [ -f "$WORKINGDIR/.offline" ];then
     break
 done
 fi
-if [ -f "$WORKINGDIR/.soft" ]; then
-    read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'
+# Install packages
+if [ -f "$WORKINGDIR/.packages" ];then
+    echo "Packages installed"
 else
-    # Install tools
-    # offline
-    if [ -f "$WORKINGDIR/.offline ]";then
+    # Offline
+    if [ -f "$WORKINGDIR/.offline" ];then
         cd $WORKINGDIR/packages
         if [ "$FMS_INSTALLER" = "apt" ]; then
             dpkg -i *.deb
@@ -114,15 +114,21 @@ else
             rpm -iUvh *.rpm
         cd $WORKINGDIR
         fi
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
     else
-    # online
+    # Online
         $FMS_INSTALLER install -y \
                 dos2unix \
                 bash-completion \
                 rsync \
-                openssl
+                openssl \
+                lvm2
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
     fi
-    # Firewall
+fi
+# Firewall
 if [ -f "$WORKINGDIR/.firewall" ];then
     echo "Firewall done"
 else

@@ -166,29 +166,35 @@ if [ -f "$WORKINGDIR/.offline" ];then
 done
 fi
 # Install packages
-# Offline
-if [ -f "$WORKINGDIR/.offline" ];then
-    cd $WORKINGDIR/packages
-    if [ "$FMS_INSTALLER" = "apt" ]; then
-        dpkg -i *.deb
-    else
-        rpm -iUvh *.rpm
-    cd $WORKINGDIR
-    fi
-echo "$(date): Packages installed" >> $LOGFILE
+if [ -f "$WORKINGDIR/.packages" ];then
+    echo "Packages installed"
 else
-# Online
-    $FMS_INSTALLER install -y \
-            dos2unix \
-            bash-completion \
-            rsync \
-            openssl \
-            lvm2
-echo "$(date): Packages installed" >> $LOGFILE
+    # Offline
+    if [ -f "$WORKINGDIR/.offline" ];then
+        cd $WORKINGDIR/packages
+        if [ "$FMS_INSTALLER" = "apt" ]; then
+            dpkg -i *.deb
+        else
+            rpm -iUvh *.rpm
+        cd $WORKINGDIR
+        fi
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
+    else
+    # Online
+        $FMS_INSTALLER install -y \
+                dos2unix \
+                bash-completion \
+                rsync \
+                openssl \
+                lvm2
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
+    fi
 fi
 # Firewall
 if [ -f "$WORKINGDIR/.firewall" ];then
-    echo "Firewall done"i
+    echo "Firewall done"
 else
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp

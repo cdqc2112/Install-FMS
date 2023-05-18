@@ -441,7 +441,7 @@ if [ -f "$WORKINGDIR/.worker" ];then
     echo
     docker swarm join-token worker
     echo
-    echo "When this is done, you can continue here and start the FMS"
+    read -n 1 -r -s -p $'When this is done, press enter to continue...\n'
     docker node ls
     echo
     read -p 'Enter the node ID of the worker node: ' WNODEID

@@ -40,6 +40,7 @@ if [ -f "$WORKINGDIR/.singlenode" ];then
     chmod +x /etc/cron.daily/fms_backup
 fi
 #Display login for admin user
+cd $WORKINGDIR
 DOMAIN=$(ls -tr|grep *.dom)
 DOMAIN="${DOMAIN::-4}"
 PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)

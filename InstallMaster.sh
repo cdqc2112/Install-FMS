@@ -281,6 +281,7 @@ else
             $FMS_INSTALLER install -y nfs-utils
         fi
         mkdir -p /opt/fms/solution
+        clear
         echo "A NFS share is required to hold the FMS application files"
         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
         echo $SHARE /opt/fms/solution nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0 | tee /etc/fstab -a
@@ -437,6 +438,7 @@ else
 fi
 # Workers
 if [ -f "$WORKINGDIR/.worker" ];then
+    clear
     echo "Run setup script on worker nodes and use this token below to join them to this swarm"
     echo
     docker swarm join-token worker

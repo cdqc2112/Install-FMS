@@ -36,6 +36,7 @@ else
         else
             touch $WORKINGDIR/.online 
         fi
+fi
 read -r -p 'Is this a replica node [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
          touch $WORKINGDIR/.replica

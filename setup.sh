@@ -83,13 +83,14 @@ done
 # Restore screen
 tput rmcup
 #Display login for admin user
-DOMAIN=$(ls -tr|grep *.dom)
-DOMAIN="${DOMAIN::-4}"
-docker service ls
-PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
-echo
-echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
-echo
+# if manager
+#     DOMAIN=$(ls -tr|grep *.dom)
+#     DOMAIN="${DOMAIN::-4}"
+#     docker service ls
+#     PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
+#     echo
+#     echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
+#     echo
 if [ ! -f "info.txt" ];then
     touch info.txt
     echo "" >> info.txt

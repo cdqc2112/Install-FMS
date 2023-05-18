@@ -127,7 +127,8 @@ if [ -f "$WORKINGDIR/.firewall" ];then
     echo "Firewall done"
     if [ "$FMS_INSTALLER" = "apt" ]; then
         ufw allow 2377/tcp
-        ufw allow 7946
+        ufw allow 7946/tcp
+        ufw allow 7946/udp
         ufw allow 4789/udp
         ufw allow 500/udp
         ufw allow 4500/udp

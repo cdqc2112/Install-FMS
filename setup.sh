@@ -15,7 +15,7 @@ while [[ $REPLY != 0 ]]; do
   cat <<- _EOF_
     
     
-    Script to install Docker and setup FMS on Ubuntu or CentOS
+    Script to install Docker and setup FMS 7.13.0.2 on Ubuntu or CentOS
 
     Docker engine data
 
@@ -39,6 +39,8 @@ while [[ $REPLY != 0 ]]; do
     The required capacity and bandwidth for the disk depends on the FMS usage, please refer to the sizing guide for actual values.
 
     The disk must not initially be partitionned, as the installation process includes a specific partitioning process using LVM.
+
+    To add more workers, run option 1 again.
 
     Please Select:
 

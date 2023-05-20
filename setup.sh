@@ -13,7 +13,9 @@ while [[ $REPLY != 0 ]]; do
   echo -n ${BG_BLUE}${FG_WHITE}
   clear
   cat <<- _EOF_
-    Script to install Docker and setup FMS on Ubuntu or CentOS
+    
+    
+    Script to install Docker and setup FMS 7.13.0.2 on Ubuntu or CentOS
 
     Docker engine data
 
@@ -38,15 +40,20 @@ while [[ $REPLY != 0 ]]; do
 
     The disk must not initially be partitionned, as the installation process includes a specific partitioning process using LVM.
 
+    To add more workers, run option 1 again.
+
     Please Select:
 
     1. Install FMS on Master node
     2. Setup Worker/Replica node
+    3. Start FMS
+    4. Test ports
+    5. Test NFS share
     0. Quit
 
 _EOF_
 
-read -p "Enter selection [0-2] > " selection
+read -p "Enter selection [0-5] > " selection
       
 # Clear area beneath menu
 tput cup 10 0
@@ -60,6 +67,12 @@ case $selection in
       ;;
   2)  ./InstallWorker.sh
       ;;
+  3)  ./start-fms.sh
+      ;;
+  4)  ./testPorts.sh
+      ;;
+  5)  ./nfsCheck.sh
+      ;;
   0)  break
       ;;
   *)  echo "Invalid entry."
@@ -72,17 +85,21 @@ done
 # Restore screen
 tput rmcup
 #Display login for admin user
-DOMAIN=$(ls -tr|grep *.dom)
-DOMAIN="${DOMAIN::-4}"
-docker service ls
-PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
-echo
-echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
-echo
-echo "" >> install.log 
-cat /etc/os-release >> install.log
-echo "" >> install.log
-docker info >> install.log
-echo "" >> install.log
-free -h >> install.log
+# if manager
+#     DOMAIN=$(ls -tr|grep *.dom)
+#     DOMAIN="${DOMAIN::-4}"
+#     docker service ls
+#     PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
+#     echo
+#     echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
+#     echo
+if [ ! -f "info.txt" ];then
+    touch info.txt
+    echo "" >> info.txt
+    cat /etc/os-release >> info.txt
+    echo "" >> info.txt
+    docker info >> info.txt
+    echo "" >> info.txt
+    free -h >> info.txt
+fi
 exit

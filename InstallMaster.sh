@@ -1,5 +1,4 @@
 #! /bin/bash
-# InstallMaster - 1.27
 
 if [ "$UID" != 0 ]; then
     echo "Run as root"
@@ -23,83 +22,220 @@ else
     FMS_INSTALLER=yum
 fi
 
-function installPackage() {
-    if [ "$FMS_INSTALLER" = "apt" ]; then
-        apt install -y "$@"
-    else
-        yum install -y "$@"
-    fi
-}
-
 echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
-# echo
-# echo
-# Solution and backup volume LVM
-# echo "Docker engine data"
-# echo
-# echo "Docker will require disk space on every nodes for the purpose of storing docker images, container logs and runtime temporary files."
-# echo
-# echo "It is advised to allocate a specific partition for the /var/lib/docker directory, with at least 60Gb."
-# echo "If no specific partition is used, this 60Gb will be consummed on the root partition, so the root partition"
-# echo "must be sized accordingly (increased by 60Gb from normal OS requirement)."
-# echo
-# echo "The usage intensity on this storage will not be related to the load applied to the server. A SSD class storage is recommanded."
-# echo
-# echo
-# echo "FMS data"
-# echo
-# echo "A dedicated disk volume is required for the FMS data, on the following two server nodes:"
-# echo
-# echo "     The only node in single-server architecture, when not using NFS"
-# echo "     Replica nodes in Replication or Cross-site redundancy architectures"
-# echo
-# echo "The disk must be visible at the OS level as a block device (ex: /dev/sdb)"
-# echo
-# echo "The required capacity and bandwidth for the disk depends on the FMS usage, please refer to the sizing guide for actual values."
-# echo
-# echo "The disk must not initially be partitionned, as the installation process includes a specific partitioning process using LVM."
-# Install tools
-# offline
 echo
+# Installation options
+if [ -f "$WORKINGDIR/.offline" ];then
+    echo "Offline installation"
+elif [ -f "$WORKINGDIR/.online" ];then 
+    echo "Online installation"
+else
+    read -r -p 'Is this an offline installation? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.offline
+        else
+            touch $WORKINGDIR/.online 
+        fi
+fi
+#NTP
+if [ -f "$WORKINGDIR/.ntp" ];then
+    echo "NTP"
+else
+    read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
+    touch $WORKINGDIR/.ntp
+fi
+# Single or multi node
+echo "Storage volume"
+echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
+echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
 echo
-read -r -p 'Is this an offline installation? [y/N] ' response
-
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    echo
-    read -n 1 -r -s -p $'Copy images.tgz file to $WORKINGDIR. Press enter to continue...\n'
-    echo
-    touch $WORKINGDIR/.offline
-fi
-
-if test -f "$WORKINGDIR/.offline";then
-    cd $WORKINGDIR/packages
-    if [ "$FMS_INSTALLER" = "apt" ]; then
-        dpkg -i *.deb
-    else
-        rpm -iUvh *.rpm
-    cd $WORKINGDIR
-    fi
+if [ -f "$WORKINGDIR/.singlenode" ];then
+    echo "Single node"
+elif [ -f "$WORKINGDIR/.multinode" ];then 
+    echo "Multi node"
 else
-# online
-    $FMS_INSTALLER install -y \
-            dos2unix \
-            bash-completion \
-            rsync \
-            openssl \
-            lvm2
-fi
-
-if test -f "$WORKINGDIR/.volume";then
-    read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
-else
-    echo
-    echo
-    echo "The storage can be a file system hosted on a local device, or network remote (NFS)."
-    echo "When using a storage on a local device, the backup functionality can be installed, if volumes are created over LVM."
-    echo 
     read -r -p 'Is this a single node with local volume storage? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.singlenode
+        else
+            touch $WORKINGDIR/.multinode 
+        fi
+fi
+# URL
+if [ -f "$WORKINGDIR/.url" ];then
+    DOMAIN=$(ls -tr|grep *.dom)
+    DOMAIN="${DOMAIN::-4}"
+    echo "URL $DOMAIN will be used"
+else
+    while true; do
+        echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
+        read DOMAIN
+        touch $WORKINGDIR/$DOMAIN.dom
+        if [ -z $DOMAIN ]; then
+            echo "Error: No FQDN provided"
+            echo "Usage: Provide a valid FQDN"
+            continue
+        fi
+    touch $WORKINGDIR/.url
+    break
+    done
+fi
+# Certificate
+if [ -f "$WORKINGDIR/.certs" ];then
+    read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
+else
+    read -r -p 'Do you have the certificate? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        touch $WORKINGDIR/.singlenode
+            echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
+            echo
+            echo
+            touch $WORKINGDIR/.certs
+    else
+        read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            echo "Creation of a private key and a certificate request (csr) to submit to Certificate Authority (CA) to generate the certificate"
+            read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
+            read -e -p 'Enter the state or province: ' -i "State" STATE
+            read -e -p 'Enter the locality: ' -i "City" CITY
+            export DOMAIN
+            export COUNTRY
+            export STATE
+            export CITY
+            ./csr.sh            
+            echo
+            echo "Copy this csr and submit to Certificate Authotity (ex.: Godaddy, Verisign, Let's Encrypt, ...)"
+            echo
+            cat ${DOMAIN}.csr
+            echo
+            echo "Wait until you get the certificate to continue"
+            echo
+            echo "Copy certificate ${DOMAIN}.crt when received from CA to folder $WORKINGDIR"
+            touch $WORKINGDIR/.certs
+        else
+            read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
+            if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+                clear
+                echo
+                echo "The rootCA.crt will be created in /opt/fms/solution/cer. It has to be installed in browser"
+                echo "or imported into Trusted Root Certification Authorities." 
+                echo "It should also be installed on the RTUs"
+                read -n 1 -r -s -p $'Press enter to continue...\n'
+                echo
+                read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
+                read -e -p 'Enter the state or province: ' -i "State" STATE
+                read -e -p 'Enter the locality: ' -i "City" CITY
+                export DOMAIN
+                export COUNTRY
+                export STATE
+                export CITY
+                ./selfSignedCert.sh
+                echo "$(date): Certificate ${DOMAIN}.crt created" >> $LOGFILE
+                touch $WORKINGDIR/.certs
+            fi
+        fi
+    fi
+fi
+# Worker
+if [ ! -f "$WORKINGDIR/.singlenode" ];then
+    clear
+    read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.worker
+    fi
+    read -r -p 'Will there be replica node to set-up? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.replica
+    fi
+fi
+# GIS
+if [ ! -f "$WORKINGDIR/.gis" ];then
+    echo "GIS done"
+else
+    read -r -p 'Are you using GIS addon? [y/N] ' response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+        touch $WORKINGDIR/.gis
+    fi
+fi
+# Offline Installation
+if [ -f "$WORKINGDIR/.offline" ];then
+    while true; do
+        if [ ! -f "$WORKINGDIR/images.tgz" ];
+        then
+            echo
+            read -n 1 -r -s -p $'Required images.tgz file is missing. Copy the file in ${WORKINGDIR} and press enter to continue...\n'
+            echo
+            continue
+        fi
+    break
+done
+fi
+# Install packages
+if [ -f "$WORKINGDIR/.packages" ];then
+    echo "Packages installed"
+else
+    # Offline
+    if [ -f "$WORKINGDIR/.offline" ];then
+        cd $WORKINGDIR/packages
+        if [ "$FMS_INSTALLER" = "apt" ]; then
+            dpkg -i *.deb
+        else
+            rpm -iUvh *.rpm
+        cd $WORKINGDIR
+        fi
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
+    else
+    # Online
+        $FMS_INSTALLER install -y \
+                dos2unix \
+                bash-completion \
+                rsync \
+                openssl \
+                lvm2
+    echo "$(date): Packages installed" >> $LOGFILE
+    touch $WORKINGDIR/.packages
+    fi
+fi
+# Firewall
+if [ -f "$WORKINGDIR/.firewall" ];then
+    echo "Firewall done"
+else
+    if [ "$FMS_INSTALLER" = "apt" ]; then
+        ufw allow 2377/tcp
+        ufw allow 7946/tcp
+        ufw allow 7946/udp        
+        ufw allow 4789/udp
+        ufw allow 443/tcp
+        ufw allow 61617/tcp
+        ufw allow 500/udp
+        ufw allow 4500/udp
+        ufw allow nfs
+    else
+        firewall-cmd --permanent --add-port=2377/tcp
+        firewall-cmd --permanent --add-port=7946/tcp
+        firewall-cmd --permanent --add-port=7946/udp
+        firewall-cmd --permanent --add-port=4789/udp
+        firewall-cmd --permanent --add-port=443/tcp
+        firewall-cmd --permanent --add-port=61617/tcp
+        firewall-cmd --permanent --add-port=500/udp
+        firewall-cmd --permanent --add-port=4500/udp
+        firewall-cmd --permanent --add-protocol 50
+        firewall-cmd --permanent --add-protocol 51
+        firewall-cmd --permanent --add-service="ipsec"
+        firewall-cmd --permanent --add-service=nfs
+        firewall-cmd --permanent --add-service=rpc-bind
+        firewall-cmd --permanent --add-service=mountd
+        firewall-cmd --reload
+    fi
+    touch $WORKINGDIR/.firewall
+    echo "$(date): Firewall done" >> $LOGFILE
+fi
+# LVM for single node
+if [ -f "$WORKINGDIR/.volume" ];then
+    echo "Volume done"
+else 
+    if [ -f "$WORKINGDIR/.singlenode" ];then
+        clear
         echo "This will create a single LVM to hold the FMS application files and backups"
         echo -e "A separated volume is required and will be erased"
         lsblk
@@ -129,52 +265,39 @@ else
         touch $WORKINGDIR/.volume
         echo "$(date): replica_live replica_vg and replica_backups replica_vg created" >> $LOGFILE
         read -n 1 -r -s -p $'LVM setup done. Press enter to continue...\n'
+        echo "$(date): LVM created" >> $LOGFILE
     else
-        Install NFS client
-        $FMS_INSTALLER install -y nfs-common
-        $FMS_INSTALLER install -y nfs-utils
+        # Install NFS client
+        if [  -f "$WORKINGDIR/.offline" ];then
+            cd $WORKINGDIR/nfs
+            if [ "$FMS_INSTALLER" = "apt" ]; then
+                dpkg -i *.deb
+            else
+                rpm -iUvh *.rpm
+                cd $WORKINGDIR
+            fi
+        else
+            $FMS_INSTALLER install -y nfs-common
+            $FMS_INSTALLER install -y nfs-utils
+        fi
         mkdir -p /opt/fms/solution
+        clear
         echo "A NFS share is required to hold the FMS application files"
         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
         echo $SHARE /opt/fms/solution nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0 | tee /etc/fstab -a
         mount -av
         mkdir -p /opt/fms/solution/cer
         touch $WORKINGDIR/.volume
-        touch $WORKINGDIR/.multinode
         echo "$(date): NFS client installed" >> $LOGFILE
+        echo "$(date): NFS mounted" >> $LOGFILE
     fi
 fi
-
-if test -f "$WORKINGDIR/.soft";then
-    read -n 1 -r -s -p $'Docker already installed. Press enter to continue...\n'
+# Install Docker
+# Uninstall previous Docker version
+# $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
+if [ -f "$WORKINGDIR/.docker" ];then
+    echo "Docker installed"
 else
-    # Firewall
-    if [ "$FMS_INSTALLER" = "apt" ]; then
-        ufw allow 2377/tcp
-        ufw allow 7946
-        ufw allow 4789/udp
-        ufw allow 443
-        ufw allow 61617
-        ufw allow 500/udp
-        ufw allow 4500/udp
-        ufw allow nfs
-    else
-        firewall-cmd --zone=public --permanent --add-port=2377/tcp
-        firewall-cmd --zone=public --permanent --add-port=7946/tcp
-        firewall-cmd --zone=public --permanent --add-port=7946/udp
-        firewall-cmd --zone=public --permanent --add-port=4789/udp
-        firewall-cmd --zone=public --permanent --add-port=443/tcp
-        firewall-cmd --zone=public --permanent --add-port=61617/tcp
-        firewall-cmd --zone=public --permanent --add-port=500/udp
-        firewall-cmd --zone=public --permanent --add-port=4500/udp
-        firewall-cmd --zone=public --permanent --add-service="ipsec"
-        firewall-cmd --zone=public --permanent --add-service=nfs
-        firewall-cmd --zone=public --permanent --add-service=rpc-bind
-        firewall-cmd --zone=public --permanent --add-service=mountd
-        firewall-cmd --reload
-    fi
-    # Uninstall previous Docker version
-    # $FMS_INSTALLER remove docker docker-engine docker.io containerd runc
     $FMS_INSTALLER remove docker \
               docker-client \
               docker-client-latest \
@@ -191,7 +314,7 @@ else
     echo "$(date): Previous Docker version removed" >> $LOGFILE
     # Install Docker Ubuntu
     # offline
-    if test -f "$WORKINGDIR/.offline";then
+    if [ -f "$WORKINGDIR/.offline" ];then
         if [ "$FMS_INSTALLER" = "apt" ]; then
             cd $WORKINGDIR/docker/
             dpkg -i ./containerd.io_1.6.20-1_amd64.deb \
@@ -253,8 +376,6 @@ else
     systemctl start docker
     usermod -aG docker $USER
     docker version
-    read -n 1 -r -s -p $'Press enter to continue...\n'
-    clear
     # vm max count
     sysctl -w vm.max_map_count=262144
     echo 'vm.max_map_count=262144' | sudo tee --append /etc/sysctl.d/95-fms.conf > /dev/null
@@ -270,95 +391,13 @@ else
     }
 EOF
     service docker restart
-    touch $WORKINGDIR/.soft
+    touch $WORKINGDIR/.docker
     echo "$(date): Docker installed" >> $LOGFILE
 fi
-
-# Domain and Certificates
-clear
-if test -f "$WORKINGDIR/.certs";then
-    read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
-    DOMAIN=$(ls -tr|grep *.dom)
-    DOMAIN="${DOMAIN::-4}"
-else
-    while true; do
-    echo 'Enter the URL to access the FMS (ex.: fms.domain.com): '
-    read DOMAIN
-    touch $WORKINGDIR/$DOMAIN.dom
-    if [ -z $DOMAIN ]; then
-        echo "Error: No FQDN provided"
-        echo "Usage: Provide a valid FQDN"
-        continue
-    fi
-    break
-    done
-
-    #read -p 'Enter the URL to access the FMS (ex.: fms.domain.com): ' DOMAIN
-    #if [ -z ${DOMAIN} ];then
-    #    echo "Error: No FQDN name provided"
-    #    echo "Usage: Provide a domain name as an argument"
-    #    exit 1
-    #fi
-    
-    read -r -p 'Do you have the certificate? [y/N] ' response
-    
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        echo "Copy certificate ${DOMAIN}.crt and private key ${DOMAIN}.key to folder $WORKINGDIR"
-        echo
-        echo
-        touch $WORKINGDIR/.certs
-    else
-        read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
-
-        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-            echo "Creation of a private key and a certificate request (csr) to submit to Certificate Authority (CA) to generate the certificate"
-            read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
-            read -e -p 'Enter the state or province: ' -i "State" STATE
-            read -e -p 'Enter the locality: ' -i "City" CITY
-            export DOMAIN
-            export COUNTRY
-            export STATE
-            export CITY
-            ./csr.sh            
-            echo
-            echo "Copy this csr and submit to Certificate Authotity (ex.: Godaddy, Verisign, Let's Encrypt, ...)"
-            echo
-            cat ${DOMAIN}.csr
-            echo
-            echo "Wait until you get the certificate to continue"
-            echo
-            echo "Copy certificate ${DOMAIN}.crt when received from CA to folder $WORKINGDIR"
-            touch $WORKINGDIR/.certs
-        else
-            read -r -p 'Do you want to generate a self-signed certificate? [y/N] ' response
-    
-            if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-                clear
-                echo
-                echo "The rootCA.crt will be created in /opt/fms/solution/cer. It has to be installed in browser"
-                echo "or imported into Trusted Root Certification Authorities." 
-                echo "It should also be installed on the RTUs"
-                read -n 1 -r -s -p $'Press enter to continue...\n'
-                echo
-                read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
-                read -e -p 'Enter the state or province: ' -i "State" STATE
-                read -e -p 'Enter the locality: ' -i "City" CITY
-                export DOMAIN
-                export COUNTRY
-                export STATE
-                export CITY
-                ./selfSignedCert.sh
-                echo "$(date): Certificate ${DOMAIN}.crt created" >> $LOGFILE
-                touch $WORKINGDIR/.certs
-            fi
-        fi
-    fi
-fi
 # Docker swarm init and node labels
-if test -f "$WORKINGDIR/.swarm";then
-    read -n 1 -r -s -p $'Docker swarm init and node labels already done. Press enter to continue...\n'
+if [ -f "$WORKINGDIR/.swarm" ];then
+    echo "Docker swarm init and node labels already done"
 else
-
     # Login to Dockerhub
     docker login
     echo "Starting swarm"
@@ -371,8 +410,8 @@ else
     echo "$(date): Node labels added and swarm started" >> $LOGFILE
 fi
 # Copy files to /opt/fms/solution
-if test -f "$WORKINGDIR/.files";then
-    read -n 1 -r -s -p $'Files already copied. Press enter to continue...\n'
+if [ -f "$WORKINGDIR/.files" ];then
+    echo "Files already copied"
 else
     dos2unix deployment/docker-compose.yml
     dos2unix deployment/docker-compose-replication.yml
@@ -388,7 +427,8 @@ else
     cp /opt/fms/solution/deployment/example.env /opt/fms/solution/deployment/.env
     sed -i 's/fms.<customer_domain>/'${DOMAIN}'/g' /opt/fms/solution/deployment/.env
     echo "$(date): DNS set in .env file" >> $LOGFILE
-    sed -i 's/SNMP_IMPLEMENTATION_VERSION=0/SNMP_IMPLEMENTATION_VERSION=1/g' /opt/fms/solution/deployment/.env 
+    sed -i 's/SNMP_IMPLEMENTATION_VERSION=0/SNMP_IMPLEMENTATION_VERSION=1/g' /opt/fms/solution/deployment/.env
+    sed -i 's/RTU_NTP_SERVER=pool.ntp.org/'RTU_NTP_SERVER=${NTP}'/g' /opt/fms/solution/deployment/.env
     # Create secrets
     docker secret create SERVER_CERT_SECRET /opt/fms/solution/cer/${DOMAIN}.crt
     docker secret create SERVER_CERT_KEY_SECRET /opt/fms/solution/cer/${DOMAIN}.key
@@ -397,46 +437,37 @@ else
     touch $WORKINGDIR/.files
 fi
 # Workers
-if test -f "$WORKINGDIR/.multinode";then
+if [ -f "$WORKINGDIR/.worker" ];then
+    clear
+    echo "Run setup script on worker nodes and use this token below to join them to this swarm"
     echo
-    read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
+    docker swarm join-token worker
     echo
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        echo "Upload and run InstallWorker script on worker nodes and use this token below to join them to this swarm"
-        echo
-        docker swarm join-token worker
-        echo
-        echo "When this is done, you can continue here and start the FMS"
-        docker node ls
-        echo
-        read -p 'Enter the node ID of the worker node: ' WNODEID
-        echo
-        docker node update --label-add role=primary $WNODEID
-    fi
-    # Replica
+    read -n 1 -r -s -p $'When this is done, press enter to continue...\n'
+    docker node ls
     echo
-    echo 'If Replica node is required, it must have joined the swarm before proceeding'
-    read -r -p 'Will there be replica node to set-up? [y/N] ' response
+    read -p 'Enter the node ID of the worker node: ' WNODEID
     echo
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        docker node ls
-        echo
-        read -p 'Enter the node ID of the replica node: ' RNODEID
-        echo
-        docker node update --label-add role=replica $RNODEID
-        docker node update --label-add role=primary $RNODEID
-        echo
-        sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
-        sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env
-    else
-        sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
-        sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
-    fi
+    docker node update --label-add role=primary $WNODEID
 fi
-echo
-read -r -p 'Are you using GIS addon? [y/N] ' response
-echo
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+# Replica
+if [ -f "$WORKINGDIR/.replica" ];then
+    echo
+    echo 'Replica node must have joined the swarm before proceeding'
+    echo
+    docker node ls
+    echo
+    read -p 'Enter the node ID of the replica node: ' RNODEID
+    echo
+    docker node update --label-add role=replica $RNODEID
+    echo
+    sed -i 's|MASTER_ROOT_PATH=/opt/fms/solution|MASTER_ROOT_PATH=/opt/fms/master|g' /opt/fms/solution/deployment/.env
+    sed -i 's|REPLICATION_ENABLED=false|REPLICATION_ENABLED=true|g' /opt/fms/solution/deployment/.env
+else
+    sed -i 's|MASTER_ROOT_PATH=/opt/fms/master|MASTER_ROOT_PATH=/opt/fms/solution|g' /opt/fms/solution/deployment/.env
+    sed -i 's|REPLICATION_ENABLED=true|REPLICATION_ENABLED=false|g' /opt/fms/solution/deployment/.env
+fi
+if [ -f "$WORKINGDIR/.gis" ];then
     touch $WORKINGDIR/global.json
     cat > $WORKINGDIR/global.json <<EOF
     {
@@ -448,47 +479,4 @@ EOF
 else
     rm -rf /opt/fms/solution/deployment/gis.addon
 fi
-# Starting FMS
-if test -f "$WORKINGDIR/.secrets";then
-    read -n 1 -r -s -p $'Secrets already done. Press enter to continue...\n'
-else
-    touch $WORKINGDIR/.secrets
-    cd /opt/fms/solution/deployment/
-    ./swarm.sh --init-iam-users --fill-secrets --no-deploy >> secrets
-    mv $WORKINGDIR/global.json /opt/fms/solution/config/topology_ui
-    chmod -R 755 /opt/fms/solution/config/
-    chown -R root /opt/fms/solution/config
-    chmod -R ugo+rX,go-w /opt/fms/solution/config
-fi
-read -r -p 'Are you ready to start the FMS? [y/N] ' response
-echo
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-    if test -f "$WORKINGDIR/.offline";then
-        cd $WORKINGDIR/
-        tar -xvf images.tgz
-        cd $WORKINGDIR/images/
-        for a in *.tar;do docker load -i $a;done
-        cd $WORKINGDIR/
-        rm -rf images.tgz
-    fi
-    cd /opt/fms/solution/deployment/
-    if test -f ".env_used";then
-        ./swarm.sh
-    else
-        ./swarm.sh --list-usefull-env >> .env_used
-        sed -i '/^[  ]/d' .env_used
-        sed -i '/^#/d' .env_used
-        cp .env_used .env
-        ./swarm.sh
-    fi
-fi
-#Backup
-if test -f "$WORKINGDIR/.singlenode";then
-    printf '#!/bin/bash\ncd /opt/fms/solution/deployment/backup && exec ./backup.sh > /dev/null 2>&1\n' > /etc/cron.daily/fms_backup
-    chmod +x /etc/cron.daily/fms_backup
-fi
-#Display login for admin user
-PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
-echo
-echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
 exit

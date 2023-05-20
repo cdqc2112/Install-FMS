@@ -82,7 +82,7 @@ else
 fi
 # Certificate
 if [ -f "$WORKINGDIR/.certs" ];then
-    read -n 1 -r -s -p $'Certificates already created. Press enter to continue...\n'
+    echo "Certificates created"
 else
     read -r -p 'Do you have the certificate? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
@@ -94,9 +94,12 @@ else
         read -r -p 'Do you want to generate a private key and a certificate request? [y/N] ' response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
             echo "Creation of a private key and a certificate request (csr) to submit to Certificate Authority (CA) to generate the certificate"
+            echo
             read -e -p 'Enter the country name (2 letter code): ' -i "US" COUNTRY
+            echo
             read -e -p 'Enter the state or province: ' -i "State" STATE
             read -e -p 'Enter the locality: ' -i "City" CITY
+            echo
             export DOMAIN
             export COUNTRY
             export STATE
@@ -151,7 +154,7 @@ fi
 if [ ! -f "$WORKINGDIR/.gis" ];then
     echo "GIS done"
 else
-    read -r -p 'Are you using GIS addon? [y/N] ' response
+    read -r -p 'Are you installing GIS addon? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.gis
     fi

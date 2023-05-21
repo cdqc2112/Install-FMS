@@ -75,16 +75,16 @@ else
     # echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
     # touch $WORKINGDIR/.nfs
 fi
-if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
-    read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on ${DEP_DIR}/deployment"\n'
-    exit
-fi
+# if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
+#     read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on ${DEP_DIR}/deployment"\n'
+#     exit
+# fi
 clear
 # Backup and replica volumes
-if [ -f "$WORKINGDIR/.rep" ]; then
-    read -n 1 -r -s -p $'Solution and backup volume LVM setup already done. Press enter to continue...\n'
-else
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+if [ -f "$WORKINGDIR/.replica" ]; then
+    if [ -f "$WORKINGDIR/.rep" ]; then
+        echo "Solution and backup volume LVM setup done"
+    else
         /opt/fms/master/deployment/backup/./setup.sh
         echo "$(date): Backup and replica volume created" >> $LOGFILE
         touch $WORKINGDIR/.rep

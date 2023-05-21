@@ -15,7 +15,7 @@ export WORKINGDIR
 
 touch $LOGFILE
 source /etc/os-release
-
+source=var.yml
 if [ "$ID_LIKE" = "debian" ]; then
     FMS_INSTALLER=apt
 else
@@ -41,7 +41,7 @@ fi
 if [ -f "$WORKINGDIR/.ntp" ];then
     echo "NTP"
 else
-    read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
+    read -e -p 'Enter the address of the NTP server: ' -i $NTP NTP
     touch $WORKINGDIR/.ntp
 fi
 # Single or multi node

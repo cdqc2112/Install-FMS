@@ -1,16 +1,25 @@
 #! /bin/bash
 
+source /etc/os-release
+
+if grep nfs4 /etc/fstab ; then
+    echo "Nfs already mounted"
+    exit 0
+fi
 if [  -f "$WORKINGDIR/.offline" ];then
     cd $WORKINGDIR/nfs
-    if [ "$FMS_INSTALLER" = "apt" ]; then
+    if [ "$ID_LIKE" = "debian" ]; then
         dpkg -i *.deb
     else
         rpm -iUvh *.rpm
     cd $WORKINGDIR
     fi
 else
-    $FMS_INSTALLER install -y nfs-common
-    $FMS_INSTALLER install -y nfs-utils
+    if [ "$ID_LIKE" = "debian" ]; then
+        apt install -y nfs-common
+    else
+        yum install -y nfs-utils
+    fi
 fi
 if [ -f "$WORKINGDIR/.multinode" ]; then
     DEP_DIR="/opt/fms/solution"

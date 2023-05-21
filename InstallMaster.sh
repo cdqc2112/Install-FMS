@@ -425,6 +425,7 @@ else
     dos2unix deployment/backup/*.sh
     chmod +x deployment/swarm.sh deployment/backup/*.sh deployment/includes/*.sh
     cp -r deployment/ /opt/fms/solution
+    mkdir /opt/fms/solution/cer
     cp *.crt *.key /opt/fms/solution/cer
     echo "$(date): Installation files copied to /opt/fms/solution" >> $LOGFILE
     # Adjust environment variables in .env file

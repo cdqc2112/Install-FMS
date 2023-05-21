@@ -14,7 +14,7 @@ else
 fi
 if [ -f "$WORKINGDIR/.multinode" ]; then
     DEP_DIR="/opt/fms/solution"
-    mkdir -p $DEP_DIR/cer
+    mkdir -p $DEP_DIR
 elif [ -f "$WORKINGDIR/.replica" ]; then
     DEP_DIR="/opt/fms/master"
     mkdir -p $DEP_DIR

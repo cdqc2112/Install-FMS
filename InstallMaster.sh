@@ -144,10 +144,10 @@ if [ ! -f "$WORKINGDIR/.singlenode" ];then
     read -r -p 'Will there be worker nodes to set-up, including replica? [y/N] ' response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
         touch $WORKINGDIR/.worker
-    fi
-    read -r -p 'Will there be replica node to set-up? [y/N] ' response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
-        touch $WORKINGDIR/.replica
+        read -r -p 'Will there be replica node to set-up? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]];then
+            touch $WORKINGDIR/.replica
+        fi
     fi
 fi
 # GIS

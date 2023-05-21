@@ -151,7 +151,7 @@ if [ ! -f "$WORKINGDIR/.singlenode" ];then
     fi
 fi
 # GIS
-if [ ! -f "$WORKINGDIR/.gis" ];then
+if [ -f "$WORKINGDIR/.gis" ];then
     echo "GIS done"
 else
     read -r -p 'Are you installing GIS addon? [y/N] ' response

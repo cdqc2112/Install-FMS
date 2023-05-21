@@ -43,6 +43,7 @@ if [ -f "$WORKINGDIR/.ntp" ];then
 else
     read -e -p 'Enter the address of the NTP server: ' -i $NTP NTP
     touch $WORKINGDIR/.ntp
+    sed -i 's/NTP=pool.ntp.org/'NTP=${NTP}'/g' $WORKINGDIR/var.yml
 fi
 # Single or multi node
 echo "Storage volume"

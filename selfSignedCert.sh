@@ -3,7 +3,7 @@
 # selSignedCert - 1.2
 
 # Create root CA & Private key
-
+set -euxo pipefail
 openssl req -x509 \
             -sha256 -days 3650 \
             -nodes \

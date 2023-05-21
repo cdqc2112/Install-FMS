@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euxo pipefail
 BG_BLUE="$(tput setab 4)"
 BG_BLACK="$(tput setab 0)"
 FG_GREEN="$(tput setaf 2)"

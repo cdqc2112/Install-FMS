@@ -1,5 +1,5 @@
 #! /bin/bash
-
+set -euxo pipefail
 if [ "$UID" != 0 ]; then
     echo "Run as root"
     exit 1

@@ -5,7 +5,7 @@
 # Create csr & Private key
 
 # Create csr conf
-
+set -euxo pipefail
 cat > ${DOMAIN}.conf <<EOF
 [ req ]
 default_bits = 2048

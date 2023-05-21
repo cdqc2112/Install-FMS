@@ -40,7 +40,7 @@ fi
 if [ -f "$WORKINGDIR/.ntp" ];then
     echo "NTP"
 else
-    read -e -p 'Enter the address of the NTP server: ' -i $NTP NTP
+    read -e -p 'Enter the address of the NTP server: ' -i "pool.ntp.org" NTP
     touch $WORKINGDIR/.ntp
 fi
 # Single or multi node

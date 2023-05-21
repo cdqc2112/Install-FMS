@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail 
+#set -euo pipefail 
 lsof -i -P -n | grep LISTEN
 echo ""
 read -e -p 'Enter the IP address of the server or RTU to test: ' IP

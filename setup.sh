@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+#set -euxo pipefail
 BG_BLUE="$(tput setab 4)"
 BG_BLACK="$(tput setab 0)"
 FG_GREEN="$(tput setaf 2)"
@@ -7,7 +7,7 @@ FG_WHITE="$(tput setaf 7)"
 
 # Save screen
 tput smcup
-
+REPLY=
 # Display menu until selection == 0
 while [[ $REPLY != 0 ]]; do
   echo -n ${BG_BLUE}${FG_WHITE}
@@ -84,15 +84,6 @@ done
 
 # Restore screen
 tput rmcup
-#Display login for admin user
-# if manager
-#     DOMAIN=$(ls -tr|grep *.dom)
-#     DOMAIN="${DOMAIN::-4}"
-#     docker service ls
-#     PASS=$(awk '/KEYCLOAK_FIBER_ADMIN_USER_INIT_SECRET/{print $3}' /opt/fms/solution/deployment/secrets)
-#     echo
-#     echo "You will be able to login to https://${DOMAIN} with username: admin and password: ${PASS} when all services are started"
-#     echo
 if [ ! -f "info.txt" ];then
     touch info.txt
     echo "" >> info.txt

@@ -66,9 +66,9 @@ else
     fi
     read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
     if [ -f "$WORKINGDIR/.replica" ]; then
-        echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        echo $SHARE     ${DEP_DIR}  nfs defaults 0 0 | tee /etc/fstab -a
     else
-        echo $SHARE     ${DEP_DIR}  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+        echo $SHARE     ${DEP_DIR}  nfs defaults | tee /etc/fstab -a
     fi
     mount -av
     echo "$(date): NFS client installed and /opt/fms/master mounted" >> $LOGFILE

@@ -287,7 +287,7 @@ else
         clear
         echo "A NFS share is required to hold the FMS application files"
         read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-        echo $SHARE /opt/fms/solution nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0 | tee /etc/fstab -a
+        echo $SHARE /opt/fms/solution nfs defaults 0 0 | tee /etc/fstab -a
         mount -av
         mkdir -p /opt/fms/solution/cer
         touch $WORKINGDIR/.volume

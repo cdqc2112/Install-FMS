@@ -21,7 +21,7 @@ if [ "$ID_LIKE" = "debian" ]; then
 else
     FMS_INSTALLER=yum
 fi
-
+export FMS_INSTALLER
 echo "Script to install Docker and setup FMS on Ubuntu or CentOS"
 echo
 # Installation options

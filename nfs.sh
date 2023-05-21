@@ -33,3 +33,4 @@ if [  -f "$WORKINGDIR/.offline" ];then
     mount -av
     echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
     touch $WORKINGDIR/.nfs
+fi

@@ -45,34 +45,35 @@ read -r -p 'Is this a replica node [y/N] ' response
 if [ -f "$WORKINGDIR/.nfs" ]; then
     echo "NFS done"
 else
-    if [  -f "$WORKINGDIR/.offline" ];then
-        cd $WORKINGDIR/nfs
-        if [ "$FMS_INSTALLER" = "apt" ]; then
-            dpkg -i *.deb
-        else
-            rpm -iUvh *.rpm
-        cd $WORKINGDIR
-        fi
-    else
-        $FMS_INSTALLER install -y nfs-common
-        $FMS_INSTALLER install -y nfs-utils
-    fi
-    if [ -f "$WORKINGDIR/.replica" ]; then
-        DEP_DIR="/opt/fms/master"
-        mkdir -p $DEP_DIR
-    else
-        DEP_DIR="/opt/fms/solution"
-        mkdir -p $DEP_DIR
-    fi
-    read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-    if [ -f "$WORKINGDIR/.replica" ]; then
-        echo $SHARE     ${DEP_DIR}  nfs defaults 0 0 | tee /etc/fstab -a
-    else
-        echo $SHARE     ${DEP_DIR}  nfs defaults | tee /etc/fstab -a
-    fi
-    mount -av
-    echo "$(date): NFS client installed and /opt/fms/master mounted" >> $LOGFILE
-    touch $WORKINGDIR/.nfs
+    ./nfs.sh
+    # if [  -f "$WORKINGDIR/.offline" ];then
+    #     cd $WORKINGDIR/nfs
+    #     if [ "$FMS_INSTALLER" = "apt" ]; then
+    #         dpkg -i *.deb
+    #     else
+    #         rpm -iUvh *.rpm
+    #     cd $WORKINGDIR
+    #     fi
+    # else
+    #     $FMS_INSTALLER install -y nfs-common
+    #     $FMS_INSTALLER install -y nfs-utils
+    # fi
+    # if [ -f "$WORKINGDIR/.replica" ]; then
+    #     DEP_DIR="/opt/fms/master"
+    #     mkdir -p $DEP_DIR
+    # else
+    #     DEP_DIR="/opt/fms/solution"
+    #     mkdir -p $DEP_DIR
+    # fi
+    # read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
+    # if [ -f "$WORKINGDIR/.replica" ]; then
+    #     echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
+    # else
+    #     echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
+    # fi
+    # mount -av
+    # echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
+    # touch $WORKINGDIR/.nfs
 fi
 if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
     read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on /opt/fms/master"\n'

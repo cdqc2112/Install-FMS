@@ -25,11 +25,8 @@ fi
 clear
 echo "A NFS share is required to hold the FMS application files"
 read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-if [ -f "$WORKINGDIR/.replica" ]; then
-    echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
-else
-    echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
-fi
+echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
 mount -av
 echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
+export DEP_DIR
 touch $WORKINGDIR/.nfs

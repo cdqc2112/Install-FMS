@@ -76,7 +76,7 @@ else
     # touch $WORKINGDIR/.nfs
 fi
 if [ ! -f "${DEP_DIR}/deployment/.env" ]; then
-    read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on /opt/fms/master"\n'
+    read -n 1 -r -s -p $'Cannot find .env file. Make sure NFS share is mounted and required installation files are present on ${DEP_DIR}/deployment"\n'
     exit
 fi
 clear

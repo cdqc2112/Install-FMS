@@ -11,7 +11,7 @@ Included addons:
   trending-supervision.addon,
   gis.addon
 
-Missing offline packages can downloaded from https://pkgs.org/
+Missing offline packages can be downloaded from https://pkgs.org/
 
 • Installation
 
@@ -108,6 +108,14 @@ Single node with local data and backup volume
 	mkdir -p /opt/fms/solution/deployment
 	mkdir -p /opt/fms/solution/cer
 	
+For some architecture, an NFS share is required. It must meet the following requirements:
+
+	- Low latency to the primary. It must be setup close to the FMS stack for good performance.
+	- The recommended option combination is:
+		- nosuid on the NFS server volume
+		- no_root_squash on the NFS server export
+		- nosuid on the NFS clients
+
 Single node with NFS share (no backups)
 
 	- Install NFS client
@@ -123,7 +131,7 @@ Single node with NFS share (no backups)
 
 	vim /etc/fstab
 	
-	<nfsServer:/share> /opt/fms/solution  nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+	<nfsServer:/share> /opt/fms/solution  nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0
 
 	- Mount NFS share
 
@@ -156,7 +164,7 @@ Multi node with replica
 
 	vim /etc/fstab
 	
-	<nfsServer:/share> /opt/fms/master nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0 | tee /etc/fstab -a
+	<nfsServer:/share> /opt/fms/master nfs4 rsize=65536,wsize=65536,hard,timeo=600,retrans=2 0 0
 
 	- Mount NFS share on replica
 

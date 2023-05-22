@@ -41,9 +41,7 @@ else
 fi
 showmount -e $SHARE_SRV
 read -p 'Enter the NFS share path displayed above: ' SHARE
-#printf '\n%s   %s   nfs4    nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=60,retrans=2 0 0\n' "$SHARE" "$DEP_DIR" >> /etc/fstab
 printf '\n%s:%s   %s   %s auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0\n' "$SHARE_SRV" "$SHARE" "$DEP_DIR" "$NFS" >> /etc/fstab
-#mount -av
 while  ! ( mount -a -t $NFS || true ; mountpoint "$DEP_DIR" ); do
     echo "$DEP_DIR not mounted"
     sleep 1

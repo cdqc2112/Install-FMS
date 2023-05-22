@@ -1,5 +1,5 @@
 #! /bin/bash
-set -euxo pipefail
+set -euo pipefail
 source /etc/os-release
 
 if grep nfs /etc/fstab ; then

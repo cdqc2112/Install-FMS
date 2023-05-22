@@ -2,8 +2,8 @@
 set -euxo pipefail
 source /etc/os-release
 
-if grep nfs4 /etc/fstab ; then
-    echo "Nfs already mounted"
+if grep nfs /etc/fstab ; then
+    echo "NFS already mounted"
     exit 0
 fi
 if [  -f "$WORKINGDIR/.offline" ];then
@@ -33,9 +33,22 @@ else
 fi
 clear
 echo "A NFS share is required to hold the FMS application files"
-read -p 'Enter the NFS share path (x.x.x.x:/share): ' SHARE
-echo $SHARE     ${DEP_DIR}  nfs4 auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0 | tee /etc/fstab -a
-mount -av
+echo
+read -p 'Enter the IP address or hostname of the NFS server: ' SHARE_SRV
+if [[ $(rpcinfo -t $SHARE_SRV nfs 4) ==  "program 100003 version 4 ready and waiting" ]];then
+    NFS=nfs4
+else
+    NFS=nfs
+fi
+echo
+showmount -e $SHARE_SRV
+echo
+read -p 'Enter the NFS share path displayed above: ' SHARE
+printf '\n%s:%s   %s   %s auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0\n' "$SHARE_SRV" "$SHARE" "$DEP_DIR" "$NFS" >> /etc/fstab
+while  ! ( mount -a -t $NFS || true ; mountpoint "$DEP_DIR" ); do
+    echo "$DEP_DIR not mounted"
+    sleep 1
+done
 echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
 export DEP_DIR
 touch $WORKINGDIR/.nfs

@@ -202,33 +202,45 @@ fi
 if [ -f "$WORKINGDIR/.firewall" ];then
     echo "Firewall done"
 else
-    if [ "$FMS_INSTALLER" = "apt" ]; then
-        ufw allow 2377/tcp
-        ufw allow 7946/tcp
-        ufw allow 7946/udp        
-        ufw allow 4789/udp
-        ufw allow 443/tcp
-        ufw allow 61617/tcp
-        ufw allow 500/udp
-        ufw allow 4500/udp
-        ufw allow nfs
-    else
-        firewall-cmd --permanent --add-port=2377/tcp
-        firewall-cmd --permanent --add-port=7946/tcp
-        firewall-cmd --permanent --add-port=7946/udp
-        firewall-cmd --permanent --add-port=4789/udp
-        firewall-cmd --permanent --add-port=443/tcp
-        firewall-cmd --permanent --add-port=61617/tcp
-        firewall-cmd --permanent --add-port=500/udp
-        firewall-cmd --permanent --add-port=4500/udp
-        firewall-cmd --permanent --add-protocol 50
-        firewall-cmd --permanent --add-protocol 51
-        firewall-cmd --permanent --add-service="ipsec"
-        firewall-cmd --permanent --add-service=nfs
-        firewall-cmd --permanent --add-service=rpc-bind
-        firewall-cmd --permanent --add-service=mountd
-        firewall-cmd --reload
-    fi
+    iptables -I INPUT -p tcp --dport 443 -j ACCEPT 
+    iptables -I INPUT -p tcp --dport 61617 -j ACCEPT
+    iptables -I INPUT -p udp --dport 4789 -j ACCEPT
+    iptables -I INPUT -p tcp --dport 2376 -j ACCEPT
+    iptables -I INPUT -p tcp --dport 2377 -j ACCEPT
+    iptables -I INPUT -p tcp --dport 7946 -j ACCEPT
+    iptables -I INPUT -p udp --dport 7946 -j ACCEPT
+    iptables -I INPUT -p udp --dport 500 -j ACCEPT
+    iptables -I INPUT -p udp --dport 4500 -j ACCEPT
+    iptables -I INPUT -p esp -j ACCEPT
+    service iptables save
+# else
+#     if [ "$FMS_INSTALLER" = "apt" ]; then
+#         ufw allow 2377/tcp
+#         ufw allow 7946/tcp
+#         ufw allow 7946/udp        
+#         ufw allow 4789/udp
+#         ufw allow 443/tcp
+#         ufw allow 61617/tcp
+#         ufw allow 500/udp
+#         ufw allow 4500/udp
+#         ufw allow nfs
+#     else
+#         firewall-cmd --permanent --add-port=2377/tcp
+#         firewall-cmd --permanent --add-port=7946/tcp
+#         firewall-cmd --permanent --add-port=7946/udp
+#         firewall-cmd --permanent --add-port=4789/udp
+#         firewall-cmd --permanent --add-port=443/tcp
+#         firewall-cmd --permanent --add-port=61617/tcp
+#         firewall-cmd --permanent --add-port=500/udp
+#         firewall-cmd --permanent --add-port=4500/udp
+#         firewall-cmd --permanent --add-protocol 50
+#         firewall-cmd --permanent --add-protocol 51
+#         firewall-cmd --permanent --add-service="ipsec"
+#         firewall-cmd --permanent --add-service=nfs
+#         firewall-cmd --permanent --add-service=rpc-bind
+#         firewall-cmd --permanent --add-service=mountd
+#         firewall-cmd --reload
+#     fi
     touch $WORKINGDIR/.firewall
     echo "$(date): Firewall done" >> $LOGFILE
 fi

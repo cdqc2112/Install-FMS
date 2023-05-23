@@ -402,7 +402,7 @@ if [ -f "$WORKINGDIR/.swarm" ];then
     echo "Docker swarm init and node labels already done"
 else
     # Login to Dockerhub
-    docker login
+    docker login -u exfofmsservers -p Exf0TrustMySErv3r
     echo "Starting swarm"
     docker swarm init
     # Set node labels

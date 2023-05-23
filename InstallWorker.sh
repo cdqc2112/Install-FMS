@@ -266,7 +266,7 @@ if [ -f "$WORKINGDIR/.swarm" ];then
     read -n 1 -r -s -p $'Docker swarm join already done. Press enter to continue...\n'
 else
     # Login to Dockerhub
-    docker login
+    docker login -u exfofmsservers -p Exf0TrustMySErv3r
     echo "Joining swarm"
     echo 'Run this command on manager "docker swarm join-token worker"'
     read -p $'Paste the string from manager to join the swarm: ' JOIN

@@ -47,13 +47,14 @@ while [[ $REPLY != 0 ]]; do
     1. Install FMS on Master node
     2. Setup Worker/Replica node
     3. Start FMS
-    4. Test ports
-    5. Test NFS share
+    4. Check services
+    5. Test ports
+    6. Test NFS share
     0. Quit
 
 _EOF_
 
-read -p "Enter selection [0-5] > " selection
+read -p "Enter selection [0-6] > " selection
       
 # Clear area beneath menu
 tput cup 10 0
@@ -69,9 +70,11 @@ case $selection in
       ;;
   3)  ./start-fms.sh
       ;;
-  4)  ./testPorts.sh
+  4)  watch docker service ls
       ;;
-  5)  ./nfsCheck.sh
+  5)  ./testPorts.sh
+      ;;
+  6)  ./nfsCheck.sh
       ;;
   0)  break
       ;;

@@ -2,7 +2,7 @@
 set -euo pipefail
 source /etc/os-release
 
-if grep nfs /etc/fstab ; then
+if grep /opt/fms/ /etc/fstab ; then
     echo "NFS already mounted"
     exit 0
 fi
@@ -35,7 +35,7 @@ clear
 echo "A NFS share is required to hold the FMS application files"
 echo
 read -p 'Enter the IP address or hostname of the NFS server: ' SHARE_SRV
-if [[ $(rpcinfo -t $SHARE_SRV nfs 4) ==  "program 100003 version 4 ready and waiting" ]];then
+if [[ $(rpcinfo -t $SHARE_SRV nfs) =~  "version 4 ready and waiting" ]];then
     NFS=nfs4
 else
     NFS=nfs

@@ -1,5 +1,5 @@
 #! /bin/bash
-set -euxo pipefail
+set -euo pipefail
 source /etc/os-release
 
 if grep nfs /etc/fstab ; then
@@ -44,7 +44,7 @@ echo
 showmount -e $SHARE_SRV
 echo
 read -p 'Enter the NFS share path displayed above: ' SHARE
-printf '\n%s:%s   %s   %s auto,nofail,noatime,nolock,intr,tcp,actimeo=1800  0 0\n' "$SHARE_SRV" "$SHARE" "$DEP_DIR" "$NFS" >> /etc/fstab
+printf '\n%s:%s %s    %s rsize=65536,wsize=65536,hard,timeo=600,retrans=2   0 0\n' "$SHARE_SRV" "$SHARE" "$DEP_DIR" "$NFS" >> /etc/fstab
 while  ! ( mount -a -t $NFS || true ; mountpoint "$DEP_DIR" ); do
     echo "$DEP_DIR not mounted"
     sleep 1

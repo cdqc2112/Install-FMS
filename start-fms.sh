@@ -1,6 +1,6 @@
 #! /bin/bash
 # Starting FMS
-set -euxo pipefail
+set -euo pipefail
 WORKINGDIR=${PWD}
 if [ -f "$WORKINGDIR/.secrets" ];then
     echo "Secrets already done."

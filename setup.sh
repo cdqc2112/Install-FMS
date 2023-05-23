@@ -70,7 +70,7 @@ case $selection in
       ;;
   3)  ./start-fms.sh
       ;;
-  4)  watch docker service ls
+  4)  docker service ls
       ;;
   5)  ./testPorts.sh
       ;;

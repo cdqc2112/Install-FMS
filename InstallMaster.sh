@@ -211,6 +211,10 @@ else
     iptables -I INPUT -p udp --dport 7946 -j ACCEPT
     iptables -I INPUT -p udp --dport 500 -j ACCEPT
     iptables -I INPUT -p udp --dport 4500 -j ACCEPT
+    iptables -I INPUT -p tcp --dport 50 -j ACCEPT
+    iptables -I INPUT -p udp --dport 50 -j ACCEPT
+    iptables -I INPUT -p tcp --dport 51 -j ACCEPT
+    iptables -I INPUT -p udp --dport 51 -j ACCEPT
     iptables -I INPUT -p esp -j ACCEPT
     service iptables save
 # else
@@ -436,7 +440,6 @@ else
     dos2unix deployment/backup/*.sh
     chmod +x deployment/swarm.sh deployment/backup/*.sh deployment/includes/*.sh
     cp -r deployment/ /opt/fms/solution
-    mkdir /opt/fms/solution/cer
     cp *.crt *.key /opt/fms/solution/cer
     echo "$(date): Installation files copied to /opt/fms/solution" >> $LOGFILE
     # Adjust environment variables in .env file

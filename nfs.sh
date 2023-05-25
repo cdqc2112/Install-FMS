@@ -50,5 +50,6 @@ while  ! ( mount -a -t $NFS || true ; mountpoint "$DEP_DIR" ); do
     sleep 1
 done
 echo "$(date): NFS client installed and ${DEP_DIR} mounted" >> $LOGFILE
+mkdir -p /opt/fms/solution/cer
 export DEP_DIR
 touch $WORKINGDIR/.nfs
